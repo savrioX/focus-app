@@ -310,17 +310,22 @@ let habits = [];
 
 async function loadData() {
   setLoading(true);
-  const [tRes, gRes, hRes] = await Promise.all([
-    sb.from('todos').select('*').order('created_at', { ascending: false }),
-    sb.from('goals').select('*, goal_subtasks(id, text, done, created_at)').order('created_at', { ascending: false }),
-    sb.from('habits').select('*, habit_logs(logged_date)').order('created_at', { ascending: false })
-  ]);
-  if (tRes.error || gRes.error || hRes.error) toast('Error loading data — check your Supabase config.');
-  todos  = tRes.data || [];
-  goals  = gRes.data || [];
-  habits = hRes.data || [];
-  setLoading(false);
-  renderAll();
+  try {
+    const [tRes, gRes, hRes] = await Promise.all([
+      sb.from('todos').select('*').order('created_at', { ascending: false }),
+      sb.from('goals').select('*, goal_subtasks(id, text, done, created_at)').order('created_at', { ascending: false }),
+      sb.from('habits').select('*, habit_logs(logged_date)').order('created_at', { ascending: false })
+    ]);
+    if (tRes.error || gRes.error || hRes.error) toast('Error loading data — check your Supabase config.');
+    todos  = tRes.data || [];
+    goals  = gRes.data || [];
+    habits = hRes.data || [];
+  } catch (e) {
+    toast('Could not connect — check your internet and try again.');
+  } finally {
+    setLoading(false);
+    renderAll();
+  }
 }
 
 function renderAll() { renderTodos(); renderGoals(); renderHabits(); }
