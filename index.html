@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Focus</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #f9f9f8; --surface: #fff; --border: #e8e8e6;
+      --text: #1a1a1a; --muted: #8a8a8a; --accent: #1a1a1a;
+      --faded: #c4c4c4; --red: #c0392b; --orange: #e07b39;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── Auth ────────────────────────────── */
+    #auth-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+    .auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 40px; width: 100%; max-width: 380px; }
+    .auth-logo { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 28px; }
+    .auth-card h2 { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
+    .auth-card > p { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+    .field label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+    .field input { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 14px; font-family: inherit; background: var(--bg); color: var(--text); outline: none; transition: border-color 0.15s; width: 100%; }
+    .field input:focus { border-color: var(--accent); }
+    .field input::placeholder { color: var(--faded); }
+    .btn-primary { width: 100%; background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 12px; font-size: 14px; font-weight: 500; font-family: inherit; cursor: pointer; margin-top: 8px; transition: opacity 0.15s; }
+    .btn-primary:hover { opacity: 0.75; }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+    .auth-err { font-size: 13px; color: var(--red); margin-top: 12px; text-align: center; min-height: 18px; }
+    .auth-switch { font-size: 13px; color: var(--muted); text-align: center; margin-top: 20px; }
+    .auth-switch button { background: none; border: none; color: var(--text); cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600; text-decoration: underline; margin-left: 4px; }
+
+    /* ── App shell ───────────────────────── */
+    #app { display: none; padding: 48px 24px; }
+    .app-header { display: flex; align-items: center; justify-content: space-between; max-width: 960px; margin: 0 auto 40px; }
+    .app-title { font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+    .user-row { display: flex; align-items: center; gap: 12px; }
+    .user-name { font-size: 13px; color: var(--muted); }
+    .btn-signout { font-size: 12px; background: none; border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; cursor: pointer; color: var(--muted); font-family: inherit; transition: color 0.15s; }
+    .btn-signout:hover { color: var(--text); }
+
+    /* ── Grid ────────────────────────────── */
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; max-width: 960px; margin: 0 auto; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+    .card-title { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .count { font-size: 11px; color: var(--muted); font-weight: 400; }
+    .card-desc { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 18px; }
+    .divider { height: 1px; background: var(--border); margin: 14px 0; }
+
+    /* ── Inputs ──────────────────────────── */
+    .input-row { display: flex; gap: 8px; margin-bottom: 16px; }
+    input[type="text"] { flex: 1; border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 14px; font-family: inherit; background: var(--bg); color: var(--text); outline: none; transition: border-color 0.15s; }
+    input[type="text"]:focus { border-color: var(--accent); }
+    input[type="text"]::placeholder { color: var(--faded); }
+    .btn-add { border: none; border-radius: 8px; padding: 0 16px; background: var(--accent); color: #fff; font-size: 22px; line-height: 1; cursor: pointer; font-family: inherit; transition: opacity 0.15s; flex-shrink: 0; display: flex; align-items: center; justify-content: center; height: 38px; }
+    .btn-add:hover { opacity: 0.75; }
+    .btn-add:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── Items ───────────────────────────── */
+    .items { display: flex; flex-direction: column; gap: 4px; }
+    .item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 4px; border-radius: 6px; transition: background 0.1s, opacity 0.25s, transform 0.25s; }
+    .item:hover { background: var(--bg); }
+    .item.removing { opacity: 0; transform: translateX(10px); pointer-events: none; }
+    .check { width: 16px; height: 16px; border: 1.5px solid var(--border); border-radius: 4px; cursor: pointer; flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; transition: background 0.15s, border-color 0.15s; }
+    .check.on { background: var(--accent); border-color: var(--accent); }
+    .check.on::after { content: ''; width: 9px; height: 5px; border-left: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(-45deg) translateY(-1px); display: block; }
+    .item-body { flex: 1; min-width: 0; }
+    .item-label { font-size: 14px; line-height: 1.4; }
+    .item-label.done { color: var(--faded); text-decoration: line-through; }
+    .item-del { opacity: 0; background: none; border: none; cursor: pointer; color: var(--muted); font-size: 16px; line-height: 1; padding: 2px 5px; border-radius: 4px; flex-shrink: 0; margin-top: 2px; transition: opacity 0.1s, color 0.1s; }
+    .item:hover .item-del { opacity: 1; }
+    .item-del:hover { color: var(--red); }
+
+    /* ── Habit streak ────────────────────── */
+    .streak { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .streak.hot { color: var(--orange); }
+
+    /* ── Goal subtasks ───────────────────── */
+    .prog-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+    .prog-track { flex: 1; height: 3px; background: var(--border); border-radius: 99px; overflow: hidden; }
+    .prog-fill { height: 100%; background: var(--accent); border-radius: 99px; transition: width 0.3s; }
+    .prog-pct { font-size: 11px; color: var(--muted); min-width: 28px; text-align: right; }
+    .subtasks { margin-top: 8px; display: flex; flex-direction: column; gap: 2px; }
+    .subtask { display: flex; align-items: center; gap: 8px; padding: 4px 0 4px 2px; border-radius: 4px; }
+    .subtask:hover { background: var(--bg); }
+    .scheck { width: 13px; height: 13px; border: 1.5px solid var(--border); border-radius: 3px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background 0.15s, border-color 0.15s; }
+    .scheck.on { background: var(--accent); border-color: var(--accent); }
+    .scheck.on::after { content: ''; width: 7px; height: 4px; border-left: 1.5px solid #fff; border-bottom: 1.5px solid #fff; transform: rotate(-45deg) translateY(-1px); display: block; }
+    .slabel { flex: 1; font-size: 13px; }
+    .slabel.done { color: var(--faded); text-decoration: line-through; }
+    .sdel { opacity: 0; background: none; border: none; cursor: pointer; color: var(--muted); font-size: 14px; padding: 1px 4px; border-radius: 3px; transition: opacity 0.1s, color 0.1s; }
+    .subtask:hover .sdel { opacity: 1; }
+    .sdel:hover { color: var(--red); }
+    .sub-input-row { display: flex; gap: 6px; margin-top: 8px; }
+    .sub-input-row input { font-size: 13px; padding: 6px 10px; }
+    .btn-add-sub { border: none; border-radius: 6px; padding: 0 12px; background: var(--border); color: var(--text); font-size: 20px; cursor: pointer; font-family: inherit; transition: background 0.15s; flex-shrink: 0; height: 32px; display: flex; align-items: center; justify-content: center; }
+    .btn-add-sub:hover { background: #d0d0ce; }
+
+    .empty { font-size: 13px; color: var(--faded); padding: 8px 4px; }
+
+    /* ── Loading ─────────────────────────── */
+    #load-overlay { display: none; position: fixed; inset: 0; background: var(--bg); align-items: center; justify-content: center; z-index: 100; }
+    #load-overlay.show { display: flex; }
+    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.6s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Toast ───────────────────────────── */
+    #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(8px); background: var(--accent); color: #fff; font-size: 13px; padding: 10px 20px; border-radius: 8px; opacity: 0; transition: opacity 0.2s, transform 0.2s; pointer-events: none; white-space: nowrap; z-index: 200; }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<div id="load-overlay"><div class="spinner"></div></div>
+<div id="toast"></div>
+
+<!-- ── Auth ──────────────────────────────────────────────── -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">Focus</div>
+    <h2 id="auth-title">Create your account</h2>
+    <p id="auth-sub">Pick a username and password to get started.</p>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="auth-user" placeholder="e.g. alex" autocomplete="username" spellcheck="false">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="auth-pass" placeholder="at least 6 characters" autocomplete="current-password">
+    </div>
+    <button class="btn-primary" id="auth-btn">Create account</button>
+    <div class="auth-err" id="auth-err"></div>
+    <div class="auth-switch">
+      <span id="auth-switch-text">Already have an account?</span>
+      <button id="auth-toggle">Sign in</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── App ───────────────────────────────────────────────── -->
+<div id="app">
+  <div class="app-header">
+    <span class="app-title">Focus</span>
+    <div class="user-row">
+      <span class="user-name" id="user-label"></span>
+      <button class="btn-signout" id="btn-signout">Sign out</button>
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <!-- Todos -->
+    <div class="card">
+      <div class="card-title">To-do <span class="count" id="todo-count"></span></div>
+      <p class="card-desc">Your daily execution list. Every morning, write what must get done — then do it. One checked box beats ten plans.</p>
+      <div class="divider"></div>
+      <div class="input-row">
+        <input type="text" id="todo-input" placeholder="Add a task…">
+        <button class="btn-add" id="todo-add">+</button>
+      </div>
+      <div class="items" id="todo-list"></div>
+    </div>
+
+    <!-- Goals -->
+    <div class="card">
+      <div class="card-title">Goals <span class="count" id="goals-count"></span></div>
+      <p class="card-desc">Set the outcomes you're building toward this semester. Break each one into small steps — progress compounds faster than you think.</p>
+      <div class="divider"></div>
+      <div class="input-row">
+        <input type="text" id="goals-input" placeholder="Add a goal…">
+        <button class="btn-add" id="goals-add">+</button>
+      </div>
+      <div class="items" id="goals-list"></div>
+    </div>
+
+    <!-- Habits -->
+    <div class="card">
+      <div class="card-title">Habits <span class="count" id="habits-count"></span></div>
+      <p class="card-desc">The systems you build now will run your future company. Check in daily — streaks show you who you're becoming, not just what you did.</p>
+      <div class="divider"></div>
+      <div class="input-row">
+        <input type="text" id="habits-input" placeholder="Add a habit…">
+        <button class="btn-add" id="habits-add">+</button>
+      </div>
+      <div class="items" id="habits-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ── CONFIG — replace with your values from Supabase dashboard ──
+const SUPABASE_URL  = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON = 'YOUR_SUPABASE_ANON_KEY';
+// ──────────────────────────────────────────────────────────────
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ── Utilities ─────────────────────────────────────────────
+const today = () => new Date().toISOString().slice(0, 10);
+const esc   = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+// Username → fake email (Supabase auth requires an email format)
+const toEmail = u => `${u}@focus.local`;
+const fromEmail = e => e.split('@')[0];
+
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+function setLoading(on) {
+  document.getElementById('load-overlay').classList.toggle('show', on);
+}
+
+// ── Auth ──────────────────────────────────────────────────
+let currentUser = null;
+let isRegister  = true;
+
+function syncAuthUI() {
+  document.getElementById('auth-title').textContent      = isRegister ? 'Create your account'        : 'Welcome back';
+  document.getElementById('auth-sub').textContent         = isRegister ? 'Pick a username and password to get started.' : 'Sign in to continue.';
+  document.getElementById('auth-btn').textContent         = isRegister ? 'Create account'              : 'Sign in';
+  document.getElementById('auth-switch-text').textContent = isRegister ? 'Already have an account?'   : "Don't have an account?";
+  document.getElementById('auth-toggle').textContent      = isRegister ? 'Sign in'                    : 'Create one';
+}
+
+document.getElementById('auth-toggle').addEventListener('click', () => {
+  isRegister = !isRegister;
+  syncAuthUI();
+  document.getElementById('auth-err').textContent = '';
+});
+
+document.getElementById('auth-btn').addEventListener('click', doAuth);
+document.getElementById('auth-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doAuth(); });
+document.getElementById('auth-user').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('auth-pass').focus(); });
+
+async function doAuth() {
+  const username = document.getElementById('auth-user').value.trim().toLowerCase();
+  const password = document.getElementById('auth-pass').value;
+  const errEl    = document.getElementById('auth-err');
+  const btn      = document.getElementById('auth-btn');
+  errEl.textContent = '';
+
+  if (!username)              { errEl.textContent = 'Please enter a username.'; return; }
+  if (username.length < 2)    { errEl.textContent = 'Username must be at least 2 characters.'; return; }
+  if (!/^[a-z0-9_]+$/.test(username)) { errEl.textContent = 'Only letters, numbers, and underscores allowed.'; return; }
+  if (!password || password.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; return; }
+
+  btn.disabled    = true;
+  btn.textContent = '…';
+
+  if (isRegister) {
+    const { error } = await sb.auth.signUp({
+      email: toEmail(username),
+      password,
+      options: { data: { username } }
+    });
+    if (error) {
+      errEl.textContent = error.message.includes('already') ? 'Username already taken — try another.' : error.message;
+      btn.disabled = false;
+      syncAuthUI();
+    }
+    // success → onAuthStateChange fires and shows the app
+  } else {
+    const { error } = await sb.auth.signInWithPassword({
+      email: toEmail(username),
+      password
+    });
+    if (error) {
+      errEl.textContent = 'Incorrect username or password.';
+      btn.disabled = false;
+      syncAuthUI();
+    }
+  }
+}
+
+document.getElementById('btn-signout').addEventListener('click', () => sb.auth.signOut());
+
+// Reactive auth — single source of truth
+sb.auth.onAuthStateChange(async (event, session) => {
+  document.getElementById('auth-btn').disabled = false;
+  syncAuthUI();
+
+  if (session?.user) {
+    currentUser = session.user;
+    const username = currentUser.user_metadata?.username || fromEmail(currentUser.email);
+    document.getElementById('user-label').textContent = username;
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app').style.display         = 'block';
+    await loadData();
+  } else {
+    currentUser = null;
+    todos = []; goals = []; habits = [];
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('app').style.display         = 'none';
+  }
+});
+
+// ── State ─────────────────────────────────────────────────
+let todos  = [];
+let goals  = [];
+let habits = [];
+
+async function loadData() {
+  setLoading(true);
+  const [tRes, gRes, hRes] = await Promise.all([
+    sb.from('todos').select('*').order('created_at', { ascending: false }),
+    sb.from('goals').select('*, goal_subtasks(id, text, done, created_at)').order('created_at', { ascending: false }),
+    sb.from('habits').select('*, habit_logs(logged_date)').order('created_at', { ascending: false })
+  ]);
+  if (tRes.error || gRes.error || hRes.error) toast('Error loading data — check your Supabase config.');
+  todos  = tRes.data || [];
+  goals  = gRes.data || [];
+  habits = hRes.data || [];
+  setLoading(false);
+  renderAll();
+}
+
+function renderAll() { renderTodos(); renderGoals(); renderHabits(); }
+
+// ── TODOS — vanish on check ───────────────────────────────
+function renderTodos() {
+  const list = document.getElementById('todo-list');
+  document.getElementById('todo-count').textContent = todos.length ? `${todos.length} left` : '';
+  if (!todos.length) { list.innerHTML = '<div class="empty">Nothing yet — add your first task.</div>'; return; }
+  list.innerHTML = todos.map(t => `
+    <div class="item" data-id="${t.id}">
+      <div class="check" data-action="check-todo" data-id="${t.id}"></div>
+      <div class="item-body"><div class="item-label">${esc(t.text)}</div></div>
+      <button class="item-del" data-action="del-todo" data-id="${t.id}">×</button>
+    </div>
+  `).join('');
+}
+
+async function addTodo() {
+  const inp = document.getElementById('todo-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  const btn = document.getElementById('todo-add');
+  btn.disabled = true;
+  const { data, error } = await sb.from('todos').insert({ text, user_id: currentUser.id }).select().single();
+  btn.disabled = false;
+  if (error) { toast('Could not add task.'); return; }
+  todos.unshift(data);
+  inp.value = '';
+  renderTodos();
+}
+
+// ── GOALS — subtasks + progress ───────────────────────────
+function goalPct(g) {
+  const subs = g.goal_subtasks || [];
+  if (!subs.length) return 0;
+  return Math.round(subs.filter(s => s.done).length / subs.length * 100);
+}
+
+function renderGoals() {
+  const list = document.getElementById('goals-list');
+  const done = goals.filter(g => goalPct(g) === 100 && (g.goal_subtasks || []).length > 0).length;
+  document.getElementById('goals-count').textContent = goals.length ? `${done}/${goals.length} done` : '';
+  if (!goals.length) { list.innerHTML = '<div class="empty">No goals yet — add one above.</div>'; return; }
+
+  list.innerHTML = goals.map(g => {
+    const pct  = goalPct(g);
+    const subs = [...(g.goal_subtasks || [])].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    const subsHtml = subs.map(s => `
+      <div class="subtask">
+        <div class="scheck ${s.done ? 'on' : ''}" data-action="check-sub" data-sid="${s.id}" data-gid="${g.id}" data-done="${s.done}"></div>
+        <span class="slabel ${s.done ? 'done' : ''}">${esc(s.text)}</span>
+        <button class="sdel" data-action="del-sub" data-sid="${s.id}" data-gid="${g.id}">×</button>
+      </div>
+    `).join('');
+
+    return `
+      <div class="item" style="flex-wrap:wrap; align-items:flex-start;">
+        <div class="check ${pct === 100 && subs.length ? 'on' : ''}" style="pointer-events:none; margin-top:3px;"></div>
+        <div class="item-body">
+          <div class="item-label ${pct === 100 && subs.length ? 'done' : ''}">${esc(g.text)}</div>
+          ${subs.length ? `<div class="prog-row"><div class="prog-track"><div class="prog-fill" style="width:${pct}%"></div></div><span class="prog-pct">${pct}%</span></div>` : ''}
+          <div class="subtasks">${subsHtml}</div>
+          <div class="sub-input-row">
+            <input type="text" class="sub-inp" data-gid="${g.id}" placeholder="Add a step…">
+            <button class="btn-add-sub" data-action="add-sub" data-gid="${g.id}">+</button>
+          </div>
+        </div>
+        <button class="item-del" data-action="del-goal" data-id="${g.id}">×</button>
+      </div>
+    `;
+  }).join('');
+}
+
+async function addGoal() {
+  const inp = document.getElementById('goals-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  const btn = document.getElementById('goals-add');
+  btn.disabled = true;
+  const { data, error } = await sb.from('goals').insert({ text, user_id: currentUser.id }).select().single();
+  btn.disabled = false;
+  if (error) { toast('Could not add goal.'); return; }
+  goals.unshift({ ...data, goal_subtasks: [] });
+  inp.value = '';
+  renderGoals();
+}
+
+// ── HABITS — stay forever, reset each day ─────────────────
+function prevDay(d) {
+  const dt = new Date(d + 'T00:00:00');
+  dt.setDate(dt.getDate() - 1);
+  return dt.toISOString().slice(0, 10);
+}
+
+function calcStreak(h) {
+  const set = new Set((h.habit_logs || []).map(l => l.logged_date));
+  let count = 0, day = today();
+  if (!set.has(day)) day = prevDay(day);
+  while (set.has(day)) { count++; day = prevDay(day); }
+  return count;
+}
+
+function renderHabits() {
+  const list = document.getElementById('habits-list');
+  const doneToday = habits.filter(h => (h.habit_logs || []).some(l => l.logged_date === today())).length;
+  document.getElementById('habits-count').textContent = habits.length ? `${doneToday}/${habits.length} today` : '';
+  if (!habits.length) { list.innerHTML = '<div class="empty">No habits yet — add one above.</div>'; return; }
+
+  list.innerHTML = habits.map(h => {
+    const checked = (h.habit_logs || []).some(l => l.logged_date === today());
+    const s = calcStreak(h);
+    return `
+      <div class="item">
+        <div class="check ${checked ? 'on' : ''}" data-action="check-habit" data-id="${h.id}" data-checked="${checked}"></div>
+        <div class="item-body">
+          <div class="item-label ${checked ? 'done' : ''}">${esc(h.text)}</div>
+          ${s > 0 ? `<div class="streak ${s >= 3 ? 'hot' : ''}">🔥 ${s} day streak</div>` : ''}
+        </div>
+        <button class="item-del" data-action="del-habit" data-id="${h.id}">×</button>
+      </div>
+    `;
+  }).join('');
+}
+
+async function addHabit() {
+  const inp = document.getElementById('habits-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  const btn = document.getElementById('habits-add');
+  btn.disabled = true;
+  const { data, error } = await sb.from('habits').insert({ text, user_id: currentUser.id }).select().single();
+  btn.disabled = false;
+  if (error) { toast('Could not add habit.'); return; }
+  habits.unshift({ ...data, habit_logs: [] });
+  inp.value = '';
+  renderHabits();
+}
+
+// ── Event delegation ──────────────────────────────────────
+document.addEventListener('click', async e => {
+  const el = e.target.closest('[data-action]');
+  if (!el || !currentUser) return;
+
+  switch (el.dataset.action) {
+
+    case 'check-todo': {
+      const id = el.dataset.id;
+      const item = el.closest('.item');
+      item.classList.add('removing');
+      setTimeout(async () => {
+        const { error } = await sb.from('todos').delete().eq('id', id);
+        if (error) { toast('Could not remove task.'); item.classList.remove('removing'); return; }
+        todos = todos.filter(t => t.id !== id);
+        renderTodos();
+      }, 260);
+      break;
+    }
+
+    case 'del-todo': {
+      const { error } = await sb.from('todos').delete().eq('id', el.dataset.id);
+      if (error) { toast('Error.'); return; }
+      todos = todos.filter(t => t.id !== el.dataset.id);
+      renderTodos();
+      break;
+    }
+
+    case 'del-goal': {
+      const { error } = await sb.from('goals').delete().eq('id', el.dataset.id);
+      if (error) { toast('Error.'); return; }
+      goals = goals.filter(g => g.id !== el.dataset.id);
+      renderGoals();
+      break;
+    }
+
+    case 'check-sub': {
+      const done = el.dataset.done === 'true';
+      const { error } = await sb.from('goal_subtasks').update({ done: !done }).eq('id', el.dataset.sid);
+      if (error) { toast('Error.'); return; }
+      const g = goals.find(x => x.id === el.dataset.gid);
+      const s = g && g.goal_subtasks.find(x => x.id === el.dataset.sid);
+      if (s) { s.done = !done; renderGoals(); }
+      break;
+    }
+
+    case 'del-sub': {
+      const { error } = await sb.from('goal_subtasks').delete().eq('id', el.dataset.sid);
+      if (error) { toast('Error.'); return; }
+      const g = goals.find(x => x.id === el.dataset.gid);
+      if (g) { g.goal_subtasks = g.goal_subtasks.filter(s => s.id !== el.dataset.sid); renderGoals(); }
+      break;
+    }
+
+    case 'add-sub': {
+      const gid  = el.dataset.gid;
+      const inp  = document.querySelector(`.sub-inp[data-gid="${gid}"]`);
+      const text = inp && inp.value.trim();
+      if (!text) return;
+      const { data, error } = await sb.from('goal_subtasks').insert({ goal_id: gid, text, done: false }).select().single();
+      if (error) { toast('Error.'); return; }
+      const g = goals.find(x => x.id === gid);
+      if (g) { g.goal_subtasks.push(data); renderGoals(); }
+      break;
+    }
+
+    case 'check-habit': {
+      const id      = el.dataset.id;
+      const checked = el.dataset.checked === 'true';
+      const h       = habits.find(x => x.id === id);
+      if (!h) return;
+      if (checked) {
+        const { error } = await sb.from('habit_logs').delete().eq('habit_id', id).eq('logged_date', today());
+        if (error) { toast('Error.'); return; }
+        h.habit_logs = h.habit_logs.filter(l => l.logged_date !== today());
+      } else {
+        const { data, error } = await sb.from('habit_logs').insert({ habit_id: id, user_id: currentUser.id, logged_date: today() }).select().single();
+        if (error) { toast('Error.'); return; }
+        h.habit_logs.push(data);
+      }
+      renderHabits();
+      break;
+    }
+
+    case 'del-habit': {
+      const { error } = await sb.from('habits').delete().eq('id', el.dataset.id);
+      if (error) { toast('Error.'); return; }
+      habits = habits.filter(h => h.id !== el.dataset.id);
+      renderHabits();
+      break;
+    }
+  }
+});
+
+// Enter on subtask inputs
+document.addEventListener('keydown', async e => {
+  if (e.key !== 'Enter' || !e.target.classList.contains('sub-inp')) return;
+  const gid  = e.target.dataset.gid;
+  const text = e.target.value.trim();
+  if (!text) return;
+  const { data, error } = await sb.from('goal_subtasks').insert({ goal_id: gid, text, done: false }).select().single();
+  if (error) { toast('Error.'); return; }
+  const g = goals.find(x => x.id === gid);
+  if (g) { g.goal_subtasks.push(data); renderGoals(); }
+});
+
+// Main inputs
+document.getElementById('todo-add').addEventListener('click',    addTodo);
+document.getElementById('goals-add').addEventListener('click',   addGoal);
+document.getElementById('habits-add').addEventListener('click',  addHabit);
+document.getElementById('todo-input').addEventListener('keydown',   e => { if (e.key === 'Enter') addTodo(); });
+document.getElementById('goals-input').addEventListener('keydown',  e => { if (e.key === 'Enter') addGoal(); });
+document.getElementById('habits-input').addEventListener('keydown', e => { if (e.key === 'Enter') addHabit(); });
+</script>
+</body>
+</html>
