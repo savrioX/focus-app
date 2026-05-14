@@ -112,7 +112,13 @@
 </head>
 <body>
 
-<div id="load-overlay"><div class="spinner"></div></div>
+<div id="load-overlay">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:14px;">
+    <div class="spinner"></div>
+    <span id="load-msg" style="font-size:13px;color:var(--muted);">Loading…</span>
+    <button id="load-retry" onclick="location.reload()" style="display:none;font-size:13px;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 18px;cursor:pointer;">Retry</button>
+  </div>
+</div>
 <div id="toast"></div>
 
 <!-- ── Auth ──────────────────────────────────────────────── -->
@@ -310,21 +316,33 @@ let habits = [];
 
 async function loadData() {
   setLoading(true);
+  document.getElementById('load-msg').textContent   = 'Loading…';
+  document.getElementById('load-retry').style.display = 'none';
+
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('timeout')), 10000)
+  );
+
   try {
-    const [tRes, gRes, hRes] = await Promise.all([
-      sb.from('todos').select('*').order('created_at', { ascending: false }),
-      sb.from('goals').select('*, goal_subtasks(id, text, done, created_at)').order('created_at', { ascending: false }),
-      sb.from('habits').select('*, habit_logs(logged_date)').order('created_at', { ascending: false })
+    const [tRes, gRes, hRes] = await Promise.race([
+      Promise.all([
+        sb.from('todos').select('*').order('created_at', { ascending: false }),
+        sb.from('goals').select('*, goal_subtasks(id, text, done, created_at)').order('created_at', { ascending: false }),
+        sb.from('habits').select('*, habit_logs(logged_date)').order('created_at', { ascending: false })
+      ]),
+      timeout
     ]);
     if (tRes.error || gRes.error || hRes.error) toast('Error loading data — check your Supabase config.');
     todos  = tRes.data || [];
     goals  = gRes.data || [];
     habits = hRes.data || [];
-  } catch (e) {
-    toast('Could not connect — check your internet and try again.');
-  } finally {
     setLoading(false);
     renderAll();
+  } catch (e) {
+    document.getElementById('load-msg').textContent    = e.message === 'timeout'
+      ? 'Database is starting up — this takes ~20s on first load.'
+      : 'Could not connect. Check your internet.';
+    document.getElementById('load-retry').style.display = 'block';
   }
 }
 
