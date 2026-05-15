@@ -39,6 +39,9 @@
     .app-title { font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
     .header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .user-name { font-size: 13px; color: var(--muted); }
+    #sync-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; display: inline-block; margin-left: 4px; vertical-align: middle; transition: background 0.3s; }
+    #sync-dot.syncing { background: var(--orange); }
+    #sync-dot.error { background: var(--red); }
     .btn-icon { font-size: 12px; background: none; border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; cursor: pointer; color: var(--muted); font-family: inherit; transition: color 0.15s; white-space: nowrap; }
     .btn-icon:hover { color: var(--text); }
 
@@ -235,7 +238,7 @@
       <span class="app-title">Compound</span>
     </div>
     <div class="header-right">
-      <span class="user-name" id="user-label"></span>
+      <span class="user-name" id="user-label"></span><span id="sync-dot" title="Synced"></span>
       <button class="btn-icon" id="btn-settings" id="settings-btn-header">⚙️ Settings</button>
       <button class="btn-icon" id="btn-signout">Sign out</button>
     </div>
@@ -335,6 +338,13 @@ const esc      = s  => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g
 const toEmail  = u  => `${u}@focus.local`;
 const fromEmail = e => e.split('@')[0];
 
+function setSyncing(on, err) {
+  const dot = document.getElementById('sync-dot');
+  if (!dot) return;
+  dot.className = err ? 'error' : (on ? 'syncing' : '');
+  dot.title = err ? 'Sync failed — changes saved locally' : (on ? 'Saving…' : 'Synced');
+}
+
 let toastTimer;
 function toast(msg) {
   const el = document.getElementById('toast');
@@ -390,7 +400,20 @@ async function doAuth() {
   }
 }
 
-document.getElementById('btn-signout').addEventListener('click', () => sb.auth.signOut());
+document.getElementById('btn-signout').addEventListener('click', async () => {
+  // Clear local data immediately so sign out feels instant
+  try {
+    localStorage.removeItem(CACHE_KEY);
+    localStorage.removeItem('compound_apikey');
+    localStorage.removeItem('compound_done');
+    // Clear Supabase session keys
+    Object.keys(localStorage).forEach(k => { if (k.startsWith('sb-')) localStorage.removeItem(k); });
+  } catch(e) {}
+  // Tell Supabase in background (don't wait — it might be slow)
+  sb.auth.signOut().catch(() => {});
+  // Reload immediately — guaranteed to show login screen
+  location.reload();
+});
 
 sb.auth.onAuthStateChange(async (event, session) => {
   document.getElementById('auth-btn').disabled = false;
@@ -501,16 +524,16 @@ async function addTodo() {
   if (!text) return;
   const tempId = 'tmp_' + Date.now();
   todos.unshift({ id: tempId, text, user_id: currentUser.id, created_at: new Date().toISOString() });
-  inp.value = ''; saveCache(); renderTodos();
+  inp.value = ''; saveCache(); renderTodos(); setSyncing(true);
   try {
     const { data, error } = await sb.from('todos').insert({ text, user_id: currentUser.id }).select().single();
     if (error) throw error;
     const i = todos.findIndex(t => t.id === tempId);
     if (i !== -1) todos[i] = data;
-    saveCache(); renderTodos();
+    saveCache(); renderTodos(); setSyncing(false);
   } catch(e) {
     todos = todos.filter(t => t.id !== tempId);
-    inp.value = text; saveCache(); renderTodos();
+    inp.value = text; saveCache(); renderTodos(); setSyncing(false, true);
     toast('Could not save — check your connection.');
   }
 }
@@ -560,16 +583,16 @@ async function addGoal() {
   if (!text) return;
   const tempId = 'tmp_' + Date.now();
   goals.unshift({ id: tempId, text, user_id: currentUser.id, created_at: new Date().toISOString(), goal_subtasks: [] });
-  inp.value = ''; saveCache(); renderGoals();
+  inp.value = ''; saveCache(); renderGoals(); setSyncing(true);
   try {
     const { data, error } = await sb.from('goals').insert({ text, user_id: currentUser.id }).select().single();
     if (error) throw error;
     const i = goals.findIndex(g => g.id === tempId);
     if (i !== -1) goals[i] = { ...data, goal_subtasks: [] };
-    saveCache(); renderGoals();
+    saveCache(); renderGoals(); setSyncing(false);
   } catch(e) {
     goals = goals.filter(g => g.id !== tempId);
-    inp.value = text; saveCache(); renderGoals();
+    inp.value = text; saveCache(); renderGoals(); setSyncing(false, true);
     toast('Could not save — check your connection.');
   }
 }
@@ -611,16 +634,16 @@ async function addHabit() {
   if (!text) return;
   const tempId = 'tmp_' + Date.now();
   habits.unshift({ id: tempId, text, user_id: currentUser.id, created_at: new Date().toISOString(), habit_logs: [] });
-  inp.value = ''; saveCache(); renderHabits();
+  inp.value = ''; saveCache(); renderHabits(); setSyncing(true);
   try {
     const { data, error } = await sb.from('habits').insert({ text, user_id: currentUser.id }).select().single();
     if (error) throw error;
     const i = habits.findIndex(h => h.id === tempId);
     if (i !== -1) habits[i] = { ...data, habit_logs: [] };
-    saveCache(); renderHabits();
+    saveCache(); renderHabits(); setSyncing(false);
   } catch(e) {
     habits = habits.filter(h => h.id !== tempId);
-    inp.value = text; saveCache(); renderHabits();
+    inp.value = text; saveCache(); renderHabits(); setSyncing(false, true);
     toast('Could not save — check your connection.');
   }
 }
