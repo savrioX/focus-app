@@ -429,7 +429,13 @@ async function loadData() {
       ]),
       timeout
     ]);
-    if (tRes.error || gRes.error || hRes.error) { if (!hasCached) toast('Error loading data.'); return; }
+    if (tRes.error || gRes.error || hRes.error) {
+      if (!hasCached) {
+        setLoading(false);
+        toast('Error loading data — please refresh.');
+      }
+      return;
+    }
     todos  = tRes.data || [];
     goals  = gRes.data || [];
     habits = hRes.data || [];
