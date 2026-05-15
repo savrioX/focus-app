@@ -473,14 +473,20 @@ async function addTodo() {
   const inp = document.getElementById('todo-input');
   const text = inp.value.trim();
   if (!text) return;
-  const btn = document.getElementById('todo-add');
-  btn.disabled = true;
+  const tempId = 'tmp_' + Date.now();
+  todos.unshift({ id: tempId, text, user_id: currentUser.id, created_at: new Date().toISOString() });
+  inp.value = ''; saveCache(); renderTodos();
   try {
     const { data, error } = await sb.from('todos').insert({ text, user_id: currentUser.id }).select().single();
-    if (error) { toast('Could not add task: ' + error.message); return; }
-    todos.unshift(data); inp.value = ''; saveCache(); renderTodos();
-  } catch(e) { toast('Could not add task.'); }
-  finally { btn.disabled = false; }
+    if (error) throw error;
+    const i = todos.findIndex(t => t.id === tempId);
+    if (i !== -1) todos[i] = data;
+    saveCache(); renderTodos();
+  } catch(e) {
+    todos = todos.filter(t => t.id !== tempId);
+    inp.value = text; saveCache(); renderTodos();
+    toast('Could not save — check your connection.');
+  }
 }
 
 // ── GOALS ─────────────────────────────────────────────────
@@ -526,14 +532,20 @@ async function addGoal() {
   const inp = document.getElementById('goals-input');
   const text = inp.value.trim();
   if (!text) return;
-  const btn = document.getElementById('goals-add');
-  btn.disabled = true;
+  const tempId = 'tmp_' + Date.now();
+  goals.unshift({ id: tempId, text, user_id: currentUser.id, created_at: new Date().toISOString(), goal_subtasks: [] });
+  inp.value = ''; saveCache(); renderGoals();
   try {
     const { data, error } = await sb.from('goals').insert({ text, user_id: currentUser.id }).select().single();
-    if (error) { toast('Could not add goal: ' + error.message); return; }
-    goals.unshift({ ...data, goal_subtasks: [] }); inp.value = ''; saveCache(); renderGoals();
-  } catch(e) { toast('Could not add goal.'); }
-  finally { btn.disabled = false; }
+    if (error) throw error;
+    const i = goals.findIndex(g => g.id === tempId);
+    if (i !== -1) goals[i] = { ...data, goal_subtasks: [] };
+    saveCache(); renderGoals();
+  } catch(e) {
+    goals = goals.filter(g => g.id !== tempId);
+    inp.value = text; saveCache(); renderGoals();
+    toast('Could not save — check your connection.');
+  }
 }
 
 // ── HABITS ────────────────────────────────────────────────
@@ -571,14 +583,20 @@ async function addHabit() {
   const inp = document.getElementById('habits-input');
   const text = inp.value.trim();
   if (!text) return;
-  const btn = document.getElementById('habits-add');
-  btn.disabled = true;
+  const tempId = 'tmp_' + Date.now();
+  habits.unshift({ id: tempId, text, user_id: currentUser.id, created_at: new Date().toISOString(), habit_logs: [] });
+  inp.value = ''; saveCache(); renderHabits();
   try {
     const { data, error } = await sb.from('habits').insert({ text, user_id: currentUser.id }).select().single();
-    if (error) { toast('Could not add habit: ' + error.message); return; }
-    habits.unshift({ ...data, habit_logs: [] }); inp.value = ''; saveCache(); renderHabits();
-  } catch(e) { toast('Could not add habit.'); }
-  finally { btn.disabled = false; }
+    if (error) throw error;
+    const i = habits.findIndex(h => h.id === tempId);
+    if (i !== -1) habits[i] = { ...data, habit_logs: [] };
+    saveCache(); renderHabits();
+  } catch(e) {
+    habits = habits.filter(h => h.id !== tempId);
+    inp.value = text; saveCache(); renderHabits();
+    toast('Could not save — check your connection.');
+  }
 }
 
 // ── Event delegation ──────────────────────────────────────
@@ -589,49 +607,84 @@ document.addEventListener('click', async e => {
 
     case 'check-todo': {
       const id = el.dataset.id, item = el.closest('.item');
+      const backup = todos.find(t => t.id === id);
       item.classList.add('removing');
+      todos = todos.filter(t => t.id !== id); saveCache();
       setTimeout(async () => {
-        const { error } = await sb.from('todos').delete().eq('id', id);
-        if (error) { toast('Error.'); item.classList.remove('removing'); return; }
-        todos = todos.filter(t => t.id !== id); saveCache(); renderTodos();
+        try {
+          const { error } = await sb.from('todos').delete().eq('id', id);
+          if (error) throw error;
+          renderTodos();
+        } catch(e) {
+          if (backup) todos.push(backup);
+          saveCache(); renderTodos(); toast('Could not remove task.');
+        }
       }, 260); break;
     }
     case 'del-todo': {
-      const { error } = await sb.from('todos').delete().eq('id', el.dataset.id);
-      if (error) { toast('Error.'); return; }
-      todos = todos.filter(t => t.id !== el.dataset.id); saveCache(); renderTodos(); break;
+      const id = el.dataset.id, backup = todos.find(t => t.id === id);
+      todos = todos.filter(t => t.id !== id); saveCache(); renderTodos();
+      try {
+        const { error } = await sb.from('todos').delete().eq('id', id);
+        if (error) throw error;
+      } catch(e) { if (backup) todos.push(backup); saveCache(); renderTodos(); toast('Could not delete.'); }
+      break;
     }
     case 'del-goal': {
-      const id = el.dataset.id;
-      el.style.opacity = '0.3';
-      const { error } = await sb.from('goals').delete().eq('id', id);
-      if (error) { el.style.opacity = ''; toast('Could not delete: ' + error.message); return; }
-      goals = goals.filter(g => g.id !== id); saveCache(); renderGoals(); break;
+      const id = el.dataset.id, backup = goals.find(g => g.id === id), backupIdx = goals.findIndex(g => g.id === id);
+      goals = goals.filter(g => g.id !== id); saveCache(); renderGoals();
+      try {
+        const { error } = await sb.from('goals').delete().eq('id', id);
+        if (error) throw error;
+      } catch(e) { if (backup) goals.splice(backupIdx, 0, backup); saveCache(); renderGoals(); toast('Could not delete.'); }
+      break;
     }
     case 'check-sub': {
       const done = el.dataset.done === 'true';
-      const { error } = await sb.from('goal_subtasks').update({ done: !done }).eq('id', el.dataset.sid);
-      if (error) { toast('Error.'); return; }
       const g = goals.find(x => x.id === el.dataset.gid);
       const s = g && g.goal_subtasks.find(x => x.id === el.dataset.sid);
-      if (s) { s.done = !done; saveCache(); renderGoals(); } break;
+      if (!s) return;
+      s.done = !done; saveCache(); renderGoals();
+      try {
+        const { error } = await sb.from('goal_subtasks').update({ done: !done }).eq('id', el.dataset.sid);
+        if (error) throw error;
+      } catch(e) { s.done = done; saveCache(); renderGoals(); toast('Could not update.'); }
+      break;
     }
     case 'del-sub': {
-      const { error } = await sb.from('goal_subtasks').delete().eq('id', el.dataset.sid);
-      if (error) { toast('Error.'); return; }
       const g = goals.find(x => x.id === el.dataset.gid);
-      if (g) { g.goal_subtasks = g.goal_subtasks.filter(s => s.id !== el.dataset.sid); saveCache(); renderGoals(); } break;
+      const sid = el.dataset.sid;
+      const backupSub = g && g.goal_subtasks.find(s => s.id === sid);
+      const backupIdx = g && g.goal_subtasks.findIndex(s => s.id === sid);
+      if (g) { g.goal_subtasks = g.goal_subtasks.filter(s => s.id !== sid); saveCache(); renderGoals(); }
+      try {
+        const { error } = await sb.from('goal_subtasks').delete().eq('id', sid);
+        if (error) throw error;
+      } catch(e) { if (g && backupSub) g.goal_subtasks.splice(backupIdx, 0, backupSub); saveCache(); renderGoals(); toast('Could not delete.'); }
+      break;
     }
     case 'add-sub': {
       const gid = el.dataset.gid, inp = document.querySelector(`.sub-inp[data-gid="${gid}"]`);
       const text = inp && inp.value.trim();
       if (!text) return;
-      el.disabled = true; el.textContent = '…';
-      const { data, error } = await sb.from('goal_subtasks').insert({ goal_id: gid, text, done: false }).select().single();
-      el.disabled = false; el.textContent = '+';
-      if (error) { toast('Could not add step: ' + error.message); return; }
       const g = goals.find(x => x.id === gid);
-      if (g) { g.goal_subtasks.push(data); saveCache(); renderGoals(); } break;
+      if (!g) return;
+      const tempId = 'tmp_' + Date.now();
+      g.goal_subtasks.push({ id: tempId, goal_id: gid, text, done: false, created_at: new Date().toISOString() });
+      if (inp) inp.value = '';
+      saveCache(); renderGoals();
+      try {
+        const { data, error } = await sb.from('goal_subtasks').insert({ goal_id: gid, text, done: false }).select().single();
+        if (error) throw error;
+        const i = g.goal_subtasks.findIndex(s => s.id === tempId);
+        if (i !== -1) g.goal_subtasks[i] = data;
+        saveCache();
+      } catch(e) {
+        g.goal_subtasks = g.goal_subtasks.filter(s => s.id !== tempId);
+        if (inp) inp.value = text;
+        saveCache(); renderGoals(); toast('Could not save step.');
+      }
+      break;
     }
     case 'ai-steps':
       suggestSteps(el.dataset.gid); break;
@@ -641,20 +694,34 @@ document.addEventListener('click', async e => {
       const h = habits.find(x => x.id === id);
       if (!h) return;
       if (checked) {
-        const { error } = await sb.from('habit_logs').delete().eq('habit_id', id).eq('logged_date', today());
-        if (error) { toast('Error.'); return; }
         h.habit_logs = h.habit_logs.filter(l => l.logged_date !== today());
+        saveCache(); renderHabits();
+        try {
+          const { error } = await sb.from('habit_logs').delete().eq('habit_id', id).eq('logged_date', today());
+          if (error) throw error;
+        } catch(e) { h.habit_logs.push({ logged_date: today() }); saveCache(); renderHabits(); toast('Could not update.'); }
       } else {
-        const { data, error } = await sb.from('habit_logs').insert({ habit_id: id, user_id: currentUser.id, logged_date: today() }).select().single();
-        if (error) { toast('Error.'); return; }
-        h.habit_logs.push(data);
+        const tempLog = { logged_date: today() };
+        h.habit_logs.push(tempLog);
+        saveCache(); renderHabits();
+        try {
+          const { data, error } = await sb.from('habit_logs').insert({ habit_id: id, user_id: currentUser.id, logged_date: today() }).select().single();
+          if (error) throw error;
+          const i = h.habit_logs.indexOf(tempLog);
+          if (i !== -1) h.habit_logs[i] = data;
+          saveCache();
+        } catch(e) { h.habit_logs = h.habit_logs.filter(l => l !== tempLog); saveCache(); renderHabits(); toast('Could not update.'); }
       }
-      saveCache(); renderHabits(); break;
+      break;
     }
     case 'del-habit': {
-      const { error } = await sb.from('habits').delete().eq('id', el.dataset.id);
-      if (error) { toast('Error.'); return; }
-      habits = habits.filter(h => h.id !== el.dataset.id); saveCache(); renderHabits(); break;
+      const id = el.dataset.id, backup = habits.find(h => h.id === id), backupIdx = habits.findIndex(h => h.id === id);
+      habits = habits.filter(h => h.id !== id); saveCache(); renderHabits();
+      try {
+        const { error } = await sb.from('habits').delete().eq('id', id);
+        if (error) throw error;
+      } catch(e) { if (backup) habits.splice(backupIdx, 0, backup); saveCache(); renderHabits(); toast('Could not delete.'); }
+      break;
     }
   }
 });
