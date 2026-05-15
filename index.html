@@ -388,7 +388,7 @@ sb.auth.onAuthStateChange(async (event, session) => {
   } else {
     currentUser = null; claudeApiKey = null;
     todos = []; goals = []; habits = [];
-    try { localStorage.removeItem(CACHE_KEY); } catch(e) {}
+    try { localStorage.removeItem(CACHE_KEY); localStorage.removeItem('compound_apikey'); } catch(e) {}
     updateAiVisibility();
     setLoading(false);
     document.getElementById('auth-screen').style.display = 'flex';
@@ -675,12 +675,23 @@ function updateAiVisibility() {
 }
 
 async function loadSettings() {
-  const { data } = await sb.from('user_settings').select('claude_api_key').eq('user_id', currentUser.id).maybeSingle();
-  if (data?.claude_api_key) {
-    claudeApiKey = data.claude_api_key;
-    document.getElementById('api-key-input').value = data.claude_api_key;
+  // Load from localStorage instantly
+  const local = localStorage.getItem('compound_apikey');
+  if (local) {
+    claudeApiKey = local;
+    document.getElementById('api-key-input').value = local;
+    updateAiVisibility();
   }
-  updateAiVisibility();
+  // Then sync from Supabase in background (may have key from another device)
+  try {
+    const { data } = await sb.from('user_settings').select('claude_api_key').eq('user_id', currentUser.id).maybeSingle();
+    if (data?.claude_api_key && data.claude_api_key !== local) {
+      claudeApiKey = data.claude_api_key;
+      localStorage.setItem('compound_apikey', data.claude_api_key);
+      document.getElementById('api-key-input').value = data.claude_api_key;
+      updateAiVisibility();
+    }
+  } catch(e) { /* use local value */ }
 }
 
 async function saveApiKey() {
@@ -689,14 +700,20 @@ async function saveApiKey() {
   const btn      = document.getElementById('save-key-btn');
   statusEl.textContent = '';
   if (!key.startsWith('sk-ant-')) { statusEl.textContent = "Doesn't look like a valid Claude key."; return; }
-  btn.disabled = true; btn.textContent = 'Saving…';
-  const { error } = await sb.from('user_settings').upsert({ user_id: currentUser.id, claude_api_key: key, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
-  btn.disabled = false; btn.textContent = 'Save key';
-  if (error) { statusEl.textContent = 'Could not save. Try again.'; return; }
+
+  // Save locally instantly — no waiting
   claudeApiKey = key;
+  localStorage.setItem('compound_apikey', key);
   statusEl.textContent = '✓ Saved — AI features unlocked!';
   updateAiVisibility();
   setTimeout(() => { document.getElementById('settings-modal').classList.remove('show'); statusEl.textContent = ''; }, 900);
+
+  // Sync to Supabase in background (for cross-device access)
+  btn.disabled = true; btn.textContent = 'Syncing…';
+  try {
+    await sb.from('user_settings').upsert({ user_id: currentUser.id, claude_api_key: key, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+  } catch(e) { /* local save already worked */ }
+  btn.disabled = false; btn.textContent = 'Save key';
 }
 
 const openSettings = () => document.getElementById('settings-modal').classList.add('show');
