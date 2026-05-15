@@ -18,7 +18,6 @@
     /* ── Auth ────────────────────────────── */
     #auth-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
     .auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 40px; width: 100%; max-width: 380px; }
-    .auth-logo { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 28px; }
     .auth-card h2 { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
     .auth-card > p { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
     .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
@@ -34,20 +33,21 @@
     .auth-switch button { background: none; border: none; color: var(--text); cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600; text-decoration: underline; margin-left: 4px; }
 
     /* ── App shell ───────────────────────── */
-    #app { display: none; padding: 48px 24px; }
-    .app-header { display: flex; align-items: center; justify-content: space-between; max-width: 960px; margin: 0 auto 40px; }
+    #app { display: none; padding: 48px 24px 120px; }
+    .app-header { display: flex; align-items: center; justify-content: space-between; max-width: 960px; margin: 0 auto 40px; flex-wrap: wrap; gap: 12px; }
+    .header-left { display: flex; align-items: center; gap: 10px; }
     .app-title { font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
-    .user-row { display: flex; align-items: center; gap: 12px; }
+    .header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .user-name { font-size: 13px; color: var(--muted); }
-    .btn-signout { font-size: 12px; background: none; border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; cursor: pointer; color: var(--muted); font-family: inherit; transition: color 0.15s; }
-    .btn-signout:hover { color: var(--text); }
+    .btn-icon { font-size: 12px; background: none; border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; cursor: pointer; color: var(--muted); font-family: inherit; transition: color 0.15s; white-space: nowrap; }
+    .btn-icon:hover { color: var(--text); }
 
     /* ── Grid ────────────────────────────── */
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; max-width: 960px; margin: 0 auto; }
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
     .card-title { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
     .count { font-size: 11px; color: var(--muted); font-weight: 400; }
-    .card-desc { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 18px; }
+    .card-desc { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 14px; }
     .divider { height: 1px; background: var(--border); margin: 14px 0; }
 
     /* ── Inputs ──────────────────────────── */
@@ -98,64 +98,64 @@
     .sub-input-row input { font-size: 13px; padding: 6px 10px; }
     .btn-add-sub { border: none; border-radius: 6px; padding: 0 12px; background: var(--border); color: var(--text); font-size: 20px; cursor: pointer; font-family: inherit; transition: background 0.15s; flex-shrink: 0; height: 32px; display: flex; align-items: center; justify-content: center; }
     .btn-add-sub:hover { background: #d0d0ce; }
-
     .empty { font-size: 13px; color: var(--faded); padding: 8px 4px; }
 
     /* ── Loading ─────────────────────────── */
-    #load-overlay {
-      display: flex;
-      position: fixed;
-      inset: 0;
-      background: #0d1117;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-      flex-direction: column;
-      gap: 20px;
-      transition: opacity 0.5s ease;
-    }
+    #load-overlay { display: flex; position: fixed; inset: 0; background: #0d1117; align-items: center; justify-content: center; z-index: 100; flex-direction: column; gap: 20px; transition: opacity 0.5s ease; }
     #load-overlay.hidden { opacity: 0; pointer-events: none; }
     #load-overlay.gone { display: none; }
-
-    .load-logo {
-      width: 80px;
-      height: 80px;
-      border-radius: 20px;
-      animation: pulse 1.8s ease-in-out infinite;
-    }
-    .load-name {
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.4);
-    }
-    .load-sub {
-      font-size: 12px;
-      color: rgba(255,255,255,0.25);
-      letter-spacing: 0.05em;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50%       { opacity: 0.7; transform: scale(0.96); }
-    }
-    .load-spinner {
-      width: 22px; height: 22px;
-      border: 2px solid rgba(255,255,255,0.15);
-      border-top-color: rgba(255,255,255,0.6);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin-top: 4px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .load-logo { width: 80px; height: 80px; border-radius: 20px; animation: lpulse 1.8s ease-in-out infinite; }
+    .load-name { font-size: 13px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+    .load-spinner { width: 22px; height: 22px; border: 2px solid rgba(255,255,255,0.15); border-top-color: rgba(255,255,255,0.6); border-radius: 50%; animation: lspin 0.8s linear infinite; margin-top: 4px; }
+    .load-sub { font-size: 12px; color: rgba(255,255,255,0.3); letter-spacing: 0.05em; }
+    @keyframes lpulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.7;transform:scale(.96)} }
+    @keyframes lspin  { to { transform: rotate(360deg); } }
 
     /* ── Toast ───────────────────────────── */
-    #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(8px); background: var(--accent); color: #fff; font-size: 13px; padding: 10px 20px; border-radius: 8px; opacity: 0; transition: opacity 0.2s, transform 0.2s; pointer-events: none; white-space: nowrap; z-index: 200; }
+    #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(8px); background: var(--accent); color: #fff; font-size: 13px; padding: 10px 20px; border-radius: 8px; opacity: 0; transition: opacity 0.2s, transform 0.2s; pointer-events: none; white-space: nowrap; z-index: 500; }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── Settings modal ──────────────────── */
+    #settings-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 400; padding: 24px; }
+    #settings-modal.show { display: flex; }
+    .modal-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 32px; width: 100%; max-width: 440px; position: relative; }
+    .modal-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+    .modal-card > p { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+    .modal-close { position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 22px; cursor: pointer; color: var(--muted); line-height: 1; }
+    .modal-close:hover { color: var(--text); }
+    .key-status { font-size: 12px; color: var(--muted); text-align: center; margin-top: 12px; min-height: 18px; }
+
+    /* ── AI buttons ──────────────────────── */
+    .btn-ai { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; background: none; border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; cursor: pointer; color: var(--muted); font-family: inherit; transition: all 0.15s; margin-bottom: 12px; }
+    .btn-ai:hover { background: var(--bg); color: var(--text); border-color: #aaa; }
+    .btn-ai:disabled { opacity: 0.45; cursor: not-allowed; }
+    .ai-box { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; font-size: 13px; line-height: 1.6; display: none; }
+    .ai-box-label { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+
+    /* ── Chat ────────────────────────────── */
+    #chat-btn { display: none; position: fixed; bottom: 24px; right: 24px; width: 50px; height: 50px; border-radius: 50%; background: var(--accent); color: #fff; border: none; font-size: 20px; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 300; align-items: center; justify-content: center; transition: transform 0.15s; }
+    #chat-btn.show { display: flex; }
+    #chat-btn:hover { transform: scale(1.06); }
+    #chat-panel { display: none; position: fixed; bottom: 86px; right: 24px; width: 320px; height: 460px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); flex-direction: column; z-index: 300; overflow: hidden; }
+    #chat-panel.open { display: flex; }
+    .chat-head { padding: 16px 20px; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .chat-close { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 18px; line-height: 1; }
+    #chat-msgs { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+    .cmsg { max-width: 85%; font-size: 13px; line-height: 1.5; padding: 10px 12px; border-radius: 10px; word-break: break-word; }
+    .cmsg.user { align-self: flex-end; background: var(--accent); color: #fff; border-radius: 10px 10px 2px 10px; }
+    .cmsg.ai { align-self: flex-start; background: var(--bg); color: var(--text); border-radius: 10px 10px 10px 2px; }
+    .cmsg.thinking { color: var(--muted); font-style: italic; }
+    #chat-foot { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border); flex-shrink: 0; }
+    #chat-inp { flex: 1; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 13px; font-family: inherit; background: var(--bg); color: var(--text); outline: none; }
+    #chat-inp:focus { border-color: var(--accent); }
+    #chat-send { border: none; border-radius: 8px; padding: 8px 14px; background: var(--accent); color: #fff; font-size: 16px; cursor: pointer; transition: opacity 0.15s; flex-shrink: 0; }
+    #chat-send:hover { opacity: 0.75; }
+    #chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
   </style>
 </head>
 <body>
 
+<!-- Loading screen -->
 <div id="load-overlay">
   <img src="logo.PNG" class="load-logo">
   <div class="load-name">Compound</div>
@@ -163,9 +163,42 @@
   <div class="load-sub" id="load-msg">Loading your data…</div>
   <button id="load-retry" onclick="location.reload()" style="display:none;margin-top:8px;font-size:13px;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:8px 20px;cursor:pointer;">Tap to retry</button>
 </div>
+
 <div id="toast"></div>
 
-<!-- ── Auth ──────────────────────────────────────────────── -->
+<!-- Settings modal -->
+<div id="settings-modal">
+  <div class="modal-card">
+    <button class="modal-close" id="settings-close">×</button>
+    <h3>AI Settings</h3>
+    <p>Paste your Claude API key to unlock AI coaching — step suggestions, daily planning, habit feedback, and a personal coach chat.<br><br>
+    Get a free key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent);font-weight:500;">console.anthropic.com</a>. Your key is saved to your account and only used to make requests on your behalf.</p>
+    <div class="field">
+      <label>Claude API Key</label>
+      <input type="password" id="api-key-input" placeholder="sk-ant-…" autocomplete="off" spellcheck="false">
+    </div>
+    <button class="btn-primary" id="save-key-btn">Save key</button>
+    <div class="key-status" id="key-status"></div>
+  </div>
+</div>
+
+<!-- Chat button + panel -->
+<button id="chat-btn" title="Open coach chat">💬</button>
+<div id="chat-panel">
+  <div class="chat-head">
+    <span>🧠 AI Coach</span>
+    <button class="chat-close" id="chat-close">×</button>
+  </div>
+  <div id="chat-msgs">
+    <div class="cmsg ai">Hey! I can see your goals, habits and todos. Ask me anything — what to work on, how to break down a goal, or how you're doing.</div>
+  </div>
+  <div id="chat-foot">
+    <input type="text" id="chat-inp" placeholder="Ask your coach…">
+    <button id="chat-send">↑</button>
+  </div>
+</div>
+
+<!-- Auth screen -->
 <div id="auth-screen">
   <div class="auth-card">
     <img src="logo.PNG" style="width:40px;height:40px;border-radius:10px;margin-bottom:20px;display:block;">
@@ -188,16 +221,17 @@
   </div>
 </div>
 
-<!-- ── App ───────────────────────────────────────────────── -->
+<!-- App -->
 <div id="app">
   <div class="app-header">
-    <div style="display:flex;align-items:center;gap:10px;">
+    <div class="header-left">
       <img src="logo.PNG" style="width:28px;height:28px;border-radius:6px;">
       <span class="app-title">Compound</span>
     </div>
-    <div class="user-row">
+    <div class="header-right">
       <span class="user-name" id="user-label"></span>
-      <button class="btn-signout" id="btn-signout">Sign out</button>
+      <button class="btn-icon" id="btn-settings">⚙️ AI Settings</button>
+      <button class="btn-icon" id="btn-signout">Sign out</button>
     </div>
   </div>
 
@@ -207,6 +241,7 @@
     <div class="card">
       <div class="card-title">To-do <span class="count" id="todo-count"></span></div>
       <p class="card-desc">Your daily execution list. Every morning, write what must get done — then do it. One checked box beats ten plans.</p>
+      <button class="btn-ai" id="plan-day-btn">✨ Plan my day with AI</button>
       <div class="divider"></div>
       <div class="input-row">
         <input type="text" id="todo-input" placeholder="Add a task…">
@@ -231,6 +266,11 @@
     <div class="card">
       <div class="card-title">Habits <span class="count" id="habits-count"></span></div>
       <p class="card-desc">The systems you build now will run your future company. Check in daily — streaks show you who you're becoming, not just what you did.</p>
+      <button class="btn-ai" id="habit-feedback-btn">✨ Get weekly feedback</button>
+      <div class="ai-box" id="habit-ai-box">
+        <div class="ai-box-label">Coach feedback</div>
+        <div id="habit-ai-text"></div>
+      </div>
       <div class="divider"></div>
       <div class="input-row">
         <input type="text" id="habits-input" placeholder="Add a habit…">
@@ -244,19 +284,15 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// ── CONFIG — replace with your values from Supabase dashboard ──
+// ── Config ─────────────────────────────────────────────────
 const SUPABASE_URL  = 'https://diwwapnpnffubepdvrxg.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRpd3dhcG5wbmZmdWJlcGR2cnhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MDU1OTgsImV4cCI6MjA5NDI4MTU5OH0.UFCnZe_a0LhOifMph-61zP3dHniF95jiiHtGpw3z45w';
-// ──────────────────────────────────────────────────────────────
-
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 // ── Utilities ─────────────────────────────────────────────
-const today = () => new Date().toISOString().slice(0, 10);
-const esc   = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-
-// Username → fake email (Supabase auth requires an email format)
-const toEmail = u => `${u}@focus.local`;
+const today    = () => new Date().toISOString().slice(0, 10);
+const esc      = s  => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const toEmail  = u  => `${u}@focus.local`;
 const fromEmail = e => e.split('@')[0];
 
 let toastTimer;
@@ -270,12 +306,8 @@ function toast(msg) {
 
 function setLoading(on) {
   const el = document.getElementById('load-overlay');
-  if (on) {
-    el.classList.remove('hidden', 'gone');
-  } else {
-    el.classList.add('hidden');
-    setTimeout(() => el.classList.add('gone'), 500);
-  }
+  if (on) { el.classList.remove('hidden', 'gone'); }
+  else { el.classList.add('hidden'); setTimeout(() => el.classList.add('gone'), 500); }
 }
 
 // ── Auth ──────────────────────────────────────────────────
@@ -291,11 +323,9 @@ function syncAuthUI() {
 }
 
 document.getElementById('auth-toggle').addEventListener('click', () => {
-  isRegister = !isRegister;
-  syncAuthUI();
+  isRegister = !isRegister; syncAuthUI();
   document.getElementById('auth-err').textContent = '';
 });
-
 document.getElementById('auth-btn').addEventListener('click', doAuth);
 document.getElementById('auth-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doAuth(); });
 document.getElementById('auth-user').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('auth-pass').focus(); });
@@ -306,57 +336,36 @@ async function doAuth() {
   const errEl    = document.getElementById('auth-err');
   const btn      = document.getElementById('auth-btn');
   errEl.textContent = '';
-
   if (!username)              { errEl.textContent = 'Please enter a username.'; return; }
   if (username.length < 2)    { errEl.textContent = 'Username must be at least 2 characters.'; return; }
-  if (!/^[a-z0-9_]+$/.test(username)) { errEl.textContent = 'Only letters, numbers, and underscores allowed.'; return; }
+  if (!/^[a-z0-9_]+$/.test(username)) { errEl.textContent = 'Only letters, numbers, and underscores.'; return; }
   if (!password || password.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; return; }
-
-  btn.disabled    = true;
-  btn.textContent = '…';
-
+  btn.disabled = true; btn.textContent = '…';
   if (isRegister) {
-    const { error } = await sb.auth.signUp({
-      email: toEmail(username),
-      password,
-      options: { data: { username } }
-    });
-    if (error) {
-      errEl.textContent = error.message.includes('already') ? 'Username already taken — try another.' : error.message;
-      btn.disabled = false;
-      syncAuthUI();
-    }
-    // success → onAuthStateChange fires and shows the app
+    const { error } = await sb.auth.signUp({ email: toEmail(username), password, options: { data: { username } } });
+    if (error) { errEl.textContent = error.message.includes('already') ? 'Username taken — try another.' : error.message; btn.disabled = false; syncAuthUI(); }
   } else {
-    const { error } = await sb.auth.signInWithPassword({
-      email: toEmail(username),
-      password
-    });
-    if (error) {
-      errEl.textContent = 'Incorrect username or password.';
-      btn.disabled = false;
-      syncAuthUI();
-    }
+    const { error } = await sb.auth.signInWithPassword({ email: toEmail(username), password });
+    if (error) { errEl.textContent = 'Incorrect username or password.'; btn.disabled = false; syncAuthUI(); }
   }
 }
 
 document.getElementById('btn-signout').addEventListener('click', () => sb.auth.signOut());
 
-// Reactive auth — single source of truth
 sb.auth.onAuthStateChange(async (event, session) => {
   document.getElementById('auth-btn').disabled = false;
   syncAuthUI();
-
   if (session?.user) {
     currentUser = session.user;
     const username = currentUser.user_metadata?.username || fromEmail(currentUser.email);
-    document.getElementById('user-label').textContent = username;
+    document.getElementById('user-label').textContent    = username;
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('app').style.display         = 'block';
-    await loadData();
+    await initApp();
   } else {
-    currentUser = null;
+    currentUser = null; claudeApiKey = null;
     todos = []; goals = []; habits = [];
+    document.getElementById('chat-btn').classList.remove('show');
     document.getElementById('auth-screen').style.display = 'flex';
     document.getElementById('app').style.display         = 'none';
   }
@@ -366,16 +375,19 @@ sb.auth.onAuthStateChange(async (event, session) => {
 let todos  = [];
 let goals  = [];
 let habits = [];
+let claudeApiKey = null;
+
+async function initApp() {
+  await loadData();
+  await loadSettings();
+}
 
 async function loadData() {
   setLoading(true);
-  document.getElementById('load-msg').textContent   = 'Loading…';
-  document.getElementById('load-retry').style.display = 'none';
-
-  const timeout = new Promise((_, reject) =>
-    setTimeout(() => reject(new Error('timeout')), 20000)
-  );
-
+  document.getElementById('load-msg').textContent       = 'Loading your data…';
+  document.getElementById('load-spinner').style.display = '';
+  document.getElementById('load-retry').style.display   = 'none';
+  const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 20000));
   try {
     const [tRes, gRes, hRes] = await Promise.race([
       Promise.all([
@@ -385,7 +397,7 @@ async function loadData() {
       ]),
       timeout
     ]);
-    if (tRes.error || gRes.error || hRes.error) toast('Error loading data — check your Supabase config.');
+    if (tRes.error || gRes.error || hRes.error) toast('Error loading data.');
     todos  = tRes.data || [];
     goals  = gRes.data || [];
     habits = hRes.data || [];
@@ -394,15 +406,14 @@ async function loadData() {
   } catch (e) {
     document.getElementById('load-spinner').style.display = 'none';
     document.getElementById('load-msg').textContent = e.message === 'timeout'
-      ? 'Taking longer than usual — tap retry.'
-      : 'Could not connect. Check your internet.';
+      ? 'Taking longer than usual — tap retry.' : 'Could not connect. Check your internet.';
     document.getElementById('load-retry').style.display = 'block';
   }
 }
 
 function renderAll() { renderTodos(); renderGoals(); renderHabits(); }
 
-// ── TODOS — vanish on check ───────────────────────────────
+// ── TODOS ─────────────────────────────────────────────────
 function renderTodos() {
   const list = document.getElementById('todo-list');
   document.getElementById('todo-count').textContent = todos.length ? `${todos.length} left` : '';
@@ -425,12 +436,10 @@ async function addTodo() {
   const { data, error } = await sb.from('todos').insert({ text, user_id: currentUser.id }).select().single();
   btn.disabled = false;
   if (error) { toast('Could not add task.'); return; }
-  todos.unshift(data);
-  inp.value = '';
-  renderTodos();
+  todos.unshift(data); inp.value = ''; renderTodos();
 }
 
-// ── GOALS — subtasks + progress ───────────────────────────
+// ── GOALS ─────────────────────────────────────────────────
 function goalPct(g) {
   const subs = g.goal_subtasks || [];
   if (!subs.length) return 0;
@@ -439,36 +448,33 @@ function goalPct(g) {
 
 function renderGoals() {
   const list = document.getElementById('goals-list');
-  const done = goals.filter(g => goalPct(g) === 100 && (g.goal_subtasks || []).length > 0).length;
+  const done = goals.filter(g => goalPct(g) === 100 && (g.goal_subtasks||[]).length > 0).length;
   document.getElementById('goals-count').textContent = goals.length ? `${done}/${goals.length} done` : '';
   if (!goals.length) { list.innerHTML = '<div class="empty">No goals yet — add one above.</div>'; return; }
-
   list.innerHTML = goals.map(g => {
     const pct  = goalPct(g);
-    const subs = [...(g.goal_subtasks || [])].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    const subs = [...(g.goal_subtasks||[])].sort((a,b) => new Date(a.created_at)-new Date(b.created_at));
     const subsHtml = subs.map(s => `
       <div class="subtask">
-        <div class="scheck ${s.done ? 'on' : ''}" data-action="check-sub" data-sid="${s.id}" data-gid="${g.id}" data-done="${s.done}"></div>
-        <span class="slabel ${s.done ? 'done' : ''}">${esc(s.text)}</span>
+        <div class="scheck ${s.done?'on':''}" data-action="check-sub" data-sid="${s.id}" data-gid="${g.id}" data-done="${s.done}"></div>
+        <span class="slabel ${s.done?'done':''}">${esc(s.text)}</span>
         <button class="sdel" data-action="del-sub" data-sid="${s.id}" data-gid="${g.id}">×</button>
-      </div>
-    `).join('');
-
+      </div>`).join('');
     return `
-      <div class="item" style="flex-wrap:wrap; align-items:flex-start;">
-        <div class="check ${pct === 100 && subs.length ? 'on' : ''}" style="pointer-events:none; margin-top:3px;"></div>
+      <div class="item" style="flex-wrap:wrap;align-items:flex-start;">
+        <div class="check ${pct===100&&subs.length?'on':''}" style="pointer-events:none;margin-top:3px;"></div>
         <div class="item-body">
-          <div class="item-label ${pct === 100 && subs.length ? 'done' : ''}">${esc(g.text)}</div>
-          ${subs.length ? `<div class="prog-row"><div class="prog-track"><div class="prog-fill" style="width:${pct}%"></div></div><span class="prog-pct">${pct}%</span></div>` : ''}
+          <div class="item-label ${pct===100&&subs.length?'done':''}">${esc(g.text)}</div>
+          ${subs.length?`<div class="prog-row"><div class="prog-track"><div class="prog-fill" style="width:${pct}%"></div></div><span class="prog-pct">${pct}%</span></div>`:''}
           <div class="subtasks">${subsHtml}</div>
           <div class="sub-input-row">
             <input type="text" class="sub-inp" data-gid="${g.id}" placeholder="Add a step…">
             <button class="btn-add-sub" data-action="add-sub" data-gid="${g.id}">+</button>
           </div>
+          <button class="btn-ai" style="margin-top:8px;margin-bottom:0;" data-action="ai-steps" data-gid="${g.id}">✨ Suggest steps</button>
         </div>
         <button class="item-del" data-action="del-goal" data-id="${g.id}">×</button>
-      </div>
-    `;
+      </div>`;
   }).join('');
 }
 
@@ -481,20 +487,14 @@ async function addGoal() {
   const { data, error } = await sb.from('goals').insert({ text, user_id: currentUser.id }).select().single();
   btn.disabled = false;
   if (error) { toast('Could not add goal.'); return; }
-  goals.unshift({ ...data, goal_subtasks: [] });
-  inp.value = '';
-  renderGoals();
+  goals.unshift({ ...data, goal_subtasks: [] }); inp.value = ''; renderGoals();
 }
 
-// ── HABITS — stay forever, reset each day ─────────────────
-function prevDay(d) {
-  const dt = new Date(d + 'T00:00:00');
-  dt.setDate(dt.getDate() - 1);
-  return dt.toISOString().slice(0, 10);
-}
+// ── HABITS ────────────────────────────────────────────────
+function prevDay(d) { const dt = new Date(d+'T00:00:00'); dt.setDate(dt.getDate()-1); return dt.toISOString().slice(0,10); }
 
 function calcStreak(h) {
-  const set = new Set((h.habit_logs || []).map(l => l.logged_date));
+  const set = new Set((h.habit_logs||[]).map(l => l.logged_date));
   let count = 0, day = today();
   if (!set.has(day)) day = prevDay(day);
   while (set.has(day)) { count++; day = prevDay(day); }
@@ -503,23 +503,21 @@ function calcStreak(h) {
 
 function renderHabits() {
   const list = document.getElementById('habits-list');
-  const doneToday = habits.filter(h => (h.habit_logs || []).some(l => l.logged_date === today())).length;
+  const doneToday = habits.filter(h => (h.habit_logs||[]).some(l => l.logged_date === today())).length;
   document.getElementById('habits-count').textContent = habits.length ? `${doneToday}/${habits.length} today` : '';
   if (!habits.length) { list.innerHTML = '<div class="empty">No habits yet — add one above.</div>'; return; }
-
   list.innerHTML = habits.map(h => {
-    const checked = (h.habit_logs || []).some(l => l.logged_date === today());
+    const checked = (h.habit_logs||[]).some(l => l.logged_date === today());
     const s = calcStreak(h);
     return `
       <div class="item">
-        <div class="check ${checked ? 'on' : ''}" data-action="check-habit" data-id="${h.id}" data-checked="${checked}"></div>
+        <div class="check ${checked?'on':''}" data-action="check-habit" data-id="${h.id}" data-checked="${checked}"></div>
         <div class="item-body">
-          <div class="item-label ${checked ? 'done' : ''}">${esc(h.text)}</div>
-          ${s > 0 ? `<div class="streak ${s >= 3 ? 'hot' : ''}">🔥 ${s} day streak</div>` : ''}
+          <div class="item-label ${checked?'done':''}">${esc(h.text)}</div>
+          ${s>0?`<div class="streak ${s>=3?'hot':''}">🔥 ${s} day streak</div>`:''}
         </div>
         <button class="item-del" data-action="del-habit" data-id="${h.id}">×</button>
-      </div>
-    `;
+      </div>`;
   }).join('');
 }
 
@@ -532,81 +530,63 @@ async function addHabit() {
   const { data, error } = await sb.from('habits').insert({ text, user_id: currentUser.id }).select().single();
   btn.disabled = false;
   if (error) { toast('Could not add habit.'); return; }
-  habits.unshift({ ...data, habit_logs: [] });
-  inp.value = '';
-  renderHabits();
+  habits.unshift({ ...data, habit_logs: [] }); inp.value = ''; renderHabits();
 }
 
 // ── Event delegation ──────────────────────────────────────
 document.addEventListener('click', async e => {
   const el = e.target.closest('[data-action]');
   if (!el || !currentUser) return;
-
   switch (el.dataset.action) {
 
     case 'check-todo': {
-      const id = el.dataset.id;
-      const item = el.closest('.item');
+      const id = el.dataset.id, item = el.closest('.item');
       item.classList.add('removing');
       setTimeout(async () => {
         const { error } = await sb.from('todos').delete().eq('id', id);
-        if (error) { toast('Could not remove task.'); item.classList.remove('removing'); return; }
-        todos = todos.filter(t => t.id !== id);
-        renderTodos();
-      }, 260);
-      break;
+        if (error) { toast('Error.'); item.classList.remove('removing'); return; }
+        todos = todos.filter(t => t.id !== id); renderTodos();
+      }, 260); break;
     }
-
     case 'del-todo': {
       const { error } = await sb.from('todos').delete().eq('id', el.dataset.id);
       if (error) { toast('Error.'); return; }
-      todos = todos.filter(t => t.id !== el.dataset.id);
-      renderTodos();
-      break;
+      todos = todos.filter(t => t.id !== el.dataset.id); renderTodos(); break;
     }
-
     case 'del-goal': {
       const { error } = await sb.from('goals').delete().eq('id', el.dataset.id);
       if (error) { toast('Error.'); return; }
-      goals = goals.filter(g => g.id !== el.dataset.id);
-      renderGoals();
-      break;
+      goals = goals.filter(g => g.id !== el.dataset.id); renderGoals(); break;
     }
-
     case 'check-sub': {
       const done = el.dataset.done === 'true';
       const { error } = await sb.from('goal_subtasks').update({ done: !done }).eq('id', el.dataset.sid);
       if (error) { toast('Error.'); return; }
       const g = goals.find(x => x.id === el.dataset.gid);
       const s = g && g.goal_subtasks.find(x => x.id === el.dataset.sid);
-      if (s) { s.done = !done; renderGoals(); }
-      break;
+      if (s) { s.done = !done; renderGoals(); } break;
     }
-
     case 'del-sub': {
       const { error } = await sb.from('goal_subtasks').delete().eq('id', el.dataset.sid);
       if (error) { toast('Error.'); return; }
       const g = goals.find(x => x.id === el.dataset.gid);
-      if (g) { g.goal_subtasks = g.goal_subtasks.filter(s => s.id !== el.dataset.sid); renderGoals(); }
-      break;
+      if (g) { g.goal_subtasks = g.goal_subtasks.filter(s => s.id !== el.dataset.sid); renderGoals(); } break;
     }
-
     case 'add-sub': {
-      const gid  = el.dataset.gid;
-      const inp  = document.querySelector(`.sub-inp[data-gid="${gid}"]`);
+      const gid = el.dataset.gid, inp = document.querySelector(`.sub-inp[data-gid="${gid}"]`);
       const text = inp && inp.value.trim();
       if (!text) return;
       const { data, error } = await sb.from('goal_subtasks').insert({ goal_id: gid, text, done: false }).select().single();
       if (error) { toast('Error.'); return; }
       const g = goals.find(x => x.id === gid);
-      if (g) { g.goal_subtasks.push(data); renderGoals(); }
-      break;
+      if (g) { g.goal_subtasks.push(data); renderGoals(); } break;
     }
+    case 'ai-steps':
+      suggestSteps(el.dataset.gid); break;
 
     case 'check-habit': {
-      const id      = el.dataset.id;
-      const checked = el.dataset.checked === 'true';
-      const h       = habits.find(x => x.id === id);
+      const id = el.dataset.id, checked = el.dataset.checked === 'true';
+      const h = habits.find(x => x.id === id);
       if (!h) return;
       if (checked) {
         const { error } = await sb.from('habit_logs').delete().eq('habit_id', id).eq('logged_date', today());
@@ -617,16 +597,12 @@ document.addEventListener('click', async e => {
         if (error) { toast('Error.'); return; }
         h.habit_logs.push(data);
       }
-      renderHabits();
-      break;
+      renderHabits(); break;
     }
-
     case 'del-habit': {
       const { error } = await sb.from('habits').delete().eq('id', el.dataset.id);
       if (error) { toast('Error.'); return; }
-      habits = habits.filter(h => h.id !== el.dataset.id);
-      renderHabits();
-      break;
+      habits = habits.filter(h => h.id !== el.dataset.id); renderHabits(); break;
     }
   }
 });
@@ -634,8 +610,7 @@ document.addEventListener('click', async e => {
 // Enter on subtask inputs
 document.addEventListener('keydown', async e => {
   if (e.key !== 'Enter' || !e.target.classList.contains('sub-inp')) return;
-  const gid  = e.target.dataset.gid;
-  const text = e.target.value.trim();
+  const gid = e.target.dataset.gid, text = e.target.value.trim();
   if (!text) return;
   const { data, error } = await sb.from('goal_subtasks').insert({ goal_id: gid, text, done: false }).select().single();
   if (error) { toast('Error.'); return; }
@@ -650,6 +625,179 @@ document.getElementById('habits-add').addEventListener('click',  addHabit);
 document.getElementById('todo-input').addEventListener('keydown',   e => { if (e.key === 'Enter') addTodo(); });
 document.getElementById('goals-input').addEventListener('keydown',  e => { if (e.key === 'Enter') addGoal(); });
 document.getElementById('habits-input').addEventListener('keydown', e => { if (e.key === 'Enter') addHabit(); });
+
+// ── Settings ──────────────────────────────────────────────
+async function loadSettings() {
+  const { data } = await sb.from('user_settings').select('claude_api_key').eq('user_id', currentUser.id).maybeSingle();
+  if (data?.claude_api_key) {
+    claudeApiKey = data.claude_api_key;
+    document.getElementById('api-key-input').value = data.claude_api_key;
+    document.getElementById('chat-btn').classList.add('show');
+  }
+}
+
+async function saveApiKey() {
+  const key      = document.getElementById('api-key-input').value.trim();
+  const statusEl = document.getElementById('key-status');
+  const btn      = document.getElementById('save-key-btn');
+  statusEl.textContent = '';
+  if (!key.startsWith('sk-ant-')) { statusEl.textContent = "Doesn't look like a valid Claude key."; return; }
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const { error } = await sb.from('user_settings').upsert({ user_id: currentUser.id, claude_api_key: key, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+  btn.disabled = false; btn.textContent = 'Save key';
+  if (error) { statusEl.textContent = 'Could not save. Try again.'; return; }
+  claudeApiKey = key;
+  statusEl.textContent = '✓ Saved';
+  document.getElementById('chat-btn').classList.add('show');
+  setTimeout(() => { document.getElementById('settings-modal').classList.remove('show'); statusEl.textContent = ''; }, 900);
+}
+
+document.getElementById('btn-settings').addEventListener('click', () => document.getElementById('settings-modal').classList.add('show'));
+document.getElementById('settings-close').addEventListener('click', () => document.getElementById('settings-modal').classList.remove('show'));
+document.getElementById('settings-modal').addEventListener('click', e => { if (e.target === document.getElementById('settings-modal')) document.getElementById('settings-modal').classList.remove('show'); });
+document.getElementById('save-key-btn').addEventListener('click', saveApiKey);
+document.getElementById('api-key-input').addEventListener('keydown', e => { if (e.key === 'Enter') saveApiKey(); });
+
+// ── Claude API call ───────────────────────────────────────
+async function callClaude(messages, system) {
+  if (!claudeApiKey) { document.getElementById('settings-modal').classList.add('show'); return null; }
+  const res  = await fetch('/api/claude', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ apiKey: claudeApiKey, messages, system })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Claude error');
+  return data.content;
+}
+
+function buildContext() {
+  const g = goals.map(g => {
+    const steps = (g.goal_subtasks||[]).map(s => `    • ${s.text} (${s.done?'✓':'pending'})`).join('\n');
+    return `  - ${g.text} (${goalPct(g)}% done)\n${steps}`;
+  }).join('\n') || '  None';
+  const h = habits.map(h => `  - ${h.text}: ${calcStreak(h)} day streak, ${(h.habit_logs||[]).some(l=>l.logged_date===today())?'done today ✓':'not done today'}`).join('\n') || '  None';
+  const t = todos.map(t => `  - ${t.text}`).join('\n') || '  None';
+  return `Goals:\n${g}\n\nHabits:\n${h}\n\nToday's todos:\n${t}`;
+}
+
+function getSystemPrompt() {
+  const name = document.getElementById('user-label').textContent;
+  return `You are a productivity coach for ${name}, a student entrepreneur using the Compound app. Be concise, direct and practical. Think like a startup mentor who respects their time.\n\nUser data:\n${buildContext()}`;
+}
+
+// ── AI Features ───────────────────────────────────────────
+
+// Suggest steps for a goal
+async function suggestSteps(goalId) {
+  const g   = goals.find(x => x.id === goalId);
+  const btn = document.querySelector(`[data-action="ai-steps"][data-gid="${goalId}"]`);
+  if (!g || !btn) return;
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = '✨ Thinking…';
+  try {
+    const result = await callClaude([{
+      role: 'user',
+      content: `My goal is: "${g.text}"\n\nSuggest 4-5 specific, actionable steps to achieve this. Return ONLY a numbered list, one step per line, no intro or explanation.`
+    }], getSystemPrompt());
+    if (!result) return;
+    const lines = result.split('\n').map(l => l.replace(/^\d+[\.\)]\s*/,'').trim()).filter(l => l.length > 0);
+    for (const text of lines) {
+      const { data, error } = await sb.from('goal_subtasks').insert({ goal_id: goalId, text, done: false }).select().single();
+      if (!error && data) g.goal_subtasks.push(data);
+    }
+    renderGoals();
+  } catch(e) {
+    toast('Could not get suggestions. Check your API key in AI Settings.');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = orig; }
+  }
+}
+
+// Plan my day
+document.getElementById('plan-day-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('plan-day-btn'), orig = btn.textContent;
+  btn.disabled = true; btn.textContent = '✨ Planning…';
+  try {
+    const result = await callClaude([{
+      role: 'user',
+      content: `Based on my goals and habits, suggest 3-5 specific tasks I should do TODAY. Make them concrete and achievable in one day. Return ONLY a numbered list, one task per line.`
+    }], getSystemPrompt());
+    if (!result) return;
+    const lines = result.split('\n').map(l => l.replace(/^\d+[\.\)]\s*/,'').trim()).filter(l => l.length > 0);
+    for (const text of lines) {
+      const { data, error } = await sb.from('todos').insert({ text, user_id: currentUser.id }).select().single();
+      if (!error && data) todos.unshift(data);
+    }
+    renderTodos(); toast('Tasks added to your list!');
+  } catch(e) {
+    toast('Could not plan your day. Check your API key in AI Settings.');
+  } finally { btn.disabled = false; btn.textContent = orig; }
+});
+
+// Habit feedback
+document.getElementById('habit-feedback-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('habit-feedback-btn'), orig = btn.textContent;
+  const box = document.getElementById('habit-ai-box'), txt = document.getElementById('habit-ai-text');
+  btn.disabled = true; btn.textContent = '✨ Thinking…';
+  try {
+    const result = await callClaude([{
+      role: 'user',
+      content: `Look at my habit streaks and give me 2-3 sentences of honest, direct feedback. What's going well? What should I focus on? End with one specific action I can take today.`
+    }], getSystemPrompt());
+    if (!result) return;
+    txt.textContent = result; box.style.display = 'block';
+  } catch(e) {
+    toast('Could not get feedback. Check your API key in AI Settings.');
+  } finally { btn.disabled = false; btn.textContent = orig; }
+});
+
+// ── Chat ──────────────────────────────────────────────────
+let chatHistory = [];
+
+document.getElementById('chat-btn').addEventListener('click',   () => document.getElementById('chat-panel').classList.add('open'));
+document.getElementById('chat-close').addEventListener('click', () => document.getElementById('chat-panel').classList.remove('open'));
+document.getElementById('chat-send').addEventListener('click',  sendChat);
+document.getElementById('chat-inp').addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });
+
+function appendMsg(role, text) {
+  const msgs = document.getElementById('chat-msgs');
+  const div  = document.createElement('div');
+  div.className  = `cmsg ${role === 'user' ? 'user' : 'ai'}`;
+  div.textContent = text;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+async function sendChat() {
+  const inp  = document.getElementById('chat-inp');
+  const text = inp.value.trim();
+  const btn  = document.getElementById('chat-send');
+  if (!text) return;
+  if (!claudeApiKey) {
+    document.getElementById('chat-panel').classList.remove('open');
+    document.getElementById('settings-modal').classList.add('show');
+    return;
+  }
+  inp.value = ''; btn.disabled = true;
+  appendMsg('user', text);
+  chatHistory.push({ role: 'user', content: text });
+  const thinking = appendMsg('ai', 'Thinking…');
+  thinking.classList.add('thinking');
+  try {
+    const result = await callClaude([...chatHistory], getSystemPrompt());
+    thinking.remove();
+    if (result) {
+      appendMsg('ai', result);
+      chatHistory.push({ role: 'assistant', content: result });
+      if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
+    }
+  } catch(e) {
+    thinking.remove();
+    appendMsg('ai', 'Something went wrong — check your API key in AI Settings.');
+  } finally { btn.disabled = false; inp.focus(); }
+}
 </script>
 </body>
 </html>
