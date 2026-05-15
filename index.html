@@ -292,6 +292,22 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// ── Completed todos (shown at bottom until midnight) ───────
+function getCompletedTodos() {
+  try {
+    const c = JSON.parse(localStorage.getItem('compound_done') || '{}');
+    // Drop anything not from today
+    Object.keys(c).forEach(id => { if (c[id].date !== today()) delete c[id]; });
+    return c;
+  } catch(e) { return {}; }
+}
+function markDone(id, text) {
+  try { const c = getCompletedTodos(); c[id] = { text, date: today() }; localStorage.setItem('compound_done', JSON.stringify(c)); } catch(e) {}
+}
+function unmarkDone(id) {
+  try { const c = getCompletedTodos(); delete c[id]; localStorage.setItem('compound_done', JSON.stringify(c)); } catch(e) {}
+}
+
 // ── Cache ──────────────────────────────────────────────────
 const CACHE_KEY = 'compound_v1';
 function saveCache() {
@@ -313,7 +329,8 @@ const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 // ── Utilities ─────────────────────────────────────────────
-const today    = () => new Date().toISOString().slice(0, 10);
+// Use local date so habits reset at local midnight, not UTC midnight
+const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
 const esc      = s  => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const toEmail  = u  => `${u}@focus.local`;
 const fromEmail = e => e.split('@')[0];
@@ -458,15 +475,24 @@ function renderAll() { renderTodos(); renderGoals(); renderHabits(); }
 // ── TODOS ─────────────────────────────────────────────────
 function renderTodos() {
   const list = document.getElementById('todo-list');
-  document.getElementById('todo-count').textContent = todos.length ? `${todos.length} left` : '';
-  if (!todos.length) { list.innerHTML = '<div class="empty">Nothing yet — add your first task.</div>'; return; }
-  list.innerHTML = todos.map(t => `
-    <div class="item" data-id="${t.id}">
-      <div class="check" data-action="check-todo" data-id="${t.id}"></div>
-      <div class="item-body"><div class="item-label">${esc(t.text)}</div></div>
-      <button class="item-del" data-action="del-todo" data-id="${t.id}">×</button>
-    </div>
-  `).join('');
+  const done = Object.entries(getCompletedTodos()).map(([id, v]) => ({ id, text: v.text }));
+  document.getElementById('todo-count').textContent = todos.length ? `${todos.length} left` : (done.length ? 'all done 🎉' : '');
+  if (!todos.length && !done.length) { list.innerHTML = '<div class="empty">Nothing yet — add your first task.</div>'; return; }
+  list.innerHTML = [
+    ...todos.map(t => `
+      <div class="item" data-id="${t.id}">
+        <div class="check" data-action="check-todo" data-id="${t.id}"></div>
+        <div class="item-body"><div class="item-label">${esc(t.text)}</div></div>
+        <button class="item-del" data-action="del-todo" data-id="${t.id}">×</button>
+      </div>`),
+    ...(done.length ? [`<div style="height:1px;background:var(--border);margin:8px 0;"></div>`] : []),
+    ...done.map(t => `
+      <div class="item" style="opacity:0.45;">
+        <div class="check on" style="pointer-events:none;"></div>
+        <div class="item-body"><div class="item-label done">${esc(t.text)}</div></div>
+        <button class="item-del" data-action="dismiss-done" data-id="${t.id}" style="opacity:1;">×</button>
+      </div>`)
+  ].join('');
 }
 
 async function addTodo() {
@@ -607,19 +633,24 @@ document.addEventListener('click', async e => {
 
     case 'check-todo': {
       const id = el.dataset.id, item = el.closest('.item');
-      const backup = todos.find(t => t.id === id);
+      const todo = todos.find(t => t.id === id);
+      if (!todo) return;
+      markDone(id, todo.text);
       item.classList.add('removing');
       todos = todos.filter(t => t.id !== id); saveCache();
       setTimeout(async () => {
+        renderTodos();
         try {
           const { error } = await sb.from('todos').delete().eq('id', id);
           if (error) throw error;
-          renderTodos();
         } catch(e) {
-          if (backup) todos.push(backup);
-          saveCache(); renderTodos(); toast('Could not remove task.');
+          unmarkDone(id); todos.push(todo);
+          saveCache(); renderTodos(); toast('Could not complete task.');
         }
       }, 260); break;
+    }
+    case 'dismiss-done': {
+      unmarkDone(el.dataset.id); renderTodos(); break;
     }
     case 'del-todo': {
       const id = el.dataset.id, backup = todos.find(t => t.id === id);
