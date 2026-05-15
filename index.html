@@ -126,9 +126,13 @@
     .key-status { font-size: 12px; color: var(--muted); text-align: center; margin-top: 12px; min-height: 18px; }
 
     /* ── AI buttons ──────────────────────── */
-    .btn-ai { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; background: none; border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; cursor: pointer; color: var(--muted); font-family: inherit; transition: all 0.15s; margin-bottom: 12px; }
+    .btn-ai { display: none; align-items: center; gap: 5px; font-size: 12px; background: none; border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; cursor: pointer; color: var(--muted); font-family: inherit; transition: all 0.15s; margin-bottom: 12px; }
+    body.has-ai .btn-ai { display: inline-flex; }
     .btn-ai:hover { background: var(--bg); color: var(--text); border-color: #aaa; }
     .btn-ai:disabled { opacity: 0.45; cursor: not-allowed; }
+    .ai-nudge { font-size: 12px; color: var(--faded); margin-bottom: 12px; display: block; }
+    .ai-nudge a { color: var(--muted); cursor: pointer; text-decoration: underline; }
+    body.has-ai .ai-nudge { display: none; }
     .ai-box { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; font-size: 13px; line-height: 1.6; display: none; }
     .ai-box-label { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
 
@@ -170,9 +174,9 @@
 <div id="settings-modal">
   <div class="modal-card">
     <button class="modal-close" id="settings-close">×</button>
-    <h3>AI Settings</h3>
-    <p>Paste your Claude API key to unlock AI coaching — step suggestions, daily planning, habit feedback, and a personal coach chat.<br><br>
-    Get a free key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent);font-weight:500;">console.anthropic.com</a>. Your key is saved to your account and only used to make requests on your behalf.</p>
+    <h3>Settings</h3>
+    <p><strong>AI Coaching</strong> <span style="font-size:11px;color:var(--muted);font-weight:400;">(optional)</span><br>Connect your own Claude API key to unlock AI-powered step suggestions, daily planning, habit feedback, and a personal coach chat. The app works great without it.<br><br>
+    Get a free key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent);font-weight:500;">console.anthropic.com</a>. Your key is stored on your account and never shared.</p>
     <div class="field">
       <label>Claude API Key</label>
       <input type="password" id="api-key-input" placeholder="sk-ant-…" autocomplete="off" spellcheck="false">
@@ -230,7 +234,7 @@
     </div>
     <div class="header-right">
       <span class="user-name" id="user-label"></span>
-      <button class="btn-icon" id="btn-settings">⚙️ AI Settings</button>
+      <button class="btn-icon" id="btn-settings" id="settings-btn-header">⚙️ Settings</button>
       <button class="btn-icon" id="btn-signout">Sign out</button>
     </div>
   </div>
@@ -242,6 +246,7 @@
       <div class="card-title">To-do <span class="count" id="todo-count"></span></div>
       <p class="card-desc">Your daily execution list. Every morning, write what must get done — then do it. One checked box beats ten plans.</p>
       <button class="btn-ai" id="plan-day-btn">✨ Plan my day with AI</button>
+      <span class="ai-nudge"><a id="unlock-ai-todos">✨ Unlock AI planning</a> — connect Claude to auto-generate tasks</span>
       <div class="divider"></div>
       <div class="input-row">
         <input type="text" id="todo-input" placeholder="Add a task…">
@@ -267,6 +272,7 @@
       <div class="card-title">Habits <span class="count" id="habits-count"></span></div>
       <p class="card-desc">The systems you build now will run your future company. Check in daily — streaks show you who you're becoming, not just what you did.</p>
       <button class="btn-ai" id="habit-feedback-btn">✨ Get weekly feedback</button>
+      <span class="ai-nudge"><a id="unlock-ai-habits">✨ Unlock AI feedback</a> — get streak analysis from your coach</span>
       <div class="ai-box" id="habit-ai-box">
         <div class="ai-box-label">Coach feedback</div>
         <div id="habit-ai-text"></div>
@@ -284,6 +290,21 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// ── Cache ──────────────────────────────────────────────────
+const CACHE_KEY = 'compound_v1';
+function saveCache() {
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify({ todos, goals, habits })); } catch(e) {}
+}
+function loadCache() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return false;
+    const c = JSON.parse(raw);
+    todos = c.todos || []; goals = c.goals || []; habits = c.habits || [];
+    return true;
+  } catch(e) { return false; }
+}
+
 // ── Config ─────────────────────────────────────────────────
 const SUPABASE_URL  = 'https://diwwapnpnffubepdvrxg.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRpd3dhcG5wbmZmdWJlcGR2cnhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MDU1OTgsImV4cCI6MjA5NDI4MTU5OH0.UFCnZe_a0LhOifMph-61zP3dHniF95jiiHtGpw3z45w';
@@ -365,7 +386,8 @@ sb.auth.onAuthStateChange(async (event, session) => {
   } else {
     currentUser = null; claudeApiKey = null;
     todos = []; goals = []; habits = [];
-    document.getElementById('chat-btn').classList.remove('show');
+    try { localStorage.removeItem(CACHE_KEY); } catch(e) {}
+    updateAiVisibility();
     document.getElementById('auth-screen').style.display = 'flex';
     document.getElementById('app').style.display         = 'none';
   }
@@ -383,10 +405,19 @@ async function initApp() {
 }
 
 async function loadData() {
-  setLoading(true);
-  document.getElementById('load-msg').textContent       = 'Loading your data…';
-  document.getElementById('load-spinner').style.display = '';
-  document.getElementById('load-retry').style.display   = 'none';
+  // Show cached data instantly — no loading screen flash on tab switch
+  const hasCached = loadCache();
+  if (hasCached) {
+    setLoading(false);
+    renderAll();
+  } else {
+    setLoading(true);
+    document.getElementById('load-msg').textContent       = 'Loading your data…';
+    document.getElementById('load-spinner').style.display = '';
+    document.getElementById('load-retry').style.display   = 'none';
+  }
+
+  // Fetch fresh data in background (silently if cache was shown)
   const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 20000));
   try {
     const [tRes, gRes, hRes] = await Promise.race([
@@ -397,13 +428,15 @@ async function loadData() {
       ]),
       timeout
     ]);
-    if (tRes.error || gRes.error || hRes.error) toast('Error loading data.');
+    if (tRes.error || gRes.error || hRes.error) { if (!hasCached) toast('Error loading data.'); return; }
     todos  = tRes.data || [];
     goals  = gRes.data || [];
     habits = hRes.data || [];
+    saveCache();
     setLoading(false);
     renderAll();
   } catch (e) {
+    if (hasCached) return; // Already showing cached data — don't show error
     document.getElementById('load-spinner').style.display = 'none';
     document.getElementById('load-msg').textContent = e.message === 'timeout'
       ? 'Taking longer than usual — tap retry.' : 'Could not connect. Check your internet.';
@@ -436,7 +469,7 @@ async function addTodo() {
   const { data, error } = await sb.from('todos').insert({ text, user_id: currentUser.id }).select().single();
   btn.disabled = false;
   if (error) { toast('Could not add task.'); return; }
-  todos.unshift(data); inp.value = ''; renderTodos();
+  todos.unshift(data); inp.value = ''; saveCache(); renderTodos();
 }
 
 // ── GOALS ─────────────────────────────────────────────────
@@ -487,7 +520,7 @@ async function addGoal() {
   const { data, error } = await sb.from('goals').insert({ text, user_id: currentUser.id }).select().single();
   btn.disabled = false;
   if (error) { toast('Could not add goal.'); return; }
-  goals.unshift({ ...data, goal_subtasks: [] }); inp.value = ''; renderGoals();
+  goals.unshift({ ...data, goal_subtasks: [] }); inp.value = ''; saveCache(); renderGoals();
 }
 
 // ── HABITS ────────────────────────────────────────────────
@@ -530,7 +563,7 @@ async function addHabit() {
   const { data, error } = await sb.from('habits').insert({ text, user_id: currentUser.id }).select().single();
   btn.disabled = false;
   if (error) { toast('Could not add habit.'); return; }
-  habits.unshift({ ...data, habit_logs: [] }); inp.value = ''; renderHabits();
+  habits.unshift({ ...data, habit_logs: [] }); inp.value = ''; saveCache(); renderHabits();
 }
 
 // ── Event delegation ──────────────────────────────────────
@@ -545,18 +578,18 @@ document.addEventListener('click', async e => {
       setTimeout(async () => {
         const { error } = await sb.from('todos').delete().eq('id', id);
         if (error) { toast('Error.'); item.classList.remove('removing'); return; }
-        todos = todos.filter(t => t.id !== id); renderTodos();
+        todos = todos.filter(t => t.id !== id); saveCache(); renderTodos();
       }, 260); break;
     }
     case 'del-todo': {
       const { error } = await sb.from('todos').delete().eq('id', el.dataset.id);
       if (error) { toast('Error.'); return; }
-      todos = todos.filter(t => t.id !== el.dataset.id); renderTodos(); break;
+      todos = todos.filter(t => t.id !== el.dataset.id); saveCache(); renderTodos(); break;
     }
     case 'del-goal': {
       const { error } = await sb.from('goals').delete().eq('id', el.dataset.id);
       if (error) { toast('Error.'); return; }
-      goals = goals.filter(g => g.id !== el.dataset.id); renderGoals(); break;
+      goals = goals.filter(g => g.id !== el.dataset.id); saveCache(); renderGoals(); break;
     }
     case 'check-sub': {
       const done = el.dataset.done === 'true';
@@ -564,13 +597,13 @@ document.addEventListener('click', async e => {
       if (error) { toast('Error.'); return; }
       const g = goals.find(x => x.id === el.dataset.gid);
       const s = g && g.goal_subtasks.find(x => x.id === el.dataset.sid);
-      if (s) { s.done = !done; renderGoals(); } break;
+      if (s) { s.done = !done; saveCache(); renderGoals(); } break;
     }
     case 'del-sub': {
       const { error } = await sb.from('goal_subtasks').delete().eq('id', el.dataset.sid);
       if (error) { toast('Error.'); return; }
       const g = goals.find(x => x.id === el.dataset.gid);
-      if (g) { g.goal_subtasks = g.goal_subtasks.filter(s => s.id !== el.dataset.sid); renderGoals(); } break;
+      if (g) { g.goal_subtasks = g.goal_subtasks.filter(s => s.id !== el.dataset.sid); saveCache(); renderGoals(); } break;
     }
     case 'add-sub': {
       const gid = el.dataset.gid, inp = document.querySelector(`.sub-inp[data-gid="${gid}"]`);
@@ -579,7 +612,7 @@ document.addEventListener('click', async e => {
       const { data, error } = await sb.from('goal_subtasks').insert({ goal_id: gid, text, done: false }).select().single();
       if (error) { toast('Error.'); return; }
       const g = goals.find(x => x.id === gid);
-      if (g) { g.goal_subtasks.push(data); renderGoals(); } break;
+      if (g) { g.goal_subtasks.push(data); saveCache(); renderGoals(); } break;
     }
     case 'ai-steps':
       suggestSteps(el.dataset.gid); break;
@@ -597,12 +630,12 @@ document.addEventListener('click', async e => {
         if (error) { toast('Error.'); return; }
         h.habit_logs.push(data);
       }
-      renderHabits(); break;
+      saveCache(); renderHabits(); break;
     }
     case 'del-habit': {
       const { error } = await sb.from('habits').delete().eq('id', el.dataset.id);
       if (error) { toast('Error.'); return; }
-      habits = habits.filter(h => h.id !== el.dataset.id); renderHabits(); break;
+      habits = habits.filter(h => h.id !== el.dataset.id); saveCache(); renderHabits(); break;
     }
   }
 });
@@ -615,7 +648,7 @@ document.addEventListener('keydown', async e => {
   const { data, error } = await sb.from('goal_subtasks').insert({ goal_id: gid, text, done: false }).select().single();
   if (error) { toast('Error.'); return; }
   const g = goals.find(x => x.id === gid);
-  if (g) { g.goal_subtasks.push(data); renderGoals(); }
+  if (g) { g.goal_subtasks.push(data); saveCache(); renderGoals(); }
 });
 
 // Main inputs
@@ -627,13 +660,18 @@ document.getElementById('goals-input').addEventListener('keydown',  e => { if (e
 document.getElementById('habits-input').addEventListener('keydown', e => { if (e.key === 'Enter') addHabit(); });
 
 // ── Settings ──────────────────────────────────────────────
+function updateAiVisibility() {
+  document.body.classList.toggle('has-ai', !!claudeApiKey);
+  document.getElementById('chat-btn').classList.toggle('show', !!claudeApiKey);
+}
+
 async function loadSettings() {
   const { data } = await sb.from('user_settings').select('claude_api_key').eq('user_id', currentUser.id).maybeSingle();
   if (data?.claude_api_key) {
     claudeApiKey = data.claude_api_key;
     document.getElementById('api-key-input').value = data.claude_api_key;
-    document.getElementById('chat-btn').classList.add('show');
   }
+  updateAiVisibility();
 }
 
 async function saveApiKey() {
@@ -647,12 +685,15 @@ async function saveApiKey() {
   btn.disabled = false; btn.textContent = 'Save key';
   if (error) { statusEl.textContent = 'Could not save. Try again.'; return; }
   claudeApiKey = key;
-  statusEl.textContent = '✓ Saved';
-  document.getElementById('chat-btn').classList.add('show');
+  statusEl.textContent = '✓ Saved — AI features unlocked!';
+  updateAiVisibility();
   setTimeout(() => { document.getElementById('settings-modal').classList.remove('show'); statusEl.textContent = ''; }, 900);
 }
 
-document.getElementById('btn-settings').addEventListener('click', () => document.getElementById('settings-modal').classList.add('show'));
+const openSettings = () => document.getElementById('settings-modal').classList.add('show');
+document.getElementById('btn-settings').addEventListener('click', openSettings);
+document.getElementById('unlock-ai-todos').addEventListener('click',  openSettings);
+document.getElementById('unlock-ai-habits').addEventListener('click', openSettings);
 document.getElementById('settings-close').addEventListener('click', () => document.getElementById('settings-modal').classList.remove('show'));
 document.getElementById('settings-modal').addEventListener('click', e => { if (e.target === document.getElementById('settings-modal')) document.getElementById('settings-modal').classList.remove('show'); });
 document.getElementById('save-key-btn').addEventListener('click', saveApiKey);
@@ -706,7 +747,7 @@ async function suggestSteps(goalId) {
       const { data, error } = await sb.from('goal_subtasks').insert({ goal_id: goalId, text, done: false }).select().single();
       if (!error && data) g.goal_subtasks.push(data);
     }
-    renderGoals();
+    saveCache(); renderGoals();
   } catch(e) {
     toast('Could not get suggestions. Check your API key in AI Settings.');
   } finally {
@@ -729,7 +770,7 @@ document.getElementById('plan-day-btn').addEventListener('click', async () => {
       const { data, error } = await sb.from('todos').insert({ text, user_id: currentUser.id }).select().single();
       if (!error && data) todos.unshift(data);
     }
-    renderTodos(); toast('Tasks added to your list!');
+    saveCache(); renderTodos(); toast('Tasks added to your list!');
   } catch(e) {
     toast('Could not plan your day. Check your API key in AI Settings.');
   } finally { btn.disabled = false; btn.textContent = orig; }
