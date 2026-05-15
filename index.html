@@ -729,12 +729,25 @@ document.addEventListener('click', async e => {
 // Enter on subtask inputs
 document.addEventListener('keydown', async e => {
   if (e.key !== 'Enter' || !e.target.classList.contains('sub-inp')) return;
-  const gid = e.target.dataset.gid, text = e.target.value.trim();
+  const inp = e.target, gid = inp.dataset.gid, text = inp.value.trim();
   if (!text) return;
-  const { data, error } = await sb.from('goal_subtasks').insert({ goal_id: gid, text, done: false }).select().single();
-  if (error) { toast('Error.'); return; }
   const g = goals.find(x => x.id === gid);
-  if (g) { g.goal_subtasks.push(data); saveCache(); renderGoals(); }
+  if (!g) return;
+  const tempId = 'tmp_' + Date.now();
+  g.goal_subtasks.push({ id: tempId, goal_id: gid, text, done: false, created_at: new Date().toISOString() });
+  inp.value = '';
+  saveCache(); renderGoals();
+  try {
+    const { data, error } = await sb.from('goal_subtasks').insert({ goal_id: gid, text, done: false }).select().single();
+    if (error) throw error;
+    const i = g.goal_subtasks.findIndex(s => s.id === tempId);
+    if (i !== -1) g.goal_subtasks[i] = data;
+    saveCache();
+  } catch(e) {
+    g.goal_subtasks = g.goal_subtasks.filter(s => s.id !== tempId);
+    inp.value = text;
+    saveCache(); renderGoals(); toast('Could not save step.');
+  }
 });
 
 // Main inputs
