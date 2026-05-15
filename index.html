@@ -475,10 +475,12 @@ async function addTodo() {
   if (!text) return;
   const btn = document.getElementById('todo-add');
   btn.disabled = true;
-  const { data, error } = await sb.from('todos').insert({ text, user_id: currentUser.id }).select().single();
-  btn.disabled = false;
-  if (error) { toast('Could not add task.'); return; }
-  todos.unshift(data); inp.value = ''; saveCache(); renderTodos();
+  try {
+    const { data, error } = await sb.from('todos').insert({ text, user_id: currentUser.id }).select().single();
+    if (error) { toast('Could not add task: ' + error.message); return; }
+    todos.unshift(data); inp.value = ''; saveCache(); renderTodos();
+  } catch(e) { toast('Could not add task.'); }
+  finally { btn.disabled = false; }
 }
 
 // ── GOALS ─────────────────────────────────────────────────
@@ -526,10 +528,12 @@ async function addGoal() {
   if (!text) return;
   const btn = document.getElementById('goals-add');
   btn.disabled = true;
-  const { data, error } = await sb.from('goals').insert({ text, user_id: currentUser.id }).select().single();
-  btn.disabled = false;
-  if (error) { toast('Could not add goal.'); return; }
-  goals.unshift({ ...data, goal_subtasks: [] }); inp.value = ''; saveCache(); renderGoals();
+  try {
+    const { data, error } = await sb.from('goals').insert({ text, user_id: currentUser.id }).select().single();
+    if (error) { toast('Could not add goal: ' + error.message); return; }
+    goals.unshift({ ...data, goal_subtasks: [] }); inp.value = ''; saveCache(); renderGoals();
+  } catch(e) { toast('Could not add goal.'); }
+  finally { btn.disabled = false; }
 }
 
 // ── HABITS ────────────────────────────────────────────────
@@ -569,10 +573,12 @@ async function addHabit() {
   if (!text) return;
   const btn = document.getElementById('habits-add');
   btn.disabled = true;
-  const { data, error } = await sb.from('habits').insert({ text, user_id: currentUser.id }).select().single();
-  btn.disabled = false;
-  if (error) { toast('Could not add habit.'); return; }
-  habits.unshift({ ...data, habit_logs: [] }); inp.value = ''; saveCache(); renderHabits();
+  try {
+    const { data, error } = await sb.from('habits').insert({ text, user_id: currentUser.id }).select().single();
+    if (error) { toast('Could not add habit: ' + error.message); return; }
+    habits.unshift({ ...data, habit_logs: [] }); inp.value = ''; saveCache(); renderHabits();
+  } catch(e) { toast('Could not add habit.'); }
+  finally { btn.disabled = false; }
 }
 
 // ── Event delegation ──────────────────────────────────────
