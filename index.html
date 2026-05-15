@@ -160,9 +160,6 @@
     .btn-ai:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(102,126,234,0.5); }
     .btn-ai:active { transform: translateY(0); }
     .btn-ai:disabled { opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none; }
-    .ai-nudge { font-size: 12px; color: var(--faded); margin-bottom: 12px; display: block; }
-    .ai-nudge a { color: var(--muted); cursor: pointer; text-decoration: underline; }
-    body.has-ai .ai-nudge { display: none; }
     .ai-box { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; font-size: 13px; line-height: 1.6; display: none; }
     .ai-box-label { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
 
@@ -288,7 +285,8 @@
     </div>
     <div class="header-right">
       <span class="user-name" id="user-label"></span><span id="sync-dot" title="Synced"></span>
-      <button class="btn-icon" id="btn-settings" id="settings-btn-header">⚙️ Settings</button>
+      <button class="btn-icon" id="btn-unlock-ai" style="display:none;border-color:rgba(102,126,234,0.4);color:#667eea;font-weight:500;">✨ Unlock AI</button>
+      <button class="btn-icon" id="btn-settings">⚙️ Settings</button>
       <button class="btn-icon" id="btn-signout">Sign out</button>
     </div>
   </div>
@@ -300,7 +298,6 @@
       <div class="card-title">To-do <span class="count" id="todo-count"></span></div>
       <p class="card-desc">Your daily execution list. Every morning, write what must get done — then do it. One checked box beats ten plans.</p>
       <button class="btn-ai" id="plan-day-btn">✨ Plan my day with AI</button>
-      <span class="ai-nudge"><a id="unlock-ai-todos">✨ Unlock AI planning</a> — connect Claude to auto-generate tasks</span>
       <div class="divider"></div>
       <div class="input-row">
         <input type="text" id="todo-input" placeholder="Add a task…">
@@ -326,7 +323,6 @@
       <div class="card-title">Habits <span class="count" id="habits-count"></span></div>
       <p class="card-desc">The systems you build now will run your future company. Check in daily — streaks show you who you're becoming, not just what you did.</p>
       <button class="btn-ai" id="habit-feedback-btn">✨ Get weekly feedback</button>
-      <span class="ai-nudge"><a id="unlock-ai-habits">✨ Unlock AI feedback</a> — get streak analysis from your coach</span>
       <div class="ai-box" id="habit-ai-box">
         <div class="ai-box-label">Coach feedback</div>
         <div id="habit-ai-text"></div>
@@ -884,8 +880,10 @@ document.getElementById('habits-input').addEventListener('keydown', e => { if (e
 
 // ── Settings ──────────────────────────────────────────────
 function updateAiVisibility() {
-  document.body.classList.toggle('has-ai', !!claudeApiKey);
-  document.getElementById('chat-btn').classList.toggle('show', !!claudeApiKey);
+  const hasKey = !!claudeApiKey;
+  document.body.classList.toggle('has-ai', hasKey);
+  document.getElementById('chat-btn').classList.toggle('show', hasKey);
+  document.getElementById('btn-unlock-ai').style.display = hasKey ? 'none' : '';
 }
 
 // Key stored per-user so it survives sign-out/sign-in on same device
@@ -972,8 +970,7 @@ document.getElementById('refresh-btn').addEventListener('click', async () => {
   toast('Refreshed ✓');
 });
 document.getElementById('btn-settings').addEventListener('click', openSettings);
-document.getElementById('unlock-ai-todos').addEventListener('click',  openSettings);
-document.getElementById('unlock-ai-habits').addEventListener('click', openSettings);
+document.getElementById('btn-unlock-ai').addEventListener('click', openSettings);
 document.getElementById('settings-close').addEventListener('click', () => document.getElementById('settings-modal').classList.remove('show'));
 document.getElementById('settings-modal').addEventListener('click', e => { if (e.target === document.getElementById('settings-modal')) document.getElementById('settings-modal').classList.remove('show'); });
 document.getElementById('save-key-btn').addEventListener('click', saveApiKey);
