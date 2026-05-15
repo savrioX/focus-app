@@ -233,7 +233,7 @@
 <!-- App -->
 <div id="app">
   <div class="app-header">
-    <div class="header-left">
+    <div class="header-left" id="refresh-btn" style="cursor:pointer;" title="Tap to refresh">
       <img src="logo.PNG" style="width:28px;height:28px;border-radius:6px;">
       <span class="app-title">Compound</span>
     </div>
@@ -362,7 +362,8 @@ function setLoading(on) {
 
 // ── Auth ──────────────────────────────────────────────────
 let currentUser = null;
-let isRegister  = true;
+let isRegister = sessionStorage.getItem('show_signin') !== '1';
+try { sessionStorage.removeItem('show_signin'); } catch(e) {}
 
 function syncAuthUI() {
   document.getElementById('auth-title').textContent      = isRegister ? 'Create your account'        : 'Welcome back';
@@ -411,7 +412,8 @@ document.getElementById('btn-signout').addEventListener('click', async () => {
   } catch(e) {}
   // Tell Supabase in background (don't wait — it might be slow)
   sb.auth.signOut().catch(() => {});
-  // Reload immediately — guaranteed to show login screen
+  // Flag so auth screen opens on sign-in, not create account
+  try { sessionStorage.setItem('show_signin', '1'); } catch(e) {}
   location.reload();
 });
 
@@ -494,6 +496,26 @@ async function loadData() {
 }
 
 function renderAll() { renderTodos(); renderGoals(); renderHabits(); }
+
+// Silent background refresh — no loading screen, just updates data
+async function silentRefresh() {
+  if (!currentUser) return;
+  try {
+    const [tRes, gRes, hRes] = await Promise.all([
+      sb.from('todos').select('*').order('created_at', { ascending: false }),
+      sb.from('goals').select('*, goal_subtasks(id, text, done, created_at)').order('created_at', { ascending: false }),
+      sb.from('habits').select('*, habit_logs(logged_date)').order('created_at', { ascending: false })
+    ]);
+    if (tRes.error || gRes.error || hRes.error) return;
+    todos = tRes.data || []; goals = gRes.data || []; habits = hRes.data || [];
+    saveCache(); renderAll();
+  } catch(e) { /* silent — cached data still showing */ }
+}
+
+// Refresh when switching back to the tab (e.g. returning to mobile Safari)
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') silentRefresh();
+});
 
 // ── TODOS ─────────────────────────────────────────────────
 function renderTodos() {
@@ -861,6 +883,13 @@ async function saveApiKey() {
 }
 
 const openSettings = () => document.getElementById('settings-modal').classList.add('show');
+
+document.getElementById('refresh-btn').addEventListener('click', async () => {
+  setSyncing(true);
+  await silentRefresh();
+  setSyncing(false);
+  toast('Refreshed ✓');
+});
 document.getElementById('btn-settings').addEventListener('click', openSettings);
 document.getElementById('unlock-ai-todos').addEventListener('click',  openSettings);
 document.getElementById('unlock-ai-habits').addEventListener('click', openSettings);
