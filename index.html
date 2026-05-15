@@ -892,6 +892,10 @@ function updateAiVisibility() {
 function apiKeyStorageKey() { return `compound_apikey_${currentUser.id}`; }
 
 async function loadSettings() {
+  // Migrate old generic key to user-specific key
+  const oldKey = localStorage.getItem('compound_apikey');
+  if (oldKey) { localStorage.setItem(apiKeyStorageKey(), oldKey); localStorage.removeItem('compound_apikey'); }
+
   // Load from localStorage instantly using user-specific key
   const local = localStorage.getItem(apiKeyStorageKey());
   if (local) {
