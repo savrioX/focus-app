@@ -596,9 +596,11 @@ document.addEventListener('click', async e => {
       todos = todos.filter(t => t.id !== el.dataset.id); saveCache(); renderTodos(); break;
     }
     case 'del-goal': {
-      const { error } = await sb.from('goals').delete().eq('id', el.dataset.id);
-      if (error) { toast('Error.'); return; }
-      goals = goals.filter(g => g.id !== el.dataset.id); saveCache(); renderGoals(); break;
+      const id = el.dataset.id;
+      el.style.opacity = '0.3';
+      const { error } = await sb.from('goals').delete().eq('id', id);
+      if (error) { el.style.opacity = ''; toast('Could not delete: ' + error.message); return; }
+      goals = goals.filter(g => g.id !== id); saveCache(); renderGoals(); break;
     }
     case 'check-sub': {
       const done = el.dataset.done === 'true';
@@ -618,8 +620,10 @@ document.addEventListener('click', async e => {
       const gid = el.dataset.gid, inp = document.querySelector(`.sub-inp[data-gid="${gid}"]`);
       const text = inp && inp.value.trim();
       if (!text) return;
+      el.disabled = true; el.textContent = '…';
       const { data, error } = await sb.from('goal_subtasks').insert({ goal_id: gid, text, done: false }).select().single();
-      if (error) { toast('Error.'); return; }
+      el.disabled = false; el.textContent = '+';
+      if (error) { toast('Could not add step: ' + error.message); return; }
       const g = goals.find(x => x.id === gid);
       if (g) { g.goal_subtasks.push(data); saveCache(); renderGoals(); } break;
     }
