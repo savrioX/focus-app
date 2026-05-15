@@ -388,6 +388,7 @@ sb.auth.onAuthStateChange(async (event, session) => {
     todos = []; goals = []; habits = [];
     try { localStorage.removeItem(CACHE_KEY); } catch(e) {}
     updateAiVisibility();
+    setLoading(false);
     document.getElementById('auth-screen').style.display = 'flex';
     document.getElementById('app').style.display         = 'none';
   }
