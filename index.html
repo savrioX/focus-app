@@ -126,8 +126,8 @@
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
     /* ── Settings modal ──────────────────── */
-    #settings-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 400; padding: 24px; }
-    #settings-modal.show { display: flex; }
+    #settings-modal, #ai-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 400; padding: 24px; }
+    #settings-modal.show, #ai-modal.show { display: flex; }
     .modal-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 32px; width: 100%; max-width: 440px; position: relative; }
     .modal-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
     .modal-card > p { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
@@ -198,14 +198,12 @@
 
 <div id="toast"></div>
 
-<!-- Settings modal -->
+<!-- Settings modal (appearance only) -->
 <div id="settings-modal">
   <div class="modal-card">
     <button class="modal-close" id="settings-close">×</button>
     <h3>Settings</h3>
-
-    <!-- Appearance -->
-    <div class="settings-section">
+    <div class="settings-section" style="border-bottom:none;margin-bottom:0;padding-bottom:0;">
       <span class="settings-label">Appearance</span>
       <div class="toggle-row" style="margin-bottom:16px;">
         <span>Dark mode</span>
@@ -221,19 +219,22 @@
         <button class="size-btn" data-size="16px" style="font-size:16px;">Large</button>
       </div>
     </div>
+  </div>
+</div>
 
-    <!-- AI -->
-    <div class="settings-section">
-      <span class="settings-label">AI Coaching <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></span>
-      <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px;">Connect your own Claude API key to unlock step suggestions, daily planning, habit feedback, and a coach chat. Get a free key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent);font-weight:500;">console.anthropic.com</a>.</p>
-      <div class="field">
-        <label>Claude API Key</label>
-        <input type="password" id="api-key-input" placeholder="sk-ant-…" autocomplete="off" spellcheck="false">
-      </div>
-      <button class="btn-primary" id="save-key-btn">Save key</button>
-      <div class="key-status" id="key-status"></div>
+<!-- AI modal (separate) -->
+<div id="ai-modal">
+  <div class="modal-card">
+    <button class="modal-close" id="ai-modal-close">×</button>
+    <h3 style="background:linear-gradient(135deg,#667eea,#764ba2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">✨ Unlock AI Coaching</h3>
+    <p style="font-size:13px;color:var(--muted);line-height:1.6;margin:12px 0 20px;">Paste your Claude API key to unlock AI step suggestions, daily planning, habit feedback and a personal coach chat.<br><br>Get a free key at <a href="https://console.anthropic.com" target="_blank" style="color:#667eea;font-weight:500;">console.anthropic.com</a> — add $5 in credits, create a key, paste it here.</p>
+    <div class="field">
+      <label>Claude API Key</label>
+      <input type="text" id="api-key-input" placeholder="sk-ant-…" autocomplete="off" spellcheck="false" style="font-family:monospace;font-size:12px;">
     </div>
-
+    <button class="btn-primary" id="save-key-btn" style="background:linear-gradient(135deg,#667eea,#764ba2);margin-bottom:8px;">Save &amp; unlock</button>
+    <button class="btn-icon" id="test-key-btn" style="width:100%;text-align:center;justify-content:center;display:flex;margin-bottom:4px;">Test connection</button>
+    <div class="key-status" id="key-status"></div>
   </div>
 </div>
 
@@ -883,57 +884,69 @@ function updateAiVisibility() {
   const hasKey = !!claudeApiKey;
   document.body.classList.toggle('has-ai', hasKey);
   document.getElementById('chat-btn').classList.toggle('show', hasKey);
-  document.getElementById('btn-unlock-ai').style.display = hasKey ? 'none' : '';
+  const unlockBtn = document.getElementById('btn-unlock-ai');
+  unlockBtn.style.display = '';
+  unlockBtn.textContent = hasKey ? '✨ AI' : '✨ Unlock AI';
+  unlockBtn.style.borderColor = 'rgba(102,126,234,0.4)';
+  unlockBtn.style.color = '#667eea';
 }
 
-// Key stored per-user so it survives sign-out/sign-in on same device
-function apiKeyStorageKey() { return `compound_apikey_${currentUser.id}`; }
+const AK = 'compound_ak'; // simple fixed key — no user ID needed
 
-async function loadSettings() {
-  // Migrate old generic key to user-specific key
-  const oldKey = localStorage.getItem('compound_apikey');
-  if (oldKey) { localStorage.setItem(apiKeyStorageKey(), oldKey); localStorage.removeItem('compound_apikey'); }
-
-  // Load from localStorage instantly using user-specific key
-  const local = localStorage.getItem(apiKeyStorageKey());
-  if (local) {
-    claudeApiKey = local;
-    document.getElementById('api-key-input').value = local;
+function loadSettings() {
+  const key = localStorage.getItem(AK);
+  if (key) {
+    claudeApiKey = key;
+    const inp = document.getElementById('api-key-input');
+    if (inp) inp.value = key;
     updateAiVisibility();
-    return; // Already have it — no need to hit Supabase
   }
-  // No local key — try Supabase (first time on this device)
-  try {
-    const { data } = await sb.from('user_settings').select('claude_api_key').eq('user_id', currentUser.id).maybeSingle();
-    if (data?.claude_api_key) {
-      claudeApiKey = data.claude_api_key;
-      localStorage.setItem(apiKeyStorageKey(), data.claude_api_key);
-      document.getElementById('api-key-input').value = data.claude_api_key;
-      updateAiVisibility();
-    }
-  } catch(e) { /* no key available */ }
 }
 
 async function saveApiKey() {
   const key      = document.getElementById('api-key-input').value.trim();
   const statusEl = document.getElementById('key-status');
-  const btn      = document.getElementById('save-key-btn');
   statusEl.textContent = '';
-  if (!key.startsWith('sk-ant-')) { statusEl.textContent = "Doesn't look like a valid Claude key."; return; }
-
-  // Save locally instantly — survives sign-out on this device
+  if (!key.startsWith('sk-ant-')) {
+    statusEl.style.color = 'var(--red)';
+    statusEl.textContent = "Key should start with sk-ant- — check you copied the full key.";
+    return;
+  }
+  localStorage.setItem(AK, key);
   claudeApiKey = key;
-  localStorage.setItem(apiKeyStorageKey(), key);
-  statusEl.textContent = '✓ Saved — AI features unlocked!';
+  statusEl.style.color = '#4ade80';
+  statusEl.textContent = '✓ Saved!';
   updateAiVisibility();
-  setTimeout(() => { document.getElementById('settings-modal').classList.remove('show'); statusEl.textContent = ''; }, 900);
+  setTimeout(() => { document.getElementById('ai-modal').classList.remove('show'); statusEl.textContent = ''; }, 1200);
+  // Sync to Supabase in background
+  try { await sb.from('user_settings').upsert({ user_id: currentUser.id, claude_api_key: key, updated_at: new Date().toISOString() }, { onConflict: 'user_id' }); } catch(e) {}
+}
 
-  // Sync to Supabase in background (enables first-time load on new devices)
-  btn.disabled = true; btn.textContent = 'Syncing…';
+async function testApiKey() {
+  const key = document.getElementById('api-key-input').value.trim() || claudeApiKey;
+  const statusEl = document.getElementById('key-status');
+  const btn = document.getElementById('test-key-btn');
+  if (!key) { statusEl.style.color = 'var(--red)'; statusEl.textContent = 'Enter a key first.'; return; }
+  btn.disabled = true; btn.textContent = 'Testing…'; statusEl.textContent = '';
   try {
-    await sb.from('user_settings').upsert({ user_id: currentUser.id, claude_api_key: key, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
-  } catch(e) { /* local save already worked */ }
-  btn.disabled = false; btn.textContent = 'Save key';
+    const res = await fetch('/api/claude', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ apiKey: key, messages: [{ role: 'user', content: 'Reply with just the word CONNECTED.' }], system: 'You are a test.' })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      statusEl.style.color = 'var(--red)';
+      statusEl.textContent = 'Error: ' + (data.error || res.status);
+    } else {
+      statusEl.style.color = '#4ade80';
+      statusEl.textContent = '✓ Connected! API is working.';
+    }
+  } catch(e) {
+    statusEl.style.color = 'var(--red)';
+    statusEl.textContent = 'Could not reach server: ' + e.message;
+  }
+  btn.disabled = false; btn.textContent = 'Test connection';
 }
 
 // ── Appearance prefs ──────────────────────────────────────
@@ -962,18 +975,19 @@ document.querySelectorAll('.size-btn').forEach(btn => {
 applyPrefs();
 
 const openSettings = () => document.getElementById('settings-modal').classList.add('show');
+const openAiModal  = () => document.getElementById('ai-modal').classList.add('show');
 
 document.getElementById('refresh-btn').addEventListener('click', async () => {
-  setSyncing(true);
-  await silentRefresh();
-  setSyncing(false);
-  toast('Refreshed ✓');
+  setSyncing(true); await silentRefresh(); setSyncing(false); toast('Refreshed ✓');
 });
 document.getElementById('btn-settings').addEventListener('click', openSettings);
-document.getElementById('btn-unlock-ai').addEventListener('click', openSettings);
+document.getElementById('btn-unlock-ai').addEventListener('click', openAiModal);
 document.getElementById('settings-close').addEventListener('click', () => document.getElementById('settings-modal').classList.remove('show'));
 document.getElementById('settings-modal').addEventListener('click', e => { if (e.target === document.getElementById('settings-modal')) document.getElementById('settings-modal').classList.remove('show'); });
+document.getElementById('ai-modal-close').addEventListener('click', () => document.getElementById('ai-modal').classList.remove('show'));
+document.getElementById('ai-modal').addEventListener('click', e => { if (e.target === document.getElementById('ai-modal')) document.getElementById('ai-modal').classList.remove('show'); });
 document.getElementById('save-key-btn').addEventListener('click', saveApiKey);
+document.getElementById('test-key-btn').addEventListener('click', testApiKey);
 document.getElementById('api-key-input').addEventListener('keydown', e => { if (e.key === 'Enter') saveApiKey(); });
 
 // ── Claude API call ───────────────────────────────────────
