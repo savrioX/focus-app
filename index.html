@@ -12,8 +12,15 @@
       --bg: #f9f9f8; --surface: #fff; --border: #e8e8e6;
       --text: #1a1a1a; --muted: #8a8a8a; --accent: #1a1a1a;
       --faded: #c4c4c4; --red: #c0392b; --orange: #e07b39;
+      --fs: 14px;
     }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    body.dark {
+      --bg: #0f0f0f; --surface: #1a1a1a; --border: #2a2a2a;
+      --text: #f0f0f0; --muted: #666; --accent: #f0f0f0;
+      --faded: #444; --red: #e05555; --orange: #e07b39;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: var(--fs); transition: background 0.2s, color 0.2s; }
+    body.dark #load-overlay { background: #000; }
 
     /* ── Auth ────────────────────────────── */
     #auth-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
@@ -128,6 +135,25 @@
     .modal-close:hover { color: var(--text); }
     .key-status { font-size: 12px; color: var(--muted); text-align: center; margin-top: 12px; min-height: 18px; }
 
+    /* ── Settings sections ───────────────── */
+    .settings-section { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+    .settings-section:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+    .settings-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; display: block; }
+    /* Toggle */
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; }
+    .toggle-row span { font-size: 14px; }
+    .toggle { position: relative; width: 44px; height: 26px; flex-shrink: 0; }
+    .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-track { position: absolute; inset: 0; background: var(--border); border-radius: 99px; cursor: pointer; transition: background 0.2s; }
+    .toggle input:checked + .toggle-track { background: var(--accent); }
+    .toggle-track::after { content: ''; position: absolute; width: 20px; height: 20px; background: #fff; border-radius: 50%; top: 3px; left: 3px; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .toggle input:checked + .toggle-track::after { transform: translateX(18px); }
+    /* Size buttons */
+    .size-btns { display: flex; gap: 8px; }
+    .size-btn { flex: 1; border: 1px solid var(--border); background: var(--bg); color: var(--muted); border-radius: 8px; padding: 8px; cursor: pointer; font-family: inherit; font-weight: 500; transition: all 0.15s; }
+    .size-btn.active { border-color: var(--accent); color: var(--text); background: var(--surface); font-weight: 600; }
+    .size-btn:hover { border-color: var(--text); }
+
     /* ── AI buttons ──────────────────────── */
     .btn-ai { display: none; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; color: #fff; font-family: inherit; transition: all 0.2s; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(102,126,234,0.35); }
     body.has-ai .btn-ai { display: inline-flex; }
@@ -180,14 +206,37 @@
   <div class="modal-card">
     <button class="modal-close" id="settings-close">×</button>
     <h3>Settings</h3>
-    <p><strong>AI Coaching</strong> <span style="font-size:11px;color:var(--muted);font-weight:400;">(optional)</span><br>Connect your own Claude API key to unlock AI-powered step suggestions, daily planning, habit feedback, and a personal coach chat. The app works great without it.<br><br>
-    Get a free key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent);font-weight:500;">console.anthropic.com</a>. Your key is stored on your account and never shared.</p>
-    <div class="field">
-      <label>Claude API Key</label>
-      <input type="password" id="api-key-input" placeholder="sk-ant-…" autocomplete="off" spellcheck="false">
+
+    <!-- Appearance -->
+    <div class="settings-section">
+      <span class="settings-label">Appearance</span>
+      <div class="toggle-row" style="margin-bottom:16px;">
+        <span>Dark mode</span>
+        <label class="toggle">
+          <input type="checkbox" id="dark-toggle">
+          <div class="toggle-track"></div>
+        </label>
+      </div>
+      <span class="settings-label">Text size</span>
+      <div class="size-btns">
+        <button class="size-btn" data-size="13px" style="font-size:12px;">Small</button>
+        <button class="size-btn active" data-size="14px" style="font-size:14px;">Medium</button>
+        <button class="size-btn" data-size="16px" style="font-size:16px;">Large</button>
+      </div>
     </div>
-    <button class="btn-primary" id="save-key-btn">Save key</button>
-    <div class="key-status" id="key-status"></div>
+
+    <!-- AI -->
+    <div class="settings-section">
+      <span class="settings-label">AI Coaching <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></span>
+      <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px;">Connect your own Claude API key to unlock step suggestions, daily planning, habit feedback, and a coach chat. Get a free key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent);font-weight:500;">console.anthropic.com</a>.</p>
+      <div class="field">
+        <label>Claude API Key</label>
+        <input type="password" id="api-key-input" placeholder="sk-ant-…" autocomplete="off" spellcheck="false">
+      </div>
+      <button class="btn-primary" id="save-key-btn">Save key</button>
+      <div class="key-status" id="key-status"></div>
+    </div>
+
   </div>
 </div>
 
@@ -881,6 +930,31 @@ async function saveApiKey() {
   } catch(e) { /* local save already worked */ }
   btn.disabled = false; btn.textContent = 'Save key';
 }
+
+// ── Appearance prefs ──────────────────────────────────────
+function applyPrefs() {
+  const dark = localStorage.getItem('compound_dark') === '1';
+  const size = localStorage.getItem('compound_fs') || '14px';
+  document.body.classList.toggle('dark', dark);
+  document.documentElement.style.setProperty('--fs', size);
+  document.getElementById('dark-toggle').checked = dark;
+  document.querySelectorAll('.size-btn').forEach(b => b.classList.toggle('active', b.dataset.size === size));
+}
+
+document.getElementById('dark-toggle').addEventListener('change', e => {
+  localStorage.setItem('compound_dark', e.target.checked ? '1' : '0');
+  applyPrefs();
+});
+
+document.querySelectorAll('.size-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    localStorage.setItem('compound_fs', btn.dataset.size);
+    applyPrefs();
+  });
+});
+
+// Apply immediately on load (before auth even resolves)
+applyPrefs();
 
 const openSettings = () => document.getElementById('settings-modal').classList.add('show');
 
