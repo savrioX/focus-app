@@ -454,7 +454,6 @@ document.getElementById('btn-signout').addEventListener('click', async () => {
   // Clear local data immediately so sign out feels instant
   try {
     localStorage.removeItem(CACHE_KEY);
-    localStorage.removeItem('compound_apikey');
     localStorage.removeItem('compound_done');
     // Clear Supabase session keys
     Object.keys(localStorage).forEach(k => { if (k.startsWith('sb-')) localStorage.removeItem(k); });
@@ -889,24 +888,28 @@ function updateAiVisibility() {
   document.getElementById('chat-btn').classList.toggle('show', !!claudeApiKey);
 }
 
+// Key stored per-user so it survives sign-out/sign-in on same device
+function apiKeyStorageKey() { return `compound_apikey_${currentUser.id}`; }
+
 async function loadSettings() {
-  // Load from localStorage instantly
-  const local = localStorage.getItem('compound_apikey');
+  // Load from localStorage instantly using user-specific key
+  const local = localStorage.getItem(apiKeyStorageKey());
   if (local) {
     claudeApiKey = local;
     document.getElementById('api-key-input').value = local;
     updateAiVisibility();
+    return; // Already have it — no need to hit Supabase
   }
-  // Then sync from Supabase in background (may have key from another device)
+  // No local key — try Supabase (first time on this device)
   try {
     const { data } = await sb.from('user_settings').select('claude_api_key').eq('user_id', currentUser.id).maybeSingle();
-    if (data?.claude_api_key && data.claude_api_key !== local) {
+    if (data?.claude_api_key) {
       claudeApiKey = data.claude_api_key;
-      localStorage.setItem('compound_apikey', data.claude_api_key);
+      localStorage.setItem(apiKeyStorageKey(), data.claude_api_key);
       document.getElementById('api-key-input').value = data.claude_api_key;
       updateAiVisibility();
     }
-  } catch(e) { /* use local value */ }
+  } catch(e) { /* no key available */ }
 }
 
 async function saveApiKey() {
@@ -916,14 +919,14 @@ async function saveApiKey() {
   statusEl.textContent = '';
   if (!key.startsWith('sk-ant-')) { statusEl.textContent = "Doesn't look like a valid Claude key."; return; }
 
-  // Save locally instantly — no waiting
+  // Save locally instantly — survives sign-out on this device
   claudeApiKey = key;
-  localStorage.setItem('compound_apikey', key);
+  localStorage.setItem(apiKeyStorageKey(), key);
   statusEl.textContent = '✓ Saved — AI features unlocked!';
   updateAiVisibility();
   setTimeout(() => { document.getElementById('settings-modal').classList.remove('show'); statusEl.textContent = ''; }, 900);
 
-  // Sync to Supabase in background (for cross-device access)
+  // Sync to Supabase in background (enables first-time load on new devices)
   btn.disabled = true; btn.textContent = 'Syncing…';
   try {
     await sb.from('user_settings').upsert({ user_id: currentUser.id, claude_api_key: key, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
