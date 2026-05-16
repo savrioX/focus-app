@@ -928,7 +928,8 @@ function updateAiVisibility() {
   unlockBtn.style.color = '#667eea';
 }
 
-const AK = 'compound_ak'; // simple fixed key — no user ID needed
+const AK  = 'compound_ak';  // API key
+const AMK = 'compound_am';  // Auto-detected model
 
 function loadSettings() {
   const key = localStorage.getItem(AK);
@@ -940,6 +941,26 @@ function loadSettings() {
   updateAiVisibility(); // Always run — shows/hides button regardless of key
 }
 
+// Fetch the list of models for this API key and pick the best cheap one
+async function detectBestModel(key) {
+  try {
+    const res = await fetch('/api/models', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ apiKey: key })
+    });
+    if (!res.ok) return null;
+    const { models } = await res.json();
+    if (!models || !models.length) return null;
+    const ids = models.map(m => m.id);
+    // Prefer haiku (cheapest), then sonnet, then anything
+    const pick = ids.find(id => id.toLowerCase().includes('haiku'))
+               || ids.find(id => id.toLowerCase().includes('sonnet'))
+               || ids[0];
+    return pick || null;
+  } catch(e) { return null; }
+}
+
 async function saveApiKey() {
   const key      = document.getElementById('api-key-input').value.trim();
   const statusEl = document.getElementById('key-status');
@@ -949,12 +970,21 @@ async function saveApiKey() {
     statusEl.textContent = "Key should start with sk-ant- — check you copied the full key.";
     return;
   }
+  statusEl.style.color = 'var(--muted)';
+  statusEl.textContent = 'Detecting your available models…';
+  const model = await detectBestModel(key);
+  if (model) {
+    localStorage.setItem(AMK, model);
+    statusEl.textContent = `Using ${model}`;
+  } else {
+    statusEl.textContent = '';
+  }
   localStorage.setItem(AK, key);
   claudeApiKey = key;
   statusEl.style.color = '#4ade80';
-  statusEl.textContent = '✓ Saved!';
+  statusEl.textContent = model ? `✓ Saved! Using ${model}` : '✓ Saved!';
   updateAiVisibility();
-  setTimeout(() => { document.getElementById('ai-modal').classList.remove('show'); statusEl.textContent = ''; }, 1200);
+  setTimeout(() => { document.getElementById('ai-modal').classList.remove('show'); statusEl.textContent = ''; }, 2000);
   // Sync to Supabase in background
   try { await sb.from('user_settings').upsert({ user_id: currentUser.id, claude_api_key: key, updated_at: new Date().toISOString() }, { onConflict: 'user_id' }); } catch(e) {}
 }
@@ -964,21 +994,27 @@ async function testApiKey() {
   const statusEl = document.getElementById('key-status');
   const btn = document.getElementById('test-key-btn');
   if (!key) { statusEl.style.color = 'var(--red)'; statusEl.textContent = 'Enter a key first.'; return; }
-  btn.disabled = true; btn.textContent = 'Testing…'; statusEl.textContent = '';
+  btn.disabled = true; btn.textContent = 'Testing…';
+  statusEl.style.color = 'var(--muted)'; statusEl.textContent = 'Detecting models…';
+  statusEl.style.whiteSpace = 'normal';
+
+  // Auto-detect model first
+  const model = await detectBestModel(key);
+  if (model) localStorage.setItem(AMK, model);
+
   try {
     const res = await fetch('/api/claude', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ apiKey: key, messages: [{ role: 'user', content: 'Reply with just the word CONNECTED.' }], system: 'You are a test.' })
+      body: JSON.stringify({ apiKey: key, model: model || undefined, messages: [{ role: 'user', content: 'Reply with just the word CONNECTED.' }], system: 'You are a test.' })
     });
     const data = await res.json();
     if (!res.ok) {
       statusEl.style.color = 'var(--red)';
       statusEl.textContent = 'Error: ' + (data.error || res.status);
-      statusEl.style.whiteSpace = 'normal';
     } else {
       statusEl.style.color = '#4ade80';
-      statusEl.textContent = '✓ Connected! API is working.';
+      statusEl.textContent = `✓ Connected! Using ${model || 'default model'}.`;
     }
   } catch(e) {
     statusEl.style.color = 'var(--red)';
@@ -1031,10 +1067,11 @@ document.getElementById('api-key-input').addEventListener('keydown', e => { if (
 // ── Claude API call ───────────────────────────────────────
 async function callClaude(messages, system) {
   if (!claudeApiKey) { document.getElementById('ai-modal').classList.add('show'); return null; }
+  const model = localStorage.getItem(AMK) || undefined;
   const res  = await fetch('/api/claude', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ apiKey: claudeApiKey, messages, system })
+    body: JSON.stringify({ apiKey: claudeApiKey, model, messages, system })
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Claude error');

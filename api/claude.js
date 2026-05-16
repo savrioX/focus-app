@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { apiKey, messages, system } = req.body;
+  const { apiKey, messages, system, model } = req.body;
 
   if (!apiKey)                              return res.status(400).json({ error: 'API key required' });
   if (!messages || !Array.isArray(messages)) return res.status(400).json({ error: 'Messages required' });
@@ -17,7 +17,7 @@ export default async function handler(req, res) {
         'content-type':      'application/json',
       },
       body: JSON.stringify({
-        model:      'claude-3-5-sonnet-20241022',
+        model:      model || 'claude-3-5-sonnet-20241022',
         max_tokens: 1024,
         system:     system || 'You are a helpful productivity coach.',
         messages,
