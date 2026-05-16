@@ -975,6 +975,7 @@ async function testApiKey() {
     if (!res.ok) {
       statusEl.style.color = 'var(--red)';
       statusEl.textContent = 'Error: ' + (data.error || res.status);
+      statusEl.style.whiteSpace = 'normal';
     } else {
       statusEl.style.color = '#4ade80';
       statusEl.textContent = '✓ Connected! API is working.';

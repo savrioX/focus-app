@@ -5,7 +5,7 @@ export default async function handler(req, res) {
 
   const { apiKey, messages, system } = req.body;
 
-  if (!apiKey)                          return res.status(400).json({ error: 'API key required' });
+  if (!apiKey)                              return res.status(400).json({ error: 'API key required' });
   if (!messages || !Array.isArray(messages)) return res.status(400).json({ error: 'Messages required' });
 
   try {
@@ -27,9 +27,22 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
-      return res.status(response.status).json({
-        error: data.error?.message || 'Claude API error'
-      });
+      const errType = data.error?.type || '';
+      const errMsg  = data.error?.message || JSON.stringify(data);
+
+      // Give the frontend a clear, specific message
+      let friendly = errMsg;
+      if (errType === 'authentication_error' || response.status === 401) {
+        friendly = 'Invalid API key — copy it from console.anthropic.com/settings/keys';
+      } else if (errType === 'permission_error' || response.status === 403) {
+        friendly = 'Your account does not have access to this model. Make sure you have added credits at console.anthropic.com and your account is active.';
+      } else if (errMsg.includes('model')) {
+        friendly = `Model not available on your account (${errMsg}). Go to console.anthropic.com and check your tier / usage limits.`;
+      } else if (response.status === 429) {
+        friendly = 'Rate limit hit — wait a moment and try again.';
+      }
+
+      return res.status(response.status).json({ error: friendly, raw: errMsg });
     }
 
     return res.status(200).json({ content: data.content[0].text });
