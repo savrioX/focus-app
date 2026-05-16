@@ -296,7 +296,7 @@
     </div>
     <div class="header-right">
       <span class="user-name" id="user-label"></span><span id="sync-dot" title="Synced"></span>
-      <button class="btn-icon" id="btn-unlock-ai" style="display:none;border-color:rgba(102,126,234,0.4);color:#667eea;font-weight:500;">✨ Unlock AI</button>
+      <button class="btn-icon" id="btn-unlock-ai" style="border-color:rgba(102,126,234,0.4);color:#667eea;font-weight:500;">✨ Unlock AI</button>
       <button class="btn-icon" id="btn-settings">⚙️ Settings</button>
       <button class="btn-icon" id="btn-signout">Sign out</button>
     </div>
@@ -932,8 +932,8 @@ function loadSettings() {
     claudeApiKey = key;
     const inp = document.getElementById('api-key-input');
     if (inp) inp.value = key;
-    updateAiVisibility();
   }
+  updateAiVisibility(); // Always run — shows/hides button regardless of key
 }
 
 async function saveApiKey() {
@@ -1025,7 +1025,7 @@ document.getElementById('api-key-input').addEventListener('keydown', e => { if (
 
 // ── Claude API call ───────────────────────────────────────
 async function callClaude(messages, system) {
-  if (!claudeApiKey) { document.getElementById('settings-modal').classList.add('show'); return null; }
+  if (!claudeApiKey) { document.getElementById('ai-modal').classList.add('show'); return null; }
   const res  = await fetch('/api/claude', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
@@ -1142,7 +1142,7 @@ async function sendChat() {
   if (!text) return;
   if (!claudeApiKey) {
     document.getElementById('chat-panel').classList.remove('open');
-    document.getElementById('settings-modal').classList.add('show');
+    document.getElementById('ai-modal').classList.add('show');
     return;
   }
   inp.value = ''; btn.disabled = true;
