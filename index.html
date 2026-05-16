@@ -510,6 +510,10 @@ sb.auth.onAuthStateChange(async (event, session) => {
     todos = []; goals = []; habits = [];
     try { localStorage.removeItem(CACHE_KEY); localStorage.removeItem('compound_apikey'); } catch(e) {}
     updateAiVisibility();
+    // If Google just redirected back with an OAuth code, keep the loading screen
+    // up while Supabase exchanges the code for a session — don't flash sign-in
+    const hasOAuthCode = new URLSearchParams(window.location.search).has('code');
+    if (hasOAuthCode) return;
     setLoading(false);
     document.getElementById('auth-screen').style.display = 'flex';
     document.getElementById('app').style.display         = 'none';
