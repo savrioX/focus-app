@@ -483,6 +483,30 @@ const SUPABASE_URL  = 'https://diwwapnpnffubepdvrxg.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRpd3dhcG5wbmZmdWJlcGR2cnhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MDU1OTgsImV4cCI6MjA5NDI4MTU5OH0.UFCnZe_a0LhOifMph-61zP3dHniF95jiiHtGpw3z45w';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
+// ── Capture OAuth state synchronously before anything async runs ──
+// Supabase clears the URL params before onAuthStateChange fires,
+// so we MUST read the URL right now — not inside a callback.
+const IS_OAUTH_CALLBACK = !!(
+  new URLSearchParams(window.location.search).get('code') ||
+  new URLSearchParams(window.location.search).get('error') ||
+  window.location.hash.includes('access_token')
+);
+
+// If returning from OAuth, explicitly trigger code exchange so Supabase
+// doesn't silently drop it. Supabase JS v2 should do this automatically,
+// but calling it explicitly guarantees it fires.
+if (IS_OAUTH_CALLBACK) {
+  sb.auth.getSession(); // triggers PKCE exchange internally
+  // Safety net: if SIGNED_IN never fires within 8s, fall through to sign-in page
+  setTimeout(() => {
+    if (!document.getElementById('app') || document.getElementById('app').style.display === 'none') {
+      setLoading(false);
+      document.getElementById('auth-screen').style.display = 'flex';
+      document.getElementById('app').style.display = 'none';
+    }
+  }, 8000);
+}
+
 // ── Utilities ─────────────────────────────────────────────
 // Use local date so habits reset at local midnight, not UTC midnight
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
@@ -606,10 +630,10 @@ sb.auth.onAuthStateChange(async (event, session) => {
     todos = []; goals = []; habits = [];
     try { localStorage.removeItem(CACHE_KEY); localStorage.removeItem('compound_apikey'); } catch(e) {}
     updateAiVisibility();
-    // If Google just redirected back with an OAuth code, keep the loading screen
-    // up while Supabase exchanges the code for a session — don't flash sign-in
-    const hasOAuthCode = new URLSearchParams(window.location.search).has('code');
-    if (hasOAuthCode) return;
+    // IS_OAUTH_CALLBACK is captured synchronously at page load before Supabase
+    // clears the URL. If true, keep the loading screen while the session is
+    // being established — SIGNED_IN will fire and take over.
+    if (IS_OAUTH_CALLBACK) return;
     setLoading(false);
     document.getElementById('auth-screen').style.display = 'flex';
     document.getElementById('app').style.display         = 'none';
