@@ -537,16 +537,34 @@ const IS_OAUTH_CALLBACK = !!(
   new URLSearchParams(window.location.search).get('code')
 );
 
-// Safety net: if SIGNED_IN still hasn't fired after 8 s, give up and
-// show the sign-in page so the user isn't stuck on the loading screen.
+// If there's an error from Google/Supabase in the hash, surface it immediately.
 if (IS_OAUTH_CALLBACK) {
-  setTimeout(() => {
-    if (document.getElementById('app').style.display !== 'block') {
+  const _hp = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+  const _oauthErr = _hp.get('error_description') || _hp.get('error');
+  if (_oauthErr) {
+    setTimeout(() => {
       setLoading(false);
       document.getElementById('auth-screen').style.display = 'flex';
-      document.getElementById('auth-err').textContent = 'Google sign-in timed out — please try again.';
-    }
-  }, 8000);
+      document.getElementById('auth-err').textContent = decodeURIComponent(_oauthErr.replace(/\+/g, ' '));
+    }, 400);
+  }
+}
+
+// Safety net: if SIGNED_IN still hasn't fired after 10 s, try getSession()
+// as a fallback (handles cases where onAuthStateChange fires before Supabase
+// finishes parsing the implicit-flow hash), then give up with a message.
+if (IS_OAUTH_CALLBACK) {
+  setTimeout(async () => {
+    if (document.getElementById('app').style.display === 'block') return; // already in
+    // Try to recover session manually
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session?.user) return; // onAuthStateChange will fire and handle it
+    } catch(e) {}
+    setLoading(false);
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('auth-err').textContent = 'Google sign-in timed out — check your connection and try again.';
+  }, 10000);
 }
 
 // ── Utilities ─────────────────────────────────────────────
@@ -678,7 +696,6 @@ sb.auth.onAuthStateChange(async (event, session) => {
     if (IS_OAUTH_CALLBACK) return;
     setLoading(false);
     document.getElementById('auth-screen').style.display = 'flex';
-    document.getElementById('app').style.display         = 'none';
   }
 });
 
