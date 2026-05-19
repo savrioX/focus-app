@@ -481,28 +481,29 @@ function loadCache() {
 // ── Config ─────────────────────────────────────────────────
 const SUPABASE_URL  = 'https://diwwapnpnffubepdvrxg.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRpd3dhcG5wbmZmdWJlcGR2cnhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MDU1OTgsImV4cCI6MjA5NDI4MTU5OH0.UFCnZe_a0LhOifMph-61zP3dHniF95jiiHtGpw3z45w';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-// ── Capture OAuth state synchronously before anything async runs ──
-// Supabase clears the URL params before onAuthStateChange fires,
-// so we MUST read the URL right now — not inside a callback.
+// Use implicit flow — no PKCE code exchange needed.
+// The session arrives in the URL hash (#access_token=…) and Supabase
+// picks it up instantly, which is far more reliable in a pure SPA.
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+  auth: { flowType: 'implicit' }
+});
+
+// Capture OAuth redirect state synchronously — BEFORE anything async.
 const IS_OAUTH_CALLBACK = !!(
-  new URLSearchParams(window.location.search).get('code') ||
-  new URLSearchParams(window.location.search).get('error') ||
-  window.location.hash.includes('access_token')
+  window.location.hash.includes('access_token') ||
+  window.location.hash.includes('error_description') ||
+  new URLSearchParams(window.location.search).get('code')
 );
 
-// If returning from OAuth, explicitly trigger code exchange so Supabase
-// doesn't silently drop it. Supabase JS v2 should do this automatically,
-// but calling it explicitly guarantees it fires.
+// Safety net: if SIGNED_IN still hasn't fired after 8 s, give up and
+// show the sign-in page so the user isn't stuck on the loading screen.
 if (IS_OAUTH_CALLBACK) {
-  sb.auth.getSession(); // triggers PKCE exchange internally
-  // Safety net: if SIGNED_IN never fires within 8s, fall through to sign-in page
   setTimeout(() => {
-    if (!document.getElementById('app') || document.getElementById('app').style.display === 'none') {
+    if (document.getElementById('app').style.display !== 'block') {
       setLoading(false);
       document.getElementById('auth-screen').style.display = 'flex';
-      document.getElementById('app').style.display = 'none';
+      document.getElementById('auth-err').textContent = 'Google sign-in timed out — please try again.';
     }
   }, 8000);
 }
