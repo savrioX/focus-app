@@ -3,10 +3,50 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { apiKey, messages, system, model } = req.body;
-
-  if (!apiKey)                              return res.status(400).json({ error: 'API key required' });
+  const { apiKey: userKey, messages, system, model } = req.body;
   if (!messages || !Array.isArray(messages)) return res.status(400).json({ error: 'Messages required' });
+
+  let apiKey = userKey; // BYOK: user supplied their own key
+
+  // No user key → verify pro subscription and use app's server key
+  if (!apiKey) {
+    const token = (req.headers.authorization || '').replace('Bearer ', '').trim();
+    if (!token) {
+      return res.status(403).json({ error: 'pro_required' });
+    }
+
+    // Verify the Supabase JWT and get user ID
+    const userRes = await fetch(`${process.env.SUPABASE_URL}/auth/v1/user`, {
+      headers: {
+        apikey:        process.env.SUPABASE_SERVICE_ROLE_KEY,
+        Authorization: `Bearer ${token}`,
+      },
+    }).catch(() => null);
+
+    if (!userRes?.ok) {
+      return res.status(401).json({ error: 'Invalid session — please sign in again.' });
+    }
+    const user = await userRes.json();
+
+    // Check pro status in profiles table
+    const profileRes = await fetch(
+      `${process.env.SUPABASE_URL}/rest/v1/profiles?id=eq.${user.id}&select=is_pro`,
+      {
+        headers: {
+          apikey:        process.env.SUPABASE_SERVICE_ROLE_KEY,
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+        },
+      },
+    ).catch(() => null);
+
+    const profiles = profileRes?.ok ? await profileRes.json() : [];
+    if (!profiles[0]?.is_pro) {
+      return res.status(403).json({ error: 'pro_required' });
+    }
+
+    apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) return res.status(500).json({ error: 'Server API key not configured.' });
+  }
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -29,24 +69,19 @@ export default async function handler(req, res) {
     if (!response.ok) {
       const errType = data.error?.type || '';
       const errMsg  = data.error?.message || JSON.stringify(data);
-
-      // Give the frontend a clear, specific message
       let friendly = errMsg;
-      if (errType === 'authentication_error' || response.status === 401) {
+      if (errType === 'authentication_error' || response.status === 401)
         friendly = 'Invalid API key — copy it from console.anthropic.com/settings/keys';
-      } else if (errType === 'permission_error' || response.status === 403) {
-        friendly = 'Your account does not have access to this model. Make sure you have added credits at console.anthropic.com and your account is active.';
-      } else if (errMsg.includes('model')) {
-        friendly = `Model not available on your account (${errMsg}). Go to console.anthropic.com and check your tier / usage limits.`;
-      } else if (response.status === 429) {
+      else if (errType === 'permission_error' || response.status === 403)
+        friendly = 'Your account does not have access to this model.';
+      else if (errMsg.includes('model'))
+        friendly = `Model not available (${errMsg}).`;
+      else if (response.status === 429)
         friendly = 'Rate limit hit — wait a moment and try again.';
-      }
-
       return res.status(response.status).json({ error: friendly, raw: errMsg });
     }
 
     return res.status(200).json({ content: data.content[0].text });
-
   } catch (err) {
     return res.status(500).json({ error: 'Server error: ' + err.message });
   }
