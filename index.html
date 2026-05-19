@@ -29,11 +29,34 @@
     body.dark #load-overlay { background: #000; }
 
     /* ── Auth ────────────────────────────── */
-    #auth-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; background: var(--bg); }
-    .auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 40px; width: 100%; max-width: 380px; box-shadow: var(--shadow-md); }
+    /* ── Landing / Auth ─────────────────────── */
+    #auth-screen { display: flex; min-height: 100vh; background: var(--bg); }
+    .land-left { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 60px 56px; background: #09090b; color: #fafafa; min-height: 100vh; }
+    .land-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 52px; }
+    .land-logo img { width: 32px; height: 32px; border-radius: 8px; }
+    .land-logo span { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; color: #fafafa; }
+    .land-headline { font-size: 40px; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 18px; }
+    .land-headline em { font-style: normal; background: linear-gradient(135deg,#a78bfa,#7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .land-sub { font-size: 15px; color: rgba(255,255,255,0.55); line-height: 1.7; margin-bottom: 40px; max-width: 420px; }
+    .land-features { display: flex; flex-direction: column; gap: 12px; margin-bottom: 48px; }
+    .land-feat { display: flex; align-items: center; gap: 12px; font-size: 14px; color: rgba(255,255,255,0.75); }
+    .land-feat-icon { width: 28px; height: 28px; border-radius: 8px; background: rgba(255,255,255,0.07); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+    .land-quote { border-left: 2px solid rgba(124,58,237,0.5); padding-left: 16px; }
+    .land-quote p { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.6; font-style: italic; }
+    .land-quote cite { font-size: 11px; color: rgba(255,255,255,0.25); font-style: normal; margin-top: 6px; display: block; }
+    .land-right { width: 420px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 40px 40px 40px 0; }
+    .auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 36px; width: 100%; max-width: 380px; box-shadow: var(--shadow-md); }
     .auth-logo-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
-    .auth-card h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
-    .auth-card > p { font-size: 13px; color: var(--muted); margin-bottom: 28px; line-height: 1.5; }
+    .auth-card h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
+    .auth-card > p { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
+    @media (max-width: 768px) {
+      #auth-screen { flex-direction: column; }
+      .land-left { padding: 40px 28px 36px; min-height: auto; }
+      .land-headline { font-size: 28px; }
+      .land-right { width: 100%; padding: 0 20px 48px; }
+      .land-features { display: none; }
+      .land-quote { display: none; }
+    }
     .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
     .field label { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
     .field input { border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 13px; font-size: 14px; font-family: inherit; background: var(--bg); color: var(--text); outline: none; transition: border-color 0.15s, box-shadow 0.15s; width: 100%; }
@@ -220,6 +243,18 @@
     .ai-box { background: var(--ai-soft); border: 1px solid var(--ai-border); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; font-size: 13px; line-height: 1.6; display: none; }
     .ai-box-label { font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--ai); margin-bottom: 6px; opacity: 0.8; }
 
+    /* ── Footer ─────────────────────────── */
+    .app-footer { text-align: center; padding: 20px 24px 32px; font-size: 11px; color: var(--muted); display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
+    .app-footer a { color: var(--muted); text-decoration: none; transition: color 0.15s; }
+    .app-footer a:hover { color: var(--text); }
+    .footer-dot { opacity: 0.3; }
+
+    /* ── Feedback modal ──────────────────── */
+    #feedback-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 400; padding: 24px; }
+    #feedback-modal.show { display: flex; }
+    #feedback-text { width: 100%; border: 1.5px solid var(--border); border-radius: 10px; padding: 12px; font-size: 14px; font-family: inherit; background: var(--bg); color: var(--text); outline: none; resize: vertical; min-height: 100px; transition: border-color 0.15s; }
+    #feedback-text:focus { border-color: var(--ai); }
+
     /* ── Chat ────────────────────────────── */
     #chat-btn { display: none; position: fixed; bottom: 24px; right: 24px; width: 52px; height: 52px; border-radius: 50%; background: var(--ai); color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 4px 16px rgba(124,58,237,0.4); z-index: 300; align-items: center; justify-content: center; transition: transform 0.2s, box-shadow 0.2s; }
     #chat-btn.show { display: flex; }
@@ -397,32 +432,63 @@
   </div>
 </div>
 
-<!-- Auth screen -->
+<!-- Auth / Landing screen -->
 <div id="auth-screen">
-  <div class="auth-card">
-    <img src="logo.PNG" style="width:40px;height:40px;border-radius:10px;margin-bottom:20px;display:block;">
-    <h2 id="auth-title">Create your account</h2>
-    <p id="auth-sub">Pick a username and password to get started.</p>
-    <div class="field">
-      <label>Username</label>
-      <input type="text" id="auth-user" placeholder="e.g. alex" autocomplete="username" spellcheck="false">
+
+  <!-- Left: marketing -->
+  <div class="land-left">
+    <div class="land-logo">
+      <img src="logo.PNG" alt="Compound">
+      <span>Compound</span>
     </div>
-    <div class="field">
-      <label>Password</label>
-      <input type="password" id="auth-pass" placeholder="at least 6 characters" autocomplete="current-password">
+
+    <div class="land-headline">Build the person<br>you want to <em>become.</em></div>
+    <p class="land-sub">The productivity system built for student entrepreneurs — goals, habits, and daily execution, with an AI advisor that actually knows your life.</p>
+
+    <div class="land-features">
+      <div class="land-feat"><div class="land-feat-icon">🎯</div> Goals with AI-generated action steps</div>
+      <div class="land-feat"><div class="land-feat-icon">🔥</div> Habits with streaks and 7-day sparklines</div>
+      <div class="land-feat"><div class="land-feat-icon">✅</div> Daily todos with AI planning</div>
+      <div class="land-feat"><div class="land-feat-icon">⚡</div> Apex Advisor — your personal AI coach</div>
+      <div class="land-feat"><div class="land-feat-icon">⏱</div> Focus timer built in</div>
     </div>
-    <button class="btn-primary" id="auth-btn">Create account</button>
-    <div class="auth-err" id="auth-err"></div>
-    <div class="auth-switch">
-      <span id="auth-switch-text">Already have an account?</span>
-      <button id="auth-toggle">Sign in</button>
+
+    <div class="land-quote">
+      <p>"Small daily improvements compound into massive results. The question isn't whether you can afford to build good habits — it's whether you can afford not to."</p>
+      <cite>— Built by a student, for student founders</cite>
     </div>
-    <div class="auth-divider">or</div>
-    <button class="btn-google" id="google-btn">
-      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-      Continue with Google
-    </button>
   </div>
+
+  <!-- Right: auth form -->
+  <div class="land-right">
+    <div class="auth-card">
+      <h2 id="auth-title">Create your account</h2>
+      <p id="auth-sub" style="margin-bottom:20px;">Free to start. Pick a username and password.</p>
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="auth-user" placeholder="e.g. alex" autocomplete="username" spellcheck="false">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="auth-pass" placeholder="at least 6 characters" autocomplete="current-password">
+      </div>
+      <button class="btn-primary" id="auth-btn">Create account</button>
+      <div class="auth-err" id="auth-err"></div>
+      <div class="auth-switch">
+        <span id="auth-switch-text">Already have an account?</span>
+        <button id="auth-toggle">Sign in</button>
+      </div>
+      <div class="auth-divider">or</div>
+      <button class="btn-google" id="google-btn">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Continue with Google
+      </button>
+      <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:20px;line-height:1.6;">
+        By signing up you agree to our <a href="/terms.html" target="_blank" style="color:var(--muted);text-decoration:underline;">Terms</a> and <a href="/privacy.html" target="_blank" style="color:var(--muted);text-decoration:underline;">Privacy Policy</a>.
+      </p>
+    </div>
+  </div>
+
 </div>
 
 <!-- App -->
@@ -510,6 +576,31 @@
     </div>
 
   </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <span>© 2025 Compound</span>
+    <span class="footer-dot">·</span>
+    <a href="/terms.html" target="_blank">Terms</a>
+    <span class="footer-dot">·</span>
+    <a href="/privacy.html" target="_blank">Privacy</a>
+    <span class="footer-dot">·</span>
+    <a href="#" id="feedback-link">Send feedback</a>
+    <span class="footer-dot">·</span>
+    <span>AI powered by Claude</span>
+  </footer>
+</div>
+
+<!-- Feedback modal -->
+<div id="feedback-modal">
+  <div class="modal-card" style="max-width:400px;">
+    <button class="modal-close" id="feedback-close">×</button>
+    <h3>💬 Send Feedback</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6;">Found a bug? Have an idea? Tell me — I read every message.</p>
+    <textarea id="feedback-text" placeholder="What's on your mind…"></textarea>
+    <button class="btn-primary" id="feedback-send" style="margin-top:12px;">Send →</button>
+    <div id="feedback-status" style="font-size:12px;color:var(--muted);text-align:center;margin-top:8px;min-height:16px;"></div>
   </div>
 </div>
 
@@ -1683,6 +1774,46 @@ document.getElementById('packs-modal').addEventListener('click', e => {
 document.getElementById('packs-list').addEventListener('click', e => {
   const btn = e.target.closest('[data-pack]');
   if (btn) addPack(btn.dataset.pack);
+});
+
+// ── Feedback ──────────────────────────────────────────────
+document.getElementById('feedback-link').addEventListener('click', e => {
+  e.preventDefault();
+  document.getElementById('feedback-modal').classList.add('show');
+});
+document.getElementById('feedback-close').addEventListener('click', () => {
+  document.getElementById('feedback-modal').classList.remove('show');
+});
+document.getElementById('feedback-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('feedback-modal')) document.getElementById('feedback-modal').classList.remove('show');
+});
+document.getElementById('feedback-send').addEventListener('click', async () => {
+  const text = document.getElementById('feedback-text').value.trim();
+  const statusEl = document.getElementById('feedback-status');
+  if (!text) { statusEl.textContent = 'Please write something first.'; return; }
+  const btn = document.getElementById('feedback-send');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try {
+    // Store feedback in Supabase feedback table (created below) or fallback to mailto
+    const { error } = await sb.from('feedback').insert({
+      user_id: currentUser?.id || null,
+      message: text,
+    });
+    if (error) throw error;
+    statusEl.style.color = '#22c55e';
+    statusEl.textContent = '✓ Sent — thank you!';
+    document.getElementById('feedback-text').value = '';
+    setTimeout(() => {
+      document.getElementById('feedback-modal').classList.remove('show');
+      statusEl.textContent = '';
+      statusEl.style.color = '';
+    }, 2000);
+  } catch(e) {
+    // Fallback: open mailto
+    window.open(`mailto:feedback@compound.app?subject=Compound Feedback&body=${encodeURIComponent(text)}`);
+    statusEl.textContent = 'Opened your email client ✓';
+  }
+  btn.disabled = false; btn.textContent = 'Send →';
 });
 
 // ── Focus Timer (Pomodoro) ────────────────────────────────

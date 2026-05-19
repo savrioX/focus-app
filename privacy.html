@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Compound</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; background: #f5f5f3; color: #18181b; line-height: 1.7; -webkit-font-smoothing: antialiased; }
+    .wrap { max-width: 680px; margin: 0 auto; padding: 60px 24px 120px; }
+    .back { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #71717a; text-decoration: none; margin-bottom: 40px; transition: color 0.15s; }
+    .back:hover { color: #18181b; }
+    .logo { display: flex; align-items: center; gap: 8px; margin-bottom: 40px; }
+    .logo img { width: 28px; height: 28px; border-radius: 7px; }
+    .logo span { font-size: 15px; font-weight: 700; }
+    h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 8px; }
+    .meta { font-size: 13px; color: #71717a; margin-bottom: 40px; }
+    h2 { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; margin: 36px 0 10px; }
+    p { font-size: 14px; color: #3f3f46; margin-bottom: 12px; }
+    ul { font-size: 14px; color: #3f3f46; padding-left: 20px; margin-bottom: 12px; }
+    li { margin-bottom: 6px; }
+    a { color: #7c3aed; }
+    .highlight { background: #f4f4f5; border-radius: 8px; padding: 14px 16px; margin-bottom: 16px; font-size: 13px; color: #3f3f46; }
+    .footer { margin-top: 60px; padding-top: 24px; border-top: 1px solid #ebebea; font-size: 12px; color: #a1a1aa; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a href="/" class="back">← Back to Compound</a>
+
+    <div class="logo">
+      <img src="/logo.PNG" alt="Compound">
+      <span>Compound</span>
+    </div>
+
+    <h1>Privacy Policy</h1>
+    <p class="meta">Last updated: May 2025</p>
+
+    <div class="highlight">
+      <strong>The short version:</strong> We collect only what we need to run the app. We don't sell your data. Your productivity data stays yours.
+    </div>
+
+    <p>This Privacy Policy explains how Compound ("we", "us", "the App") collects, uses, and protects your information when you use our service.</p>
+
+    <h2>1. What We Collect</h2>
+    <p><strong>Account information:</strong> When you sign up, we collect your username (or Google account name and email if you use Google sign-in).</p>
+    <p><strong>App data:</strong> Your todos, goals, habits, habit logs, and preferences. This is the core data needed to provide the service.</p>
+    <p><strong>Usage data:</strong> Basic technical information like your browser type and device, used to diagnose errors and improve the App.</p>
+    <p><strong>Payment data:</strong> If you subscribe to Compound Pro, payment is processed by Stripe. We do not store your card details — Stripe handles all payment data under their own privacy policy.</p>
+    <p><strong>Feedback:</strong> If you send feedback through the App, we store the message and your user ID.</p>
+
+    <h2>2. What We Do NOT Collect</h2>
+    <ul>
+      <li>We do not sell your data to third parties</li>
+      <li>We do not use your data for advertising</li>
+      <li>We do not read your personal todos or goals for any purpose other than displaying them to you</li>
+    </ul>
+
+    <h2>3. How We Use Your Data</h2>
+    <ul>
+      <li>To provide and operate the App</li>
+      <li>To sync your data across devices</li>
+      <li>To power AI features (your data is sent to Anthropic's API when you use AI features — see below)</li>
+      <li>To process payments and manage your subscription</li>
+      <li>To respond to feedback and support requests</li>
+    </ul>
+
+    <h2>4. AI Features and Anthropic</h2>
+    <p>When you use AI features (Apex Advisor, daily planning, habit feedback, etc.), summaries of your goals, habits, and todos are sent to Anthropic's Claude API to generate responses. This data is processed by Anthropic under their <a href="https://www.anthropic.com/legal/privacy" target="_blank">Privacy Policy</a>.</p>
+    <p>We send only what's necessary for the AI to respond helpfully. We do not store your AI conversations beyond your current session.</p>
+
+    <h2>5. Data Storage</h2>
+    <p>Your data is stored securely using Supabase, a cloud database platform. Data is stored in the US. Supabase employs industry-standard security practices including encryption at rest and in transit.</p>
+
+    <h2>6. Data Retention</h2>
+    <p>Your data is retained as long as your account is active. If you delete your account, we will delete your data within 30 days, except where we are required to retain it by law.</p>
+
+    <h2>7. Your Rights</h2>
+    <p>You have the right to:</p>
+    <ul>
+      <li>Access the data we hold about you</li>
+      <li>Request correction of inaccurate data</li>
+      <li>Request deletion of your account and data</li>
+      <li>Export your data (contact us and we'll provide it)</li>
+    </ul>
+    <p>To exercise these rights, email us at <a href="mailto:hello@compound.app">hello@compound.app</a>.</p>
+
+    <h2>8. Cookies and Local Storage</h2>
+    <p>We use browser local storage to cache your data for faster loading and to remember your preferences (dark mode, font size, API key if provided). We do not use advertising cookies.</p>
+
+    <h2>9. Children's Privacy</h2>
+    <p>Compound is not directed at children under 13. We do not knowingly collect personal information from children under 13. If you believe we have inadvertently collected such information, please contact us and we will delete it.</p>
+
+    <h2>10. Third-Party Services</h2>
+    <p>We use the following third-party services:</p>
+    <ul>
+      <li><strong>Supabase</strong> — database and authentication</li>
+      <li><strong>Anthropic (Claude API)</strong> — AI features</li>
+      <li><strong>Stripe</strong> — payment processing (Pro subscribers)</li>
+      <li><strong>Vercel</strong> — hosting and serverless functions</li>
+    </ul>
+
+    <h2>11. Changes to This Policy</h2>
+    <p>We may update this Privacy Policy from time to time. We'll update the "Last updated" date at the top. Continued use of the App after changes constitutes acceptance of the updated policy.</p>
+
+    <h2>12. Contact</h2>
+    <p>Questions about privacy? Email <a href="mailto:hello@compound.app">hello@compound.app</a></p>
+
+    <div class="footer">© 2025 Compound · <a href="/terms.html">Terms of Service</a></div>
+  </div>
+</body>
+</html>

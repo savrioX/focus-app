@@ -60,3 +60,25 @@ create table habit_logs (
 alter table habit_logs enable row level security;
 create policy "users manage own habit logs" on habit_logs
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- Profiles (subscription status)
+create table if not exists profiles (
+  id                 uuid references auth.users on delete cascade primary key,
+  stripe_customer_id text,
+  is_pro             boolean default false,
+  updated_at         timestamptz default now()
+);
+alter table profiles enable row level security;
+create policy "users can read own profile" on profiles
+  for select using (auth.uid() = id);
+
+-- Feedback
+create table if not exists feedback (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid references auth.users on delete set null,
+  message    text not null,
+  created_at timestamptz default now()
+);
+alter table feedback enable row level security;
+create policy "users can insert feedback" on feedback
+  for insert with check (auth.uid() = user_id or user_id is null);
