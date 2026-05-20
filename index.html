@@ -1517,25 +1517,31 @@ async function manageSubscription() {
 }
 
 // ── Claude API call ───────────────────────────────────────
-async function callClaude(messages, system) {
-  if (!isPro && !claudeApiKey) {
-    document.getElementById('pro-modal').classList.add('show'); return null;
-  }
-  const model   = localStorage.getItem(AMK) || undefined;
-  const headers = { 'content-type': 'application/json' };
-  const body    = { model, messages, system };
 
+// Build auth headers/body fields based on how pro was unlocked
+async function buildAuthPayload() {
+  const headers = { 'content-type': 'application/json' };
+  const extra   = {};
   if (claudeApiKey) {
-    // BYOK — user supplied their own key
-    body.apiKey = claudeApiKey;
+    extra.apiKey = claudeApiKey;
   } else if (localStorage.getItem(DEV_KEY) === '1') {
-    // Dev/promo code — send the stored code for server-side verification
-    body.devCode = localStorage.getItem('compound_dev_code') || 'COMPOUNDPRO';
+    extra.devCode = localStorage.getItem('compound_dev_code') || 'COMPOUNDPRO';
   } else {
-    // Paid pro — send Supabase JWT for server-side verification
     const { data: { session } } = await sb.auth.getSession();
     if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`;
   }
+  return { headers, extra };
+}
+
+// Low-level call — returns raw { content, stop_reason, text } or throws
+async function callClaudeRaw(messages, system, tools) {
+  if (!isPro && !claudeApiKey) {
+    document.getElementById('pro-modal').classList.add('show'); return null;
+  }
+  const model = localStorage.getItem(AMK) || undefined;
+  const { headers, extra } = await buildAuthPayload();
+  const body = { model, messages, system, ...extra };
+  if (tools?.length) body.tools = tools;
 
   const res  = await fetch('/api/claude', { method: 'POST', headers, body: JSON.stringify(body) });
   const data = await res.json();
@@ -1545,7 +1551,80 @@ async function callClaude(messages, system) {
     }
     throw new Error(data.error || 'Claude error');
   }
-  return data.content;
+  return data; // { content, stop_reason, text }
+}
+
+// Simple call — returns plain text string (used by all AI feature buttons)
+async function callClaude(messages, system) {
+  const data = await callClaudeRaw(messages, system, null);
+  return data?.text ?? null;
+}
+
+// ── Apex tool definitions ──────────────────────────────────
+const APEX_TOOLS = [
+  {
+    name: 'add_todos',
+    description: 'Add one or more tasks to the user\'s daily to-do list. Use when the user asks you to add tasks, plan their day, or create action items.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        items: { type: 'array', items: { type: 'string' }, description: 'Task texts to add' }
+      },
+      required: ['items']
+    }
+  },
+  {
+    name: 'add_habits',
+    description: 'Add one or more daily habits to track. Use when the user asks you to add habits or build a routine.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        items: { type: 'array', items: { type: 'string' }, description: 'Habit texts to add' }
+      },
+      required: ['items']
+    }
+  },
+  {
+    name: 'add_goals',
+    description: 'Add one or more goals. Use when the user asks you to add goals or set targets.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        items: { type: 'array', items: { type: 'string' }, description: 'Goal texts to add' }
+      },
+      required: ['items']
+    }
+  },
+];
+
+// Execute a tool call from Apex and return a result string
+async function executeApexTool(name, input) {
+  const added = [];
+  if (name === 'add_todos') {
+    for (const text of input.items) {
+      const { data, error } = await sb.from('todos').insert({ text, user_id: currentUser.id }).select().single();
+      if (!error && data) { todos.unshift(data); added.push(text); }
+    }
+    saveCache(); renderTodos();
+    return `Added ${added.length} todo(s): ${added.map(t => `"${t}"`).join(', ')}`;
+  }
+  if (name === 'add_habits') {
+    for (const text of input.items) {
+      const { data, error } = await sb.from('habits').insert({ text, user_id: currentUser.id }).select().single();
+      if (!error && data) { habits.unshift(data); added.push(text); }
+    }
+    saveCache(); renderHabits();
+    return `Added ${added.length} habit(s): ${added.map(t => `"${t}"`).join(', ')}`;
+  }
+  if (name === 'add_goals') {
+    for (const text of input.items) {
+      const { data, error } = await sb.from('goals').insert({ text, user_id: currentUser.id }).select().single();
+      if (!error && data) { goals.unshift(data); added.push(text); }
+    }
+    saveCache(); renderGoals();
+    return `Added ${added.length} goal(s): ${added.map(t => `"${t}"`).join(', ')}`;
+  }
+  return 'Unknown tool';
 }
 
 function buildContext() {
@@ -1663,16 +1742,43 @@ async function sendChat() {
   const thinking = appendMsg('ai', 'Thinking…');
   thinking.classList.add('thinking');
   try {
-    const result = await callClaude([...chatHistory], getApexPrompt());
-    thinking.remove();
-    if (result) {
-      appendMsg('ai', result);
-      chatHistory.push({ role: 'assistant', content: result });
-      if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
+    // Run the tool-use loop
+    let messages = [...chatHistory];
+    let finalText = null;
+
+    while (true) {
+      const resp = await callClaudeRaw(messages, getApexPrompt(), APEX_TOOLS);
+      if (!resp) break;
+
+      if (resp.stop_reason === 'tool_use') {
+        // Execute each tool call
+        const toolUses    = resp.content.filter(b => b.type === 'tool_use');
+        const toolResults = [];
+        for (const tu of toolUses) {
+          const result = await executeApexTool(tu.name, tu.input);
+          toolResults.push({ type: 'tool_result', tool_use_id: tu.id, content: result });
+        }
+        // Append assistant turn + tool results, then loop
+        messages = [
+          ...messages,
+          { role: 'assistant', content: resp.content },
+          { role: 'user',      content: toolResults  },
+        ];
+      } else {
+        finalText = resp.text;
+        // Keep chatHistory lean — only text turns
+        chatHistory.push({ role: 'assistant', content: finalText });
+        if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
+        break;
+      }
     }
+
+    thinking.remove();
+    if (finalText) appendMsg('ai', finalText);
   } catch(e) {
     thinking.remove();
-    appendMsg('ai', 'Something went wrong — check your API key in AI Settings.');
+    appendMsg('ai', 'Something went wrong — try again.');
+    console.error(e);
   } finally { btn.disabled = false; inp.focus(); }
 }
 
