@@ -1719,8 +1719,17 @@ document.getElementById('chat-inp').addEventListener('keydown', e => { if (e.key
 function appendMsg(role, text) {
   const msgs = document.getElementById('chat-msgs');
   const div  = document.createElement('div');
-  div.className  = `cmsg ${role === 'user' ? 'user' : 'ai'}`;
-  div.textContent = text;
+  div.className = `cmsg ${role === 'user' ? 'user' : 'ai'}`;
+  // Safely extract text — handles string, content-block array, or raw object
+  if (typeof text === 'string') {
+    div.textContent = text;
+  } else if (Array.isArray(text)) {
+    div.textContent = text.find(b => b.type === 'text')?.text || '';
+  } else if (text?.text) {
+    div.textContent = text.text;
+  } else {
+    div.textContent = String(text ?? '');
+  }
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
   return div;
@@ -1765,8 +1774,11 @@ async function sendChat() {
           { role: 'user',      content: toolResults  },
         ];
       } else {
-        finalText = resp.text;
-        // Keep chatHistory lean — only text turns
+        // Pull text from content blocks (most reliable) with fallback to convenience field
+        const textBlock = Array.isArray(resp.content)
+          ? resp.content.find(b => b.type === 'text')
+          : null;
+        finalText = textBlock?.text || resp.text || '';
         chatHistory.push({ role: 'assistant', content: finalText });
         if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
         break;
