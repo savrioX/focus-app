@@ -372,6 +372,17 @@
 
     <button class="btn-primary" id="checkout-btn" style="background:var(--ai);font-size:15px;padding:14px;letter-spacing:-0.01em;">Start Pro — $10/month</button>
     <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:10px;">Secure payment via Stripe · No commitment</p>
+
+    <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
+      <button id="show-code-btn" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;font-family:inherit;width:100%;text-align:center;">Have a code?</button>
+      <div id="code-row" style="display:none;margin-top:10px;display:none;gap:8px;flex-direction:column;">
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="promo-code-input" placeholder="Enter code…" style="flex:1;font-size:13px;padding:8px 12px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-family:inherit;outline:none;">
+          <button id="apply-code-btn" class="btn-add" style="font-size:14px;height:37px;padding:0 14px;border-radius:10px;">→</button>
+        </div>
+        <div id="code-status" style="font-size:12px;text-align:center;min-height:16px;color:var(--muted);"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -832,6 +843,7 @@ let isPro            = false;
 let stripeCustomerId = null;
 
 async function initApp() {
+  checkDevCode();
   await loadData();
   await Promise.all([loadSettings(), loadProfile()]);
   handleProRedirect();
@@ -1415,6 +1427,41 @@ const closeProModal = () => document.getElementById('pro-modal').classList.remov
 document.getElementById('pro-modal-close').addEventListener('click', closeProModal);
 document.getElementById('pro-modal').addEventListener('click', e => { if (e.target === document.getElementById('pro-modal')) closeProModal(); });
 document.getElementById('checkout-btn').addEventListener('click', startCheckout);
+
+// Promo / dev code
+const DEV_CODES = ['COMPOUNDPRO', 'APEX2025', 'DAILYGRIND'];
+const DEV_KEY   = 'compound_dev';
+
+document.getElementById('show-code-btn').addEventListener('click', () => {
+  const row = document.getElementById('code-row');
+  row.style.display = row.style.display === 'flex' ? 'none' : 'flex';
+  if (row.style.display === 'flex') document.getElementById('promo-code-input').focus();
+});
+document.getElementById('promo-code-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') applyCode();
+});
+document.getElementById('apply-code-btn').addEventListener('click', applyCode);
+
+function applyCode() {
+  const val = document.getElementById('promo-code-input').value.trim().toUpperCase();
+  const statusEl = document.getElementById('code-status');
+  if (DEV_CODES.includes(val)) {
+    localStorage.setItem(DEV_KEY, '1');
+    isPro = true;
+    updateAiVisibility();
+    statusEl.style.color = '#22c55e';
+    statusEl.textContent = '✓ Pro unlocked!';
+    setTimeout(closeProModal, 1200);
+    toast('⚡ Pro unlocked — enjoy!');
+  } else {
+    statusEl.style.color = 'var(--red)';
+    statusEl.textContent = 'Invalid code.';
+  }
+}
+
+function checkDevCode() {
+  if (localStorage.getItem(DEV_KEY) === '1') { isPro = true; }
+}
 
 document.getElementById('refresh-btn').addEventListener('click', async () => {
   setSyncing(true); await silentRefresh(); setSyncing(false); toast('Refreshed ✓');
