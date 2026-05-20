@@ -1447,6 +1447,7 @@ function applyCode() {
   const statusEl = document.getElementById('code-status');
   if (DEV_CODES.includes(val)) {
     localStorage.setItem(DEV_KEY, '1');
+    localStorage.setItem('compound_dev_code', val);
     isPro = true;
     updateAiVisibility();
     statusEl.style.color = '#22c55e';
@@ -1525,10 +1526,13 @@ async function callClaude(messages, system) {
   const body    = { model, messages, system };
 
   if (claudeApiKey) {
-    // BYOK — developer / power user path
+    // BYOK — user supplied their own key
     body.apiKey = claudeApiKey;
+  } else if (localStorage.getItem(DEV_KEY) === '1') {
+    // Dev/promo code — send the stored code for server-side verification
+    body.devCode = localStorage.getItem('compound_dev_code') || 'COMPOUNDPRO';
   } else {
-    // Pro path — send Supabase JWT so backend can verify subscription
+    // Paid pro — send Supabase JWT for server-side verification
     const { data: { session } } = await sb.auth.getSession();
     if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`;
   }
