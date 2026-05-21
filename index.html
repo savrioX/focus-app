@@ -844,6 +844,7 @@ let stripeCustomerId = null;
 
 async function initApp() {
   checkDevCode();
+  updateAiVisibility(); // show AI buttons immediately if dev code already in localStorage
   await loadData();
   await Promise.all([loadSettings(), loadProfile()]);
   handleProRedirect();
