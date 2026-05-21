@@ -181,8 +181,8 @@
     /* ── Modals ──────────────────────────── */
     .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 400; padding: 24px; }
     .modal-backdrop.show { display: flex; }
-    #settings-modal, #ai-modal, #pro-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 400; padding: 24px; }
-    #settings-modal.show, #ai-modal.show, #pro-modal.show { display: flex; }
+    #settings-modal, #pro-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 400; padding: 24px; }
+    #settings-modal.show, #pro-modal.show { display: flex; }
     .pro-feature-row { font-size: 13px; display: flex; align-items: center; gap: 8px; padding: 4px 0; }
     .pro-check { color: #22c55e; font-weight: 700; flex-shrink: 0; }
     .modal-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px; width: 100%; max-width: 440px; position: relative; box-shadow: var(--shadow-md); }
@@ -303,7 +303,7 @@
   <div class="modal-card">
     <button class="modal-close" id="settings-close">×</button>
     <h3>Settings</h3>
-    <div class="settings-section" style="border-bottom:none;margin-bottom:0;padding-bottom:0;">
+    <div class="settings-section" style="margin-bottom:20px;padding-bottom:20px;">
       <span class="settings-label">Appearance</span>
       <div class="toggle-row" style="margin-bottom:16px;">
         <span>Dark mode</span>
@@ -319,34 +319,6 @@
         <button class="size-btn" data-size="16px" style="font-size:16px;">Large</button>
       </div>
     </div>
-  </div>
-</div>
-
-<!-- AI modal (separate) -->
-<div id="ai-modal">
-  <div class="modal-card" style="max-height:90vh;overflow-y:auto;">
-    <button class="modal-close" id="ai-modal-close">×</button>
-    <h3 style="background:linear-gradient(135deg,#667eea,#764ba2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">✨ Connect Your AI</h3>
-    <p style="font-size:13px;color:var(--muted);line-height:1.6;margin:10px 0 16px;">Link your Claude API key to unlock AI planning, habit feedback, goal step suggestions, and your personal <strong>Apex Advisor</strong> chat.</p>
-
-    <!-- Step-by-step guide -->
-    <details style="margin-bottom:16px;">
-      <summary style="font-size:12px;font-weight:600;cursor:pointer;color:#667eea;letter-spacing:0.04em;">📖 How to get your API key (4 steps)</summary>
-      <ol style="font-size:12px;color:var(--muted);line-height:1.9;margin-top:10px;padding-left:18px;">
-        <li>Go to <a href="https://console.anthropic.com" target="_blank" style="color:#667eea;font-weight:600;">console.anthropic.com</a> and create a free account.</li>
-        <li>Go to <strong>Billing</strong> and add at least <strong>$5 in credits</strong> (this unlocks API access — you won't be charged until you use it).</li>
-        <li>Go to <strong>Settings → API Keys → Create Key</strong>. Copy the full key — it starts with <code style="background:var(--bg);padding:1px 5px;border-radius:3px;">sk-ant-</code></li>
-        <li>Paste it below and click <strong>Save &amp; unlock</strong>. Your key stays on your device only.</li>
-      </ol>
-    </details>
-
-    <div class="field">
-      <label>Claude API Key</label>
-      <input type="text" id="api-key-input" placeholder="sk-ant-…" autocomplete="off" spellcheck="false" style="font-family:monospace;font-size:12px;">
-    </div>
-    <button class="btn-primary" id="save-key-btn" style="background:linear-gradient(135deg,#667eea,#764ba2);margin-bottom:8px;">Save &amp; unlock</button>
-    <button class="btn-icon" id="test-key-btn" style="width:100%;text-align:center;justify-content:center;display:flex;margin-bottom:4px;">Test connection</button>
-    <div class="key-status" id="key-status" style="white-space:normal;"></div>
   </div>
 </div>
 
@@ -821,7 +793,7 @@ sb.auth.onAuthStateChange(async (event, session) => {
     document.getElementById('app').style.display         = 'block';
     await initApp();
   } else {
-    currentUser = null; claudeApiKey = null; isPro = false; stripeCustomerId = null;
+    currentUser = null; isPro = false; stripeCustomerId = null;
     todos = []; goals = []; habits = [];
     try { localStorage.removeItem(CACHE_KEY); localStorage.removeItem('compound_apikey'); } catch(e) {}
     updateAiVisibility();
@@ -838,7 +810,6 @@ sb.auth.onAuthStateChange(async (event, session) => {
 let todos  = [];
 let goals  = [];
 let habits = [];
-let claudeApiKey     = null;
 let isPro            = false;
 let stripeCustomerId = null;
 
@@ -1281,118 +1252,24 @@ document.getElementById('habits-input').addEventListener('keydown', e => { if (e
 
 // ── Settings ──────────────────────────────────────────────
 function updateAiVisibility() {
-  const hasAi = isPro || !!claudeApiKey;
-  document.body.classList.toggle('has-ai', hasAi);
-  document.getElementById('chat-btn').classList.toggle('show', hasAi);
+  document.body.classList.toggle('has-ai', isPro);
+  document.getElementById('chat-btn').classList.toggle('show', isPro);
   const unlockBtn = document.getElementById('btn-unlock-ai');
   if (isPro) {
     unlockBtn.textContent = '⚡ Pro';
-    unlockBtn.style.color = 'var(--ai)';
-    unlockBtn.style.borderColor = 'var(--ai-border)';
+    unlockBtn.style.color = '#667eea';
+    unlockBtn.style.borderColor = 'rgba(102,126,234,0.4)';
     unlockBtn.style.fontWeight = '700';
   } else {
-    unlockBtn.textContent = claudeApiKey ? '🔑 API Key' : '✨ Go Pro';
-    unlockBtn.style.color = 'var(--ai)';
-    unlockBtn.style.borderColor = 'rgba(124,58,237,0.3)';
+    unlockBtn.textContent = '✨ Go Pro';
+    unlockBtn.style.color = '#667eea';
+    unlockBtn.style.borderColor = 'rgba(102,126,234,0.4)';
     unlockBtn.style.fontWeight = '600';
   }
-  unlockBtn.style.borderColor = 'rgba(102,126,234,0.4)';
-  unlockBtn.style.color = '#667eea';
 }
-
-const AK  = 'compound_ak';  // API key
-const AMK = 'compound_am';  // Auto-detected model
 
 function loadSettings() {
-  const key = localStorage.getItem(AK);
-  if (key) {
-    claudeApiKey = key;
-    const inp = document.getElementById('api-key-input');
-    if (inp) inp.value = key;
-  }
-  updateAiVisibility(); // Always run — shows/hides button regardless of key
-}
-
-// Fetch the list of models for this API key and pick the best cheap one
-async function detectBestModel(key) {
-  try {
-    const res = await fetch('/api/models', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ apiKey: key })
-    });
-    if (!res.ok) return null;
-    const { models } = await res.json();
-    if (!models || !models.length) return null;
-    const ids = models.map(m => m.id);
-    // Prefer haiku (cheapest), then sonnet, then anything
-    const pick = ids.find(id => id.toLowerCase().includes('haiku'))
-               || ids.find(id => id.toLowerCase().includes('sonnet'))
-               || ids[0];
-    return pick || null;
-  } catch(e) { return null; }
-}
-
-async function saveApiKey() {
-  const key      = document.getElementById('api-key-input').value.trim();
-  const statusEl = document.getElementById('key-status');
-  statusEl.textContent = '';
-  if (!key.startsWith('sk-ant-')) {
-    statusEl.style.color = 'var(--red)';
-    statusEl.textContent = "Key should start with sk-ant- — check you copied the full key.";
-    return;
-  }
-  statusEl.style.color = 'var(--muted)';
-  statusEl.textContent = 'Detecting your available models…';
-  const model = await detectBestModel(key);
-  if (model) {
-    localStorage.setItem(AMK, model);
-    statusEl.textContent = `Using ${model}`;
-  } else {
-    statusEl.textContent = '';
-  }
-  localStorage.setItem(AK, key);
-  claudeApiKey = key;
-  statusEl.style.color = '#4ade80';
-  statusEl.textContent = model ? `✓ Saved! Using ${model}` : '✓ Saved!';
   updateAiVisibility();
-  setTimeout(() => { document.getElementById('ai-modal').classList.remove('show'); statusEl.textContent = ''; }, 2000);
-  // Sync to Supabase in background
-  try { await sb.from('user_settings').upsert({ user_id: currentUser.id, claude_api_key: key, updated_at: new Date().toISOString() }, { onConflict: 'user_id' }); } catch(e) {}
-}
-
-async function testApiKey() {
-  const key = document.getElementById('api-key-input').value.trim() || claudeApiKey;
-  const statusEl = document.getElementById('key-status');
-  const btn = document.getElementById('test-key-btn');
-  if (!key) { statusEl.style.color = 'var(--red)'; statusEl.textContent = 'Enter a key first.'; return; }
-  btn.disabled = true; btn.textContent = 'Testing…';
-  statusEl.style.color = 'var(--muted)'; statusEl.textContent = 'Detecting models…';
-  statusEl.style.whiteSpace = 'normal';
-
-  // Auto-detect model first
-  const model = await detectBestModel(key);
-  if (model) localStorage.setItem(AMK, model);
-
-  try {
-    const res = await fetch('/api/claude', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ apiKey: key, model: model || undefined, messages: [{ role: 'user', content: 'Reply with just the word CONNECTED.' }], system: 'You are a test.' })
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      statusEl.style.color = 'var(--red)';
-      statusEl.textContent = 'Error: ' + (data.error || res.status);
-    } else {
-      statusEl.style.color = '#4ade80';
-      statusEl.textContent = `✓ Connected! Using ${model || 'default model'}.`;
-    }
-  } catch(e) {
-    statusEl.style.color = 'var(--red)';
-    statusEl.textContent = 'Could not reach server: ' + e.message;
-  }
-  btn.disabled = false; btn.textContent = 'Test connection';
 }
 
 // ── Appearance prefs ──────────────────────────────────────
@@ -1420,9 +1297,8 @@ document.querySelectorAll('.size-btn').forEach(btn => {
 // Apply immediately on load (before auth even resolves)
 applyPrefs();
 
-const openSettings = () => document.getElementById('settings-modal').classList.add('show');
-const openAiModal  = () => document.getElementById('ai-modal').classList.add('show');
-const openProModal = () => document.getElementById('pro-modal').classList.add('show');
+const openSettings  = () => document.getElementById('settings-modal').classList.add('show');
+const openProModal  = () => document.getElementById('pro-modal').classList.add('show');
 const closeProModal = () => document.getElementById('pro-modal').classList.remove('show');
 
 document.getElementById('pro-modal-close').addEventListener('click', closeProModal);
@@ -1472,16 +1348,10 @@ document.getElementById('btn-settings').addEventListener('click', openSettings);
 document.getElementById('btn-unlock-ai').addEventListener('click', () => {
   if (isPro && stripeCustomerId) { manageSubscription(); }
   else if (isPro) { toast('⚡ Pro is active'); }
-  else if (claudeApiKey) { openAiModal(); }
   else { openProModal(); }
 });
 document.getElementById('settings-close').addEventListener('click', () => document.getElementById('settings-modal').classList.remove('show'));
 document.getElementById('settings-modal').addEventListener('click', e => { if (e.target === document.getElementById('settings-modal')) document.getElementById('settings-modal').classList.remove('show'); });
-document.getElementById('ai-modal-close').addEventListener('click', () => document.getElementById('ai-modal').classList.remove('show'));
-document.getElementById('ai-modal').addEventListener('click', e => { if (e.target === document.getElementById('ai-modal')) document.getElementById('ai-modal').classList.remove('show'); });
-document.getElementById('save-key-btn').addEventListener('click', saveApiKey);
-document.getElementById('test-key-btn').addEventListener('click', testApiKey);
-document.getElementById('api-key-input').addEventListener('keydown', e => { if (e.key === 'Enter') saveApiKey(); });
 
 // ── Stripe ────────────────────────────────────────────────
 async function startCheckout() {
@@ -1520,13 +1390,11 @@ async function manageSubscription() {
 
 // ── Claude API call ───────────────────────────────────────
 
-// Build auth headers/body fields based on how pro was unlocked
+// Build auth headers/body based on how pro was unlocked
 async function buildAuthPayload() {
   const headers = { 'content-type': 'application/json' };
   const extra   = {};
-  if (claudeApiKey) {
-    extra.apiKey = claudeApiKey;
-  } else if (localStorage.getItem(DEV_KEY) === '1') {
+  if (localStorage.getItem(DEV_KEY) === '1') {
     extra.devCode = localStorage.getItem('compound_dev_code') || 'COMPOUNDPRO';
   } else {
     const { data: { session } } = await sb.auth.getSession();
@@ -1537,12 +1405,11 @@ async function buildAuthPayload() {
 
 // Low-level call — returns raw { content, stop_reason, text } or throws
 async function callClaudeRaw(messages, system, tools) {
-  if (!isPro && !claudeApiKey) {
+  if (!isPro) {
     document.getElementById('pro-modal').classList.add('show'); return null;
   }
-  const model = localStorage.getItem(AMK) || undefined;
   const { headers, extra } = await buildAuthPayload();
-  const body = { model, messages, system, ...extra };
+  const body = { messages, system, ...extra };
   if (tools?.length) body.tools = tools;
 
   const res  = await fetch('/api/claude', { method: 'POST', headers, body: JSON.stringify(body) });
@@ -1742,7 +1609,7 @@ async function sendChat() {
   const text = inp.value.trim();
   const btn  = document.getElementById('chat-send');
   if (!text) return;
-  if (!isPro && !claudeApiKey) {
+  if (!isPro) {
     document.getElementById('chat-panel').classList.remove('open');
     document.getElementById('pro-modal').classList.add('show');
     return;
