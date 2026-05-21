@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   const { apiKey } = req.body;
   if (!apiKey) return res.status(400).json({ error: 'API key required' });
@@ -11,9 +11,9 @@ export default async function handler(req, res) {
       }
     });
     const data = await response.json();
-    if (!response.ok) return res.status(response.status).json({ error: data.error?.message || 'Error fetching models' });
+    if (!response.ok) return res.status(response.status).json({ error: data.error?.message || 'Error' });
     return res.status(200).json({ models: data.data || [] });
   } catch(err) {
     return res.status(500).json({ error: err.message });
   }
-}
+};

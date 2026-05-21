@@ -1,6 +1,6 @@
 const DEV_CODES = ['COMPOUNDPRO', 'APEX2025', 'DAILYGRIND'];
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -8,14 +8,11 @@ export default async function handler(req, res) {
   const { messages, system, model, devCode, tools } = req.body;
   if (!messages || !Array.isArray(messages)) return res.status(400).json({ error: 'Messages required' });
 
-  // Determine if this request is authorised
   let authorised = false;
 
   if (devCode && DEV_CODES.includes(devCode.toUpperCase())) {
-    // Dev / promo code — always allowed
     authorised = true;
   } else {
-    // Verify Supabase JWT and check is_pro
     const token = (req.headers.authorization || '').replace('Bearer ', '').trim();
     if (!token) return res.status(403).json({ error: 'pro_required' });
 
@@ -46,7 +43,7 @@ export default async function handler(req, res) {
   if (!authorised) return res.status(403).json({ error: 'pro_required' });
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return res.status(500).json({ error: 'Server API key not configured — add ANTHROPIC_API_KEY to Vercel env vars.' });
+  if (!apiKey) return res.status(500).json({ error: 'Server API key not configured.' });
 
   try {
     const body = {
@@ -72,17 +69,16 @@ export default async function handler(req, res) {
     if (!response.ok) {
       const errType = data.error?.type || '';
       const errMsg  = data.error?.message || JSON.stringify(data);
-      // Return full details for debugging
       return res.status(response.status).json({ error: `[${response.status}] ${errType}: ${errMsg}`, raw: errMsg });
     }
 
     return res.status(200).json({
       content:     data.content,
       stop_reason: data.stop_reason,
-      text: data.content.find(b => b.type === 'text')?.text || '',
+      text:        data.content.find(b => b.type === 'text')?.text || '',
     });
 
   } catch (err) {
     return res.status(500).json({ error: 'Server error: ' + err.message });
   }
-}
+};

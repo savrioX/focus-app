@@ -1,6 +1,6 @@
-import Stripe from 'stripe';
+const Stripe = require('stripe');
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
   const { customerId } = req.body;
   if (!customerId) return res.status(400).json({ error: 'Missing customer ID' });
@@ -9,10 +9,10 @@ export default async function handler(req, res) {
   try {
     const session = await stripe.billingPortal.sessions.create({
       customer:   customerId,
-      return_url: process.env.APP_URL || 'https://compound-swart.vercel.app',
+      return_url: process.env.APP_URL || 'https://dailycompound.app',
     });
     res.json({ url: session.url });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-}
+};

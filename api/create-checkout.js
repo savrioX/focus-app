@@ -1,6 +1,6 @@
-import Stripe from 'stripe';
+const Stripe = require('stripe');
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   const { userId, email } = req.body;
@@ -13,8 +13,8 @@ export default async function handler(req, res) {
       mode: 'subscription',
       payment_method_types: ['card'],
       line_items: [{ price: process.env.STRIPE_PRICE_ID, quantity: 1 }],
-      success_url: `${process.env.APP_URL || 'https://compound-swart.vercel.app'}?pro=success`,
-      cancel_url:  `${process.env.APP_URL || 'https://compound-swart.vercel.app'}?pro=cancel`,
+      success_url: `${process.env.APP_URL || 'https://dailycompound.app'}?pro=success`,
+      cancel_url:  `${process.env.APP_URL || 'https://dailycompound.app'}?pro=cancel`,
       client_reference_id: userId,
       customer_email: email || undefined,
       subscription_data: { metadata: { userId } },
@@ -24,4 +24,4 @@ export default async function handler(req, res) {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-}
+};

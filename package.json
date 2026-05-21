@@ -1,7 +1,6 @@
 {
   "name": "compound",
   "version": "1.0.0",
-  "type": "module",
   "dependencies": {
     "stripe": "^16.0.0"
   }
