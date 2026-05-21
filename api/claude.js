@@ -47,7 +47,7 @@ module.exports = async function handler(req, res) {
 
   try {
     const body = {
-      model:      model || 'claude-3-5-sonnet-20241022',
+      model:      model || 'claude-3-haiku-20240307',
       max_tokens: 1024,
       system:     system || 'You are a helpful productivity coach.',
       messages,
