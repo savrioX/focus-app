@@ -1469,7 +1469,8 @@ document.getElementById('refresh-btn').addEventListener('click', async () => {
 });
 document.getElementById('btn-settings').addEventListener('click', openSettings);
 document.getElementById('btn-unlock-ai').addEventListener('click', () => {
-  if (isPro) { manageSubscription(); }
+  if (isPro && stripeCustomerId) { manageSubscription(); }
+  else if (isPro) { toast('⚡ Pro is active'); }
   else if (claudeApiKey) { openAiModal(); }
   else { openProModal(); }
 });
