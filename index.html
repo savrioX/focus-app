@@ -1556,7 +1556,7 @@ document.getElementById('plan-day-btn').addEventListener('click', async () => {
     }
     saveCache(); renderTodos(); toast('Tasks added to your list!');
   } catch(e) {
-    toast('Could not plan your day — try again.');
+    toast('Plan error: ' + e.message);
   } finally { btn.disabled = false; btn.textContent = orig; }
 });
 
