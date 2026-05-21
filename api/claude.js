@@ -1,5 +1,30 @@
 const DEV_CODES = ['COMPOUNDPRO', 'APEX2025', 'DAILYGRIND'];
 
+// Cache the best available model so we only detect it once per cold start
+let cachedModel = null;
+
+async function getBestModel(apiKey) {
+  if (cachedModel) return cachedModel;
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/models', {
+      headers: {
+        'x-api-key':         apiKey,
+        'anthropic-version': '2023-06-01',
+      }
+    });
+    if (!res.ok) return 'claude-3-haiku-20240307';
+    const data = await res.json();
+    const ids = (data.data || []).map(m => m.id);
+    cachedModel = ids.find(id => id.includes('sonnet'))
+               || ids.find(id => id.includes('haiku'))
+               || ids[0]
+               || 'claude-3-haiku-20240307';
+    return cachedModel;
+  } catch(e) {
+    return 'claude-3-haiku-20240307';
+  }
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -46,8 +71,10 @@ module.exports = async function handler(req, res) {
   if (!apiKey) return res.status(500).json({ error: 'Server API key not configured.' });
 
   try {
+    const selectedModel = model || await getBestModel(apiKey);
+
     const body = {
-      model:      model || 'claude-3-haiku-20240307',
+      model:      selectedModel,
       max_tokens: 1024,
       system:     system || 'You are a helpful productivity coach.',
       messages,
