@@ -1,9 +1,19 @@
 {
   "version": 2,
   "builds": [
-    { "src": "api/*.js", "use": "@vercel/node" },
-    { "src": "*.html",   "use": "@vercel/static" },
-    { "src": "*.PNG",    "use": "@vercel/static" },
-    { "src": "*.png",    "use": "@vercel/static" }
+    { "src": "api/*.js", "use": "@vercel/node", "config": { "maxLambdaSize": "15mb" } },
+    { "src": "*.html", "use": "@vercel/static" },
+    { "src": "*.PNG",  "use": "@vercel/static" },
+    { "src": "*.png",  "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/api/claude",          "dest": "/api/claude.js"          },
+    { "src": "/api/create-checkout", "dest": "/api/create-checkout.js" },
+    { "src": "/api/customer-portal", "dest": "/api/customer-portal.js" },
+    { "src": "/api/stripe-webhook",  "dest": "/api/stripe-webhook.js"  },
+    { "src": "/api/models",          "dest": "/api/models.js"          },
+    { "src": "/api/test",            "dest": "/api/test.js"            },
+    { "handle": "filesystem" },
+    { "src": "/(.*)",                "dest": "/$1.html"                }
   ]
 }
