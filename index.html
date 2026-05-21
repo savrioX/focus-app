@@ -1533,7 +1533,7 @@ async function suggestSteps(goalId) {
     }
     saveCache(); renderGoals();
   } catch(e) {
-    toast('Could not get suggestions. Check your API key in AI Settings.');
+    toast('Could not get suggestions — try again.');
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = orig; }
   }
@@ -1556,7 +1556,7 @@ document.getElementById('plan-day-btn').addEventListener('click', async () => {
     }
     saveCache(); renderTodos(); toast('Tasks added to your list!');
   } catch(e) {
-    toast('Could not plan your day. Check your API key in AI Settings.');
+    toast('Could not plan your day — try again.');
   } finally { btn.disabled = false; btn.textContent = orig; }
 });
 
@@ -1573,7 +1573,7 @@ document.getElementById('habit-feedback-btn').addEventListener('click', async ()
     if (!result) return;
     txt.textContent = result; box.style.display = 'block';
   } catch(e) {
-    toast('Could not get feedback. Check your API key in AI Settings.');
+    toast('Could not get feedback — try again.');
   } finally { btn.disabled = false; btn.textContent = orig; }
 });
 
@@ -1733,7 +1733,7 @@ TASKS:
     renderHabits(); renderTodos();
     toast(`✓ Added ${suggestedHabits.length} habits + ${suggestedTasks.length} tasks from your goals!`);
   } catch(e) {
-    toast('Could not build plan — check your API key.');
+    toast('Could not build plan — try again.');
   } finally { btn.disabled = false; btn.textContent = orig; }
 });
 
@@ -1930,7 +1930,7 @@ document.getElementById('morning-brief-btn').addEventListener('click', async () 
 Keep it punchy. No bullet points. Talk directly to me.`
     }], getApexPrompt());
     if (result) document.getElementById('brief-content').textContent = result;
-    else document.getElementById('brief-content').textContent = 'Could not generate briefing — check your API key.';
+    else document.getElementById('brief-content').textContent = 'Could not generate briefing — try again.';
   } catch(e) {
     document.getElementById('brief-content').textContent = 'Error: ' + e.message;
   } finally { btn.disabled = false; btn.textContent = orig; }
@@ -1958,7 +1958,7 @@ document.getElementById('weekly-report-btn').addEventListener('click', async () 
 Format with bold section headers. Be direct. Be brief. Make every word count.`
     }], getApexPrompt());
     if (result) document.getElementById('report-content').textContent = result;
-    else document.getElementById('report-content').textContent = 'Could not generate report — check your API key.';
+    else document.getElementById('report-content').textContent = 'Could not generate report — try again.';
   } catch(e) {
     document.getElementById('report-content').textContent = 'Error: ' + e.message;
   } finally { btn.disabled = false; btn.textContent = orig; }
