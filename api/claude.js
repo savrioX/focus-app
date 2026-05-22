@@ -1,5 +1,12 @@
-const DEV_CODES    = ['COMPOUNDPRO', 'APEX2025', 'DAILYGRIND'];
-const DEFAULT_MODEL = 'claude-3-haiku-20240307';
+const DEV_CODES = ['COMPOUNDPRO', 'APEX2025', 'DAILYGRIND'];
+
+// Try models in order until one works — handles accounts with limited model access
+const MODEL_FALLBACKS = [
+  'claude-3-5-haiku-20241022',
+  'claude-3-7-sonnet-20250219',
+  'claude-3-5-sonnet-20241022',
+  'claude-3-haiku-20240307',
+];
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -46,40 +53,47 @@ module.exports = async function handler(req, res) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'Server API key not configured.' });
 
+  const modelsToTry = model ? [model] : MODEL_FALLBACKS;
+
   try {
-    const selectedModel = model || DEFAULT_MODEL;
+    for (const m of modelsToTry) {
+      const body = {
+        model:      m,
+        max_tokens: 1024,
+        system:     system || 'You are a helpful productivity coach.',
+        messages,
+      };
+      if (tools && tools.length) body.tools = tools;
 
-    const body = {
-      model:      selectedModel,
-      max_tokens: 1024,
-      system:     system || 'You are a helpful productivity coach.',
-      messages,
-    };
-    if (tools && tools.length) body.tools = tools;
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key':         apiKey,
+          'anthropic-version': '2023-06-01',
+          'content-type':      'application/json',
+        },
+        body: JSON.stringify(body),
+      });
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key':         apiKey,
-        'anthropic-version': '2023-06-01',
-        'content-type':      'application/json',
-      },
-      body: JSON.stringify(body),
-    });
+      const data = await response.json();
 
-    const data = await response.json();
+      // If model not found, try next one
+      if (!response.ok && data.error?.type === 'not_found_error') continue;
 
-    if (!response.ok) {
-      const errType = data.error?.type || '';
-      const errMsg  = data.error?.message || JSON.stringify(data);
-      return res.status(response.status).json({ error: `[${response.status}] ${errType}: ${errMsg}`, raw: errMsg });
+      if (!response.ok) {
+        const errType = data.error?.type || '';
+        const errMsg  = data.error?.message || JSON.stringify(data);
+        return res.status(response.status).json({ error: `[${response.status}] ${errType}: ${errMsg}`, raw: errMsg });
+      }
+
+      return res.status(200).json({
+        content:     data.content,
+        stop_reason: data.stop_reason,
+        text:        data.content.find(b => b.type === 'text')?.text || '',
+      });
     }
 
-    return res.status(200).json({
-      content:     data.content,
-      stop_reason: data.stop_reason,
-      text:        data.content.find(b => b.type === 'text')?.text || '',
-    });
+    return res.status(500).json({ error: 'No available models found on this API key. Check console.anthropic.com for your account\'s model access.' });
 
   } catch (err) {
     return res.status(500).json({ error: 'Server error: ' + err.message });
