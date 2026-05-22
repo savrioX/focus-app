@@ -1,12 +1,13 @@
 const DEV_CODES = ['COMPOUNDPRO', 'APEX2025', 'DAILYGRIND'];
 
-// Try models in order until one works — handles accounts with limited model access
+// Try models in order until one works — cached for the lifetime of this Lambda instance
 const MODEL_FALLBACKS = [
   'claude-3-5-haiku-20241022',
   'claude-3-7-sonnet-20250219',
   'claude-3-5-sonnet-20241022',
   'claude-3-haiku-20240307',
 ];
+let workingModel = null; // persists across warm invocations
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -53,7 +54,7 @@ module.exports = async function handler(req, res) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'Server API key not configured.' });
 
-  const modelsToTry = model ? [model] : MODEL_FALLBACKS;
+  const modelsToTry = model ? [model] : (workingModel ? [workingModel] : MODEL_FALLBACKS);
 
   try {
     for (const m of modelsToTry) {
@@ -79,6 +80,8 @@ module.exports = async function handler(req, res) {
 
       // If model not found, try next one
       if (!response.ok && data.error?.type === 'not_found_error') continue;
+
+      if (response.ok && !model) workingModel = m; // cache for future warm invocations
 
       if (!response.ok) {
         const errType = data.error?.type || '';
