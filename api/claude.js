@@ -1,24 +1,34 @@
 const DEV_CODES = ['COMPOUNDPRO', 'APEX2025', 'DAILYGRIND'];
 
-// Try models in order until one works — cached for the lifetime of this Lambda instance
-const MODEL_FALLBACKS = [
-  'claude-3-5-haiku-20241022',
-  'claude-3-7-sonnet-20250219',
-  'claude-3-5-sonnet-20241022',
-  'claude-3-haiku-20240307',
-];
-let workingModel = null; // persists across warm invocations
+// Cached after first successful call — persists across warm Lambda invocations
+let workingModel = null;
+
+async function discoverModel(apiKey) {
+  if (workingModel) return workingModel;
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/models', {
+      headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' }
+    });
+    if (!res.ok) return null;
+    const { data = [] } = await res.json();
+    const ids = data.map(m => m.id);
+    // Prefer haiku (fast/cheap), then sonnet, then anything
+    workingModel = ids.find(id => id.includes('haiku'))
+                || ids.find(id => id.includes('sonnet'))
+                || ids[0]
+                || null;
+    return workingModel;
+  } catch { return null; }
+}
 
 module.exports = async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { messages, system, model, devCode, tools } = req.body;
   if (!messages || !Array.isArray(messages)) return res.status(400).json({ error: 'Messages required' });
 
+  // Auth
   let authorised = false;
-
   if (devCode && DEV_CODES.includes(devCode.toUpperCase())) {
     authorised = true;
   } else {
@@ -26,77 +36,59 @@ module.exports = async function handler(req, res) {
     if (!token) return res.status(403).json({ error: 'pro_required' });
 
     const userRes = await fetch(`${process.env.SUPABASE_URL}/auth/v1/user`, {
-      headers: {
-        apikey:        process.env.SUPABASE_SERVICE_ROLE_KEY,
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${token}` }
     }).catch(() => null);
-
     if (!userRes?.ok) return res.status(401).json({ error: 'Invalid session — please sign in again.' });
     const user = await userRes.json();
 
     const profileRes = await fetch(
       `${process.env.SUPABASE_URL}/rest/v1/profiles?id=eq.${user.id}&select=is_pro`,
-      {
-        headers: {
-          apikey:        process.env.SUPABASE_SERVICE_ROLE_KEY,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-        },
-      },
+      { headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}` } }
     ).catch(() => null);
-
     const profiles = profileRes?.ok ? await profileRes.json() : [];
     if (profiles[0]?.is_pro) authorised = true;
   }
-
   if (!authorised) return res.status(403).json({ error: 'pro_required' });
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'Server API key not configured.' });
 
-  const modelsToTry = model ? [model] : (workingModel ? [workingModel] : MODEL_FALLBACKS);
-
   try {
-    for (const m of modelsToTry) {
-      const body = {
-        model:      m,
-        max_tokens: 1024,
-        system:     system || 'You are a helpful productivity coach.',
-        messages,
-      };
-      if (tools && tools.length) body.tools = tools;
+    // Use specified model, cached model, or discover it (only on cold start)
+    const selectedModel = model || workingModel || await discoverModel(apiKey);
+    if (!selectedModel) return res.status(500).json({ error: 'Could not find an available model on this API key.' });
 
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'x-api-key':         apiKey,
-          'anthropic-version': '2023-06-01',
-          'content-type':      'application/json',
-        },
-        body: JSON.stringify(body),
-      });
+    const body = {
+      model: selectedModel,
+      max_tokens: 1024,
+      system: system || 'You are a helpful productivity coach.',
+      messages,
+    };
+    if (tools && tools.length) body.tools = tools;
 
-      const data = await response.json();
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await response.json();
 
-      // If model not found, try next one
-      if (!response.ok && data.error?.type === 'not_found_error') continue;
-
-      if (response.ok && !model) workingModel = m; // cache for future warm invocations
-
-      if (!response.ok) {
-        const errType = data.error?.type || '';
-        const errMsg  = data.error?.message || JSON.stringify(data);
-        return res.status(response.status).json({ error: `[${response.status}] ${errType}: ${errMsg}`, raw: errMsg });
-      }
-
-      return res.status(200).json({
-        content:     data.content,
-        stop_reason: data.stop_reason,
-        text:        data.content.find(b => b.type === 'text')?.text || '',
-      });
+    if (!response.ok) {
+      // If model was wrong, clear cache so next request re-discovers
+      if (data.error?.type === 'not_found_error') workingModel = null;
+      const errType = data.error?.type || '';
+      const errMsg  = data.error?.message || JSON.stringify(data);
+      return res.status(response.status).json({ error: `[${response.status}] ${errType}: ${errMsg}`, raw: errMsg });
     }
 
-    return res.status(500).json({ error: 'No available models found on this API key. Check console.anthropic.com for your account\'s model access.' });
+    // Cache the model that worked
+    if (!model) workingModel = selectedModel;
+
+    return res.status(200).json({
+      content:     data.content,
+      stop_reason: data.stop_reason,
+      text:        data.content.find(b => b.type === 'text')?.text || '',
+    });
 
   } catch (err) {
     return res.status(500).json({ error: 'Server error: ' + err.message });
