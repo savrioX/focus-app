@@ -1,7 +1,7 @@
 {
   "version": 2,
   "builds": [
-    { "src": "api/*.js", "use": "@vercel/node", "config": { "maxLambdaSize": "15mb" } },
+    { "src": "api/*.js", "use": "@vercel/node", "config": { "maxLambdaSize": "15mb", "maxDuration": 30 } },
     { "src": "*.html", "use": "@vercel/static" },
     { "src": "*.PNG",  "use": "@vercel/static" },
     { "src": "*.png",  "use": "@vercel/static" }
