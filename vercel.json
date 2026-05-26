@@ -1,10 +1,14 @@
 {
   "version": 2,
   "builds": [
-    { "src": "api/*.js", "use": "@vercel/node" },
-    { "src": "*.html",   "use": "@vercel/static" },
-    { "src": "*.PNG",    "use": "@vercel/static" },
-    { "src": "*.png",    "use": "@vercel/static" }
+    { "src": "api/create-checkout.js", "use": "@vercel/node" },
+    { "src": "api/customer-portal.js", "use": "@vercel/node" },
+    { "src": "api/stripe-webhook.js",  "use": "@vercel/node" },
+    { "src": "api/models.js",          "use": "@vercel/node" },
+    { "src": "api/test.js",            "use": "@vercel/node" },
+    { "src": "*.html",                 "use": "@vercel/static" },
+    { "src": "*.PNG",                  "use": "@vercel/static" },
+    { "src": "*.png",                  "use": "@vercel/static" }
   ],
   "functions": {
     "api/claude.js": { "maxDuration": 30 }
