@@ -1,25 +1,5 @@
-const DEV_CODES = ['COMPOUNDPRO', 'APEX2025', 'DAILYGRIND'];
-
-// Cached after first successful call — persists across warm Lambda invocations
-let workingModel = null;
-
-async function discoverModel(apiKey) {
-  if (workingModel) return workingModel;
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/models', {
-      headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' }
-    });
-    if (!res.ok) return null;
-    const { data = [] } = await res.json();
-    const ids = data.map(m => m.id);
-    // Prefer haiku (fast/cheap), then sonnet, then anything
-    workingModel = ids.find(id => id.includes('haiku'))
-                || ids.find(id => id.includes('sonnet'))
-                || ids[0]
-                || null;
-    return workingModel;
-  } catch { return null; }
-}
+const DEV_CODES     = ['COMPOUNDPRO', 'APEX2025', 'DAILYGRIND'];
+const DEFAULT_MODEL = 'claude-haiku-4-5';
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -54,9 +34,7 @@ module.exports = async function handler(req, res) {
   if (!apiKey) return res.status(500).json({ error: 'Server API key not configured.' });
 
   try {
-    // Use specified model, cached model, or discover it (only on cold start)
-    const selectedModel = model || workingModel || await discoverModel(apiKey);
-    if (!selectedModel) return res.status(500).json({ error: 'Could not find an available model on this API key.' });
+    const selectedModel = model || DEFAULT_MODEL;
 
     const body = {
       model: selectedModel,
@@ -74,15 +52,10 @@ module.exports = async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
-      // If model was wrong, clear cache so next request re-discovers
-      if (data.error?.type === 'not_found_error') workingModel = null;
       const errType = data.error?.type || '';
       const errMsg  = data.error?.message || JSON.stringify(data);
       return res.status(response.status).json({ error: `[${response.status}] ${errType}: ${errMsg}`, raw: errMsg });
     }
-
-    // Cache the model that worked
-    if (!model) workingModel = selectedModel;
 
     return res.status(200).json({
       content:     data.content,
