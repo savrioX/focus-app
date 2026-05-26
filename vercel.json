@@ -1,11 +1,14 @@
 {
   "version": 2,
   "builds": [
-    { "src": "api/*.js", "use": "@vercel/node", "config": { "maxLambdaSize": "15mb", "maxDuration": 30 } },
-    { "src": "*.html", "use": "@vercel/static" },
-    { "src": "*.PNG",  "use": "@vercel/static" },
-    { "src": "*.png",  "use": "@vercel/static" }
+    { "src": "api/*.js", "use": "@vercel/node" },
+    { "src": "*.html",   "use": "@vercel/static" },
+    { "src": "*.PNG",    "use": "@vercel/static" },
+    { "src": "*.png",    "use": "@vercel/static" }
   ],
+  "functions": {
+    "api/claude.js": { "maxDuration": 30 }
+  },
   "routes": [
     { "src": "/api/claude",          "dest": "/api/claude.js"          },
     { "src": "/api/create-checkout", "dest": "/api/create-checkout.js" },
