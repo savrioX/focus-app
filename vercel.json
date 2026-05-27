@@ -1,26 +1,24 @@
 {
   "version": 2,
   "builds": [
-    { "src": "api/create-checkout.js", "use": "@vercel/node" },
-    { "src": "api/customer-portal.js", "use": "@vercel/node" },
-    { "src": "api/stripe-webhook.js",  "use": "@vercel/node" },
-    { "src": "api/models.js",          "use": "@vercel/node" },
-    { "src": "api/test.js",            "use": "@vercel/node" },
-    { "src": "*.html",                 "use": "@vercel/static" },
-    { "src": "*.PNG",                  "use": "@vercel/static" },
-    { "src": "*.png",                  "use": "@vercel/static" }
+    { "src": "api/claude.js",           "use": "@vercel/node" },
+    { "src": "api/create-checkout.js",  "use": "@vercel/node" },
+    { "src": "api/customer-portal.js",  "use": "@vercel/node" },
+    { "src": "api/stripe-webhook.js",   "use": "@vercel/node" },
+    { "src": "api/models.js",           "use": "@vercel/node" },
+    { "src": "api/test.js",             "use": "@vercel/node" },
+    { "src": "*.html",                  "use": "@vercel/static" },
+    { "src": "*.PNG",                   "use": "@vercel/static" },
+    { "src": "*.png",                   "use": "@vercel/static" }
   ],
-  "functions": {
-    "api/claude.js": { "maxDuration": 30 }
-  },
   "routes": [
-    { "src": "/api/claude",          "dest": "/api/claude.js"          },
-    { "src": "/api/create-checkout", "dest": "/api/create-checkout.js" },
-    { "src": "/api/customer-portal", "dest": "/api/customer-portal.js" },
-    { "src": "/api/stripe-webhook",  "dest": "/api/stripe-webhook.js"  },
-    { "src": "/api/models",          "dest": "/api/models.js"          },
-    { "src": "/api/test",            "dest": "/api/test.js"            },
+    { "src": "/api/claude",           "dest": "/api/claude.js"          },
+    { "src": "/api/create-checkout",  "dest": "/api/create-checkout.js" },
+    { "src": "/api/customer-portal",  "dest": "/api/customer-portal.js" },
+    { "src": "/api/stripe-webhook",   "dest": "/api/stripe-webhook.js"  },
+    { "src": "/api/models",           "dest": "/api/models.js"          },
+    { "src": "/api/test",             "dest": "/api/test.js"            },
     { "handle": "filesystem" },
-    { "src": "/(.*)",                "dest": "/$1.html"                }
+    { "src": "/(.*)",                 "dest": "/$1.html"                }
   ]
 }
