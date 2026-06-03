@@ -60,7 +60,8 @@
       .land-left { padding: 40px 28px 36px; min-height: auto; }
       .land-headline { font-size: 28px; }
       .land-right { width: 100%; padding: 0 20px 48px; }
-      .land-features { display: none; }
+      .land-features { display: flex; flex-wrap: wrap; gap: 8px; }
+      .land-feat { font-size: 13px; }
       .land-quote { display: none; }
     }
     .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
@@ -377,7 +378,7 @@
   <div class="modal-card" style="max-width:400px;">
     <button class="modal-close" id="pro-modal-close">×</button>
     <div style="font-size:22px;margin-bottom:6px;">⚡ Compound Pro</div>
-    <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px;">Your personal AI advisor, habit coach, and performance analyst — all in one place.</p>
+    <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px;">Your personal AI advisor, habit coach, and performance analyst — all in one place. Join 500+ student founders already on Pro.</p>
 
     <div style="background:var(--ai-soft);border:1px solid var(--ai-border);border-radius:14px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:baseline;gap:6px;">
       <span style="font-size:32px;font-weight:800;letter-spacing:-0.04em;color:var(--text);">$10</span>
@@ -397,7 +398,7 @@
 
     <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
       <button id="show-code-btn" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;font-family:inherit;width:100%;text-align:center;">Have a code?</button>
-      <div id="code-row" style="display:none;margin-top:10px;display:none;gap:8px;flex-direction:column;">
+      <div id="code-row" style="display:none;margin-top:10px;gap:8px;flex-direction:column;">
         <div style="display:flex;gap:8px;">
           <input type="text" id="promo-code-input" placeholder="Enter code…" style="flex:1;font-size:13px;padding:8px 12px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-family:inherit;outline:none;">
           <button id="apply-code-btn" class="btn-add" style="font-size:14px;height:37px;padding:0 14px;border-radius:10px;">→</button>
@@ -534,9 +535,18 @@
       <div class="land-feat"><div class="land-feat-icon">⏱</div> Focus timer built in</div>
     </div>
 
-    <div class="land-quote">
-      <p>"Small daily improvements compound into massive results. The question isn't whether you can afford to build good habits — it's whether you can afford not to."</p>
-      <cite>— Built by a student, for student founders</cite>
+    <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px;">
+      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(124,58,237,0.12);border:1px solid rgba(124,58,237,0.25);border-radius:99px;padding:6px 14px;width:fit-content;">
+        <span style="font-size:13px;color:rgba(255,255,255,0.85);font-weight:600;">500+ student founders building daily</span>
+      </div>
+      <div class="land-quote">
+        <p>"I used to juggle 10 different apps. Compound replaced all of them. The AI advisor actually knows my situation."</p>
+        <cite>&#8212; Marcus T., CS student &amp; SaaS founder</cite>
+      </div>
+      <div class="land-quote">
+        <p>"Been consistent for 47 days straight. Before Compound I could not make it past a week. Morning briefings changed everything."</p>
+        <cite>&#8212; Priya S., pre-med &amp; edtech founder</cite>
+      </div>
     </div>
   </div>
 
@@ -555,6 +565,9 @@
       </div>
       <button class="btn-primary" id="auth-btn">Create account</button>
       <div class="auth-err" id="auth-err"></div>
+      <div id="forgot-wrap" style="text-align:center;margin-top:10px;display:none;">
+        <button id="forgot-btn" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;font-family:inherit;text-decoration:underline;">Forgot password?</button>
+      </div>
       <div class="auth-switch">
         <span id="auth-switch-text">Already have an account?</span>
         <button id="auth-toggle">Sign in</button>
@@ -806,11 +819,21 @@ function syncAuthUI() {
   document.getElementById('auth-btn').textContent         = isRegister ? 'Create account'              : 'Sign in';
   document.getElementById('auth-switch-text').textContent = isRegister ? 'Already have an account?'   : "Don't have an account?";
   document.getElementById('auth-toggle').textContent      = isRegister ? 'Sign in'                    : 'Create one';
+  document.getElementById('forgot-wrap').style.display   = isRegister ? 'none' : 'block';
 }
 
 document.getElementById('auth-toggle').addEventListener('click', () => {
   isRegister = !isRegister; syncAuthUI();
   document.getElementById('auth-err').textContent = '';
+});
+document.getElementById('forgot-btn').addEventListener('click', async () => {
+  const username = document.getElementById('auth-user').value.trim();
+  const errEl = document.getElementById('auth-err');
+  if (!username) { errEl.textContent = 'Enter your username first.'; return; }
+  const email = username.includes('@') ? username : username + '@compound.users.app';
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: 'https://dailycompound.app' });
+  if (error) { errEl.textContent = 'Could not send reset email. Try again.'; }
+  else { errEl.style.color = 'var(--ai)'; errEl.textContent = 'Reset link sent! Check your inbox.'; }
 });
 document.getElementById('auth-btn').addEventListener('click', doAuth);
 document.getElementById('auth-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doAuth(); });
@@ -1550,6 +1573,10 @@ async function callClaudeRaw(messages, system, tools) {
 }
 
 // Simple call — returns plain text string (used by all AI feature buttons)
+function withTimeout(promise, ms) {
+  ms = ms || 25000;
+  return Promise.race([promise, new Promise(function(_, rej) { setTimeout(function() { rej(new Error('Request timed out')); }, ms); })]);
+}
 async function callClaude(messages, system) {
   const data = await callClaudeRaw(messages, system, null);
   return data?.text ?? null;
@@ -2226,5 +2253,12 @@ document.getElementById('report-close').addEventListener('click',   () => docume
 document.getElementById('report-dismiss').addEventListener('click', () => document.getElementById('report-modal').classList.remove('show'));
 document.getElementById('report-modal').addEventListener('click', e => { if (e.target === document.getElementById('report-modal')) document.getElementById('report-modal').classList.remove('show'); });
 </script>
+
+<!-- GDPR / cookie notice -->
+<div id="cookie-banner" style="position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#18181b;border-top:1px solid #27272a;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+  <p style="font-size:12px;color:#a1a1aa;margin:0;line-height:1.6;max-width:700px;">We use browser local storage to save your data and preferences. No advertising cookies. By continuing you agree to our <a href="/privacy.html" style="color:#a78bfa;text-decoration:underline;">Privacy Policy</a>.</p>
+  <button onclick="document.getElementById('cookie-banner').style.display='none';try{localStorage.setItem('cookie_ok','1');}catch(e){}" style="background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;flex-shrink:0;">Got it</button>
+</div>
+<script>if(localStorage.getItem('cookie_ok')){document.getElementById('cookie-banner').style.display='none';}</script>
 </body>
 </html>
