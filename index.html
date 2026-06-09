@@ -378,7 +378,7 @@
   <div class="modal-card" style="max-width:400px;">
     <button class="modal-close" id="pro-modal-close">×</button>
     <div style="font-size:22px;margin-bottom:6px;">⚡ Compound Pro</div>
-    <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px;">Your personal AI advisor, habit coach, and performance analyst — all in one place. Join 500+ student founders already on Pro.</p>
+    <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px;">Your personal AI advisor, habit coach, and performance analyst — all in one place. Pro is launching soon.</p>
 
     <div style="background:var(--ai-soft);border:1px solid var(--ai-border);border-radius:14px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:baseline;gap:6px;">
       <span style="font-size:32px;font-weight:800;letter-spacing:-0.04em;color:var(--text);">$10</span>
@@ -393,7 +393,7 @@
       <div class="pro-feature-row"><span class="pro-check">✓</span> 📊 Weekly performance reports</div>
     </div>
 
-    <button class="btn-primary" id="checkout-btn" style="background:var(--ai);font-size:15px;padding:14px;letter-spacing:-0.01em;">Start Pro — $10/month</button>
+    <button class="btn-primary" id="checkout-btn" style="background:var(--ai);font-size:15px;padding:14px;letter-spacing:-0.01em;">⚡ Pro Launching Soon — $10/month</button>
     <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:10px;">Secure payment via Stripe · No commitment</p>
 
     <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
@@ -1420,7 +1420,7 @@ function updateAiVisibility() {
     unlockBtn.style.borderColor = 'rgba(102,126,234,0.4)';
     unlockBtn.style.fontWeight = '700';
   } else {
-    unlockBtn.textContent = '✨ Go Pro';
+    unlockBtn.textContent = '✨ Coming Soon';
     unlockBtn.style.color = '#667eea';
     unlockBtn.style.borderColor = 'rgba(102,126,234,0.4)';
     unlockBtn.style.fontWeight = '600';
@@ -1514,23 +1514,11 @@ document.getElementById('settings-modal').addEventListener('click', e => { if (e
 
 // ── Stripe ────────────────────────────────────────────────
 async function startCheckout() {
-  const { data: { session } } = await sb.auth.getSession();
-  if (!session) { toast('Please sign in first.'); return; }
+  // Payments not yet live — show waitlist notice
   const btn = document.getElementById('checkout-btn');
-  btn.disabled = true; btn.textContent = 'Redirecting to Stripe…';
-  try {
-    const res = await fetch('/api/create-checkout', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ userId: session.user.id, email: session.user.email }),
-    });
-    const { url, error } = await res.json();
-    if (error) throw new Error(error);
-    window.location.href = url;
-  } catch (err) {
-    toast('Checkout error: ' + err.message);
-    btn.disabled = false; btn.textContent = 'Start Pro — $10/month';
-  }
+  btn.disabled = true;
+  setTimeout(() => { btn.disabled = false; }, 2000);
+  toast('⚡ Pro is launching soon — check back shortly!');
 }
 
 async function manageSubscription() {
