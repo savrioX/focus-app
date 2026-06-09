@@ -2030,7 +2030,7 @@ const HABIT_PACKS = [
     habits: ['Wake up before 7am', 'Cold shower', 'Workout (no days off)', 'Read for 30 minutes', 'No social media before noon', 'Journal before bed', 'Walk 10,000 steps']
   },
   {
-    id: 'huberman',
+    id: 'science',
     name: '🧠 Science-Based Performance',
     desc: 'Habits grounded in neuroscience and biology for peak cognitive and physical performance. Inspired by research-backed wellness protocols.',
     habits: ['Morning sunlight (10 min outside)', 'No caffeine for first 90 minutes after waking', 'Daily exercise', 'No food 2-3 hours before sleep', 'Consistent sleep and wake time', 'Non-sleep deep rest (10-min relaxation)', 'View natural light at sunset']
@@ -2138,7 +2138,7 @@ document.getElementById('feedback-send').addEventListener('click', async () => {
     }, 2000);
   } catch(e) {
     // Fallback: open mailto
-    window.open(`mailto:feedback@compound.app?subject=Compound Feedback&body=${encodeURIComponent(text)}`);
+    window.open(`mailto:feedback@dailycompound.app?subject=Compound Feedback&body=${encodeURIComponent(text)}`);
     statusEl.textContent = 'Opened your email client ✓';
   }
   btn.disabled = false; btn.textContent = 'Send →';
