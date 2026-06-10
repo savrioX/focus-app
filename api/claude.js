@@ -1,4 +1,6 @@
-const DEV_CODES     = ['COMPOUNDPRO', 'APEX2025', 'DAILYGRIND'];
+// Override via DEV_CODES env var (comma-separated) to rotate without a deploy
+const DEV_CODES     = (process.env.DEV_CODES || 'COMPOUNDPRO,APEX2025,DAILYGRIND')
+  .split(',').map(c => c.trim().toUpperCase()).filter(Boolean);
 const DEFAULT_MODEL = 'claude-haiku-4-5';
 
 module.exports = async function handler(req, res) {

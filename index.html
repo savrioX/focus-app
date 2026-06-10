@@ -9,7 +9,9 @@
   <meta property="og:description" content="Goals, habits, daily execution, and your personal AI coach. Free to start.">
   <meta property="og:image" content="https://dailycompound.app/logo.PNG">
   <meta property="og:url" content="https://dailycompound.app">
-  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:card" content="summary">
+  <meta name="theme-color" content="#09090b">
+  <link rel="canonical" href="https://dailycompound.app/">
   <link rel="icon" type="image/png" href="logo.PNG">
   <link rel="apple-touch-icon" href="logo.PNG">
   <style>
@@ -50,6 +52,11 @@
     .land-quote { border-left: 2px solid rgba(124,58,237,0.5); padding-left: 16px; }
     .land-quote p { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.6; font-style: italic; }
     .land-quote cite { font-size: 11px; color: rgba(255,255,255,0.25); font-style: normal; margin-top: 6px; display: block; }
+    .land-quote cite a { color: rgba(255,255,255,0.45); text-decoration: none; }
+    .land-quote cite a:hover { color: #a78bfa; }
+    .land-links { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 40px; }
+    .land-links a { font-size: 12px; color: rgba(255,255,255,0.35); text-decoration: none; transition: color 0.15s; }
+    .land-links a:hover { color: rgba(255,255,255,0.8); }
     .land-right { width: 420px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 40px 40px 40px 0; }
     .auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 36px; width: 100%; max-width: 380px; box-shadow: var(--shadow-md); }
     .auth-logo-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
@@ -393,8 +400,8 @@
       <div class="pro-feature-row"><span class="pro-check">✓</span> 📊 Weekly performance reports</div>
     </div>
 
-    <button class="btn-primary" id="checkout-btn" style="background:var(--ai);font-size:15px;padding:14px;letter-spacing:-0.01em;">⚡ Pro Launching Soon — $10/month</button>
-    <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:10px;">Secure payment via Stripe · No commitment</p>
+    <button class="btn-primary" id="checkout-btn" style="background:var(--ai);font-size:15px;padding:14px;letter-spacing:-0.01em;">⚡ $10/month — notify me at launch</button>
+    <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:10px;">Launching soon · follow <a href="https://www.instagram.com/thestartupjournal1/" target="_blank" rel="noopener" style="color:var(--ai);text-decoration:none;font-weight:600;">@thestartupjournal1</a> for the drop</p>
 
     <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
       <button id="show-code-btn" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;font-family:inherit;width:100%;text-align:center;">Have a code?</button>
@@ -537,16 +544,19 @@
 
     <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px;">
       <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(124,58,237,0.12);border:1px solid rgba(124,58,237,0.25);border-radius:99px;padding:6px 14px;width:fit-content;">
-        <span style="font-size:13px;color:rgba(255,255,255,0.85);font-weight:600;">500+ student founders building daily</span>
+        <span style="font-size:13px;color:rgba(255,255,255,0.85);font-weight:600;">Built in public by a 19-year-old founder</span>
       </div>
       <div class="land-quote">
-        <p>"I used to juggle 10 different apps. Compound replaced all of them. The AI advisor actually knows my situation."</p>
-        <cite>&#8212; Marcus T., CS student &amp; SaaS founder</cite>
+        <p>"I was juggling ten apps to run my goals, habits, and todos — and none of them talked to each other. Compound is the system I actually use every day to build my own startup. I'm documenting the whole journey in public."</p>
+        <cite>&#8212; Savrio, founder &middot; <a href="https://www.instagram.com/thestartupjournal1/" target="_blank" rel="noopener">follow the build @thestartupjournal1</a></cite>
       </div>
-      <div class="land-quote">
-        <p>"Been consistent for 47 days straight. Before Compound I could not make it past a week. Morning briefings changed everything."</p>
-        <cite>&#8212; Priya S., pre-med &amp; edtech founder</cite>
-      </div>
+    </div>
+
+    <div class="land-links">
+      <a href="/pricing.html">Pricing</a>
+      <a href="https://www.instagram.com/thestartupjournal1/" target="_blank" rel="noopener">Instagram</a>
+      <a href="/terms.html">Terms</a>
+      <a href="/privacy.html">Privacy</a>
     </div>
   </div>
 
@@ -678,7 +688,7 @@
 
   <!-- Footer -->
   <footer class="app-footer">
-    <span>© 2025 Compound</span>
+    <span>© 2026 Compound</span>
     <span class="footer-dot">·</span>
     <a href="/terms.html" target="_blank">Terms</a>
     <span class="footer-dot">·</span>
@@ -904,7 +914,11 @@ document.getElementById('btn-signout').addEventListener('click', async () => {
   location.reload();
 });
 
-sb.auth.onAuthStateChange(async (event, session) => {
+// IMPORTANT: this callback must stay synchronous. supabase-js holds its auth
+// lock while dispatching it — awaiting any supabase call here deadlocks the
+// client (all later queries hang forever). Defer real work via setTimeout.
+let appStarted = false;
+sb.auth.onAuthStateChange((event, session) => {
   document.getElementById('auth-btn').disabled = false;
   syncAuthUI();
   if (session?.user) {
@@ -916,8 +930,11 @@ sb.auth.onAuthStateChange(async (event, session) => {
     document.getElementById('user-label').textContent    = username;
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('app').style.display         = 'block';
-    await initApp();
+    // Run initApp once per sign-in, outside the auth lock — not on every
+    // TOKEN_REFRESHED / USER_UPDATED event.
+    if (!appStarted) { appStarted = true; setTimeout(initApp, 0); }
   } else {
+    appStarted = false;
     currentUser = null; isPro = false; stripeCustomerId = null;
     todos = []; goals = []; habits = [];
     try { localStorage.removeItem(CACHE_KEY); localStorage.removeItem('compound_apikey'); } catch(e) {}
@@ -1464,9 +1481,8 @@ document.getElementById('pro-modal-close').addEventListener('click', closeProMod
 document.getElementById('pro-modal').addEventListener('click', e => { if (e.target === document.getElementById('pro-modal')) closeProModal(); });
 document.getElementById('checkout-btn').addEventListener('click', startCheckout);
 
-// Promo / dev code
-const DEV_CODES = ['COMPOUNDPRO', 'APEX2025', 'DAILYGRIND'];
-const DEV_KEY   = 'compound_dev';
+// Promo / dev code — codes live server-side only (api/claude.js)
+const DEV_KEY = 'compound_dev';
 
 document.getElementById('show-code-btn').addEventListener('click', () => {
   const row = document.getElementById('code-row');
@@ -1478,10 +1494,20 @@ document.getElementById('promo-code-input').addEventListener('keydown', e => {
 });
 document.getElementById('apply-code-btn').addEventListener('click', applyCode);
 
-function applyCode() {
+async function applyCode() {
   const val = document.getElementById('promo-code-input').value.trim().toUpperCase();
   const statusEl = document.getElementById('code-status');
-  if (DEV_CODES.includes(val)) {
+  if (!val) return;
+  // Validate server-side — valid codes must never ship in this file.
+  statusEl.style.color = 'var(--muted)';
+  statusEl.textContent = 'Checking…';
+  try {
+    const res = await fetch('/api/claude', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ messages: [{ role: 'user', content: 'ping' }], system: 'Reply with: pong', devCode: val }),
+    });
+    if (!res.ok) throw new Error('invalid');
     localStorage.setItem(DEV_KEY, '1');
     localStorage.setItem('compound_dev_code', val);
     isPro = true;
@@ -1490,7 +1516,7 @@ function applyCode() {
     statusEl.textContent = '✓ Pro unlocked!';
     setTimeout(closeProModal, 1200);
     toast('⚡ Pro unlocked — enjoy!');
-  } else {
+  } catch (e) {
     statusEl.style.color = 'var(--red)';
     statusEl.textContent = 'Invalid code.';
   }
@@ -1514,11 +1540,12 @@ document.getElementById('settings-modal').addEventListener('click', e => { if (e
 
 // ── Stripe ────────────────────────────────────────────────
 async function startCheckout() {
-  // Payments not yet live — show waitlist notice
+  // Payments not yet live — capture the intent instead of losing it
   const btn = document.getElementById('checkout-btn');
   btn.disabled = true;
   setTimeout(() => { btn.disabled = false; }, 2000);
-  toast('⚡ Pro is launching soon — check back shortly!');
+  toast('⚡ Pro launches soon — follow @thestartupjournal1 to catch it!');
+  window.open('https://www.instagram.com/thestartupjournal1/', '_blank', 'noopener');
 }
 
 async function manageSubscription() {
@@ -1541,8 +1568,9 @@ async function manageSubscription() {
 async function buildAuthPayload() {
   const headers = { 'content-type': 'application/json' };
   const extra   = {};
-  if (localStorage.getItem(DEV_KEY) === '1') {
-    extra.devCode = localStorage.getItem('compound_dev_code') || 'COMPOUNDPRO';
+  const storedCode = localStorage.getItem('compound_dev_code');
+  if (localStorage.getItem(DEV_KEY) === '1' && storedCode) {
+    extra.devCode = storedCode;
   } else {
     const { data: { session } } = await sb.auth.getSession();
     if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`;
