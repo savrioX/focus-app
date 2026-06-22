@@ -188,7 +188,134 @@ Based on Systeme.io (60-70% of revenue from affiliates) and Marc Lou (ShipFast):
 
 ---
 
-## 5e. ManyChat (Comment → DM Automation)
+## 5e. X/Twitter — Build in Public (Start Now)
+
+**Verdict: Start X this week.** The #buildinpublic audience on X is the exact demographic that buys $10/month productivity SaaS. Instagram grows brand awareness; X drives signups directly.
+
+### Account Setup (Day 1, 1 hour)
+- Handle: your real name (@savriobresolin) or @dailycompound
+- Bio: `19yo solo founder. Building @dailycompound — $10/mo focus system for founders. Documenting the journey. #buildinpublic`
+- Real face photo (not logo — logos don't convert to followers)
+- Pin your intro thread (write it on Day 2)
+
+### Content Mix
+- 40% real number updates (revenue, signups — even $0 works)
+- 30% specific lessons / decisions
+- 20% behind-the-scenes product / process
+- 10% engagement drivers (polls, open questions)
+
+### Post Cadence
+- Minimum: 3 posts/week for 90 days
+- Optimal: 1 tweet daily + 1 thread/week
+- Post at 8-10am ET, 12-2pm ET, or 5-7pm ET
+- Reply to every comment within 10 minutes — that's the #1 amplification signal
+
+### CTAs That Convert
+- "I just opened 10 beta spots — DM me 'FOCUS' if you want one"
+- Put the signup link in the first REPLY (not the tweet body) — preserves reach
+- Pinned post = intro thread ending with signup link
+- Soft close on value posts: "If this helped, the app is at dailycompound.app"
+
+### Who to Study (and reply to daily)
+- **@levelsio** — Pieter Levels, the original build-in-public playbook
+- **@marc_louvion** — went from zero to $30K MRR posting the journey
+- **@arvidkahl** — Arvid Kahl, built FeedbackPanda to $55K MRR via threads
+
+### Week 1 Plan
+- Day 1: Set up account, write bio, no posts yet
+- Day 2: Post intro thread ("I'm 19, building this, here's why") — PIN IT
+- Days 3-5: Reply grind only — add value to 3-5 threads/day in #buildinpublic
+- Days 6-7: First milestone post with a real number
+
+**#buildinpublic tag:** 1-2 hashtags max per post. Use `#buildinpublic` on milestone posts.
+
+---
+
+## 5f. Email Sequences (Implement After Launch)
+
+**Key insight: behavior-triggered > time-based.** Don't send emails on Day 1, Day 3, Day 7. Send them when the user does (or stops doing) something.
+
+### The 5-Email Stack (in order of impact)
+
+| # | Email | Trigger | Subject |
+|---|-------|---------|---------|
+| 1 | **Welcome** | Immediately on signup | "Here's your first move" |
+| 2 | **Activation nudge** | No session in 24h after signup | "Your first session is waiting" |
+| 3 | **Streak at risk** | User has a streak but hasn't opened in 48h | "Your [X]-day streak is at risk." |
+| 4 | **Upgrade trigger** | User hits 7-day streak | "You've built a real habit. Here's what's next." |
+| 5 | **Weekly digest** | Every Sunday | "[X] sessions this week. You're in the top 12%." |
+
+- All emails: plain text, under 100 words, one link
+- Upgrade email fires at 7-day streak (peak motivation, perceived value highest)
+- Weekly digest: ONE metric + social proof ("top X% of users")
+- Welcome email open rate target: 55-65% (industry top for plain text from a founder)
+
+### Implementation
+- Use Resend (resend.com) — $0 for first 3,000 emails/month, simple Node API
+- Routes added to vercel.json: `/api/email-welcome`, `/api/cron-streak-reminder` (runs 8pm daily), `/api/cron-weekly-digest` (runs Monday 8am)
+- Streak reminder + weekly digest are Vercel cron functions querying Supabase
+
+---
+
+## 5g. Product Hunt Launch (2 weeks from now, Wednesday)
+
+**Realistic expectation (no existing audience):** 50-150 signups on launch day. Primarily a credibility signal + backlink source, not a scale event. Do it anyway — the PH badge converts visitors.
+
+### 30-Day Prep Checklist
+
+- [ ] Create PH maker account now (needs 30+ days age to rank)
+- [ ] Comment on 5 other launches/week to build 50+ followers before launch day
+- [ ] Build warm list: friends, app users, Instagram followers who opted in (target 200+)
+- [ ] Produce 45-60s demo video (show your face + real product — the #1 ranking factor)
+- [ ] Design 5-8 gallery images (1270×760px, outcome-focused, not feature screenshots)
+- [ ] Write tagline: 60 chars, outcome first: "The focus system 19-year-old founders actually use"
+- [ ] Write maker's first comment: personal story, what you built, why, invite feedback
+- [ ] Find a PH hunter with 1,000+ followers in your space (DM from Twitter/X)
+- [ ] Check hunted.space the week before — avoid launching against major AI company drops
+- [ ] Schedule launch slot at 12:01 AM Pacific
+
+### Day of Launch
+- Post live at 12:01 AM PT — this claims the full 24-hour ranking window
+- Send emails/DMs at 6-8 AM PT when US users wake up. Ask them to "check it out" (NOT "upvote" — PH suppresses vote-farming signals)
+- Reply to every comment within 10 minutes for the first 6 hours — algorithm weights engagement velocity
+- **Best day:** Sunday or Monday with warm list < 300; Tuesday-Thursday with > 500
+
+---
+
+## 5h. Reddit Strategy (Start now — 4 weeks of karma building first)
+
+### Best Subreddits (Tier 1 — self-promotion welcome)
+
+| Subreddit | Approach |
+|-----------|----------|
+| r/SideProject | "I built this" story posts. No karma minimum. Start here. |
+| r/IndieHackers | Milestone posts with real numbers. Revenue, signups, what worked. |
+| r/MicroSaaS | Launch posts, "how I built it" breakdowns. |
+
+### Tier 2 — audience lives here, promote indirectly
+
+| Subreddit | Rule |
+|-----------|------|
+| r/Entrepreneur (3M) | Frame as lesson/story, mention product naturally. No launch posts. |
+| r/startups (1.5M) | **Only** post in the weekly pinned "Share Your Startup" megathread. |
+| r/Productivity (2M) | Answer questions genuinely. Mention app only when directly relevant. |
+| r/StudentEntrepreneurs | Story posts work. Smaller but highly targeted. |
+
+### What works vs. what gets banned
+- **Works:** "I built X, here's what I learned" with real numbers + screenshot/GIF
+- **Works:** Milestone posts — "first 10 paying users, here's what converted"
+- **Banned instantly:** Bare link posts, cross-posting identical text same day, posting in r/startups without the megathread
+- **Shadow-banned:** Account with no history that only posts its own links
+
+### Karma building (4 weeks before any promo post)
+- Week 1-2: Comment only — 5-10 genuine replies/day, no product mentions
+- Week 3: 200+ karma → can post in r/SideProject
+- Week 4: 500+ karma → most target subs unlocked
+- **UTM parameters on all Reddit links** so you know which sub drives signups
+
+---
+
+## 5i. ManyChat (Comment → DM Automation)
 
 When a post performs well, add a comment-to-DM trigger:
 - User comments a keyword (e.g., "COMPOUND")

@@ -20,6 +20,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Compound">
+  <link rel="preload" as="image" href="logo.PNG">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
@@ -402,8 +403,8 @@
 <div id="pro-modal">
   <div class="modal-card" style="max-width:400px;">
     <button class="modal-close" id="pro-modal-close">×</button>
-    <div style="font-size:22px;margin-bottom:6px;">⚡ Compound Pro</div>
-    <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px;">Your personal AI advisor, habit coach, and performance analyst — all in one place. Pro is launching soon.</p>
+    <div style="font-size:22px;margin-bottom:6px;">⚡ You hit a Pro feature</div>
+    <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px;">Free users see their streak data but can't act on it. Pro users know exactly what to fix each week — and they do.</p>
 
     <div style="background:var(--ai-soft);border:1px solid var(--ai-border);border-radius:14px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:baseline;gap:6px;">
       <span style="font-size:32px;font-weight:800;letter-spacing:-0.04em;color:var(--text);">$10</span>
@@ -411,11 +412,11 @@
     </div>
 
     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:24px;">
-      <div class="pro-feature-row"><span class="pro-check">✓</span> ⚡ Apex Advisor — unlimited AI coaching</div>
-      <div class="pro-feature-row"><span class="pro-check">✓</span> ✨ Daily AI task planning</div>
-      <div class="pro-feature-row"><span class="pro-check">✓</span> 🧠 Goal → habits & tasks builder</div>
-      <div class="pro-feature-row"><span class="pro-check">✓</span> ☀️ Morning briefings</div>
-      <div class="pro-feature-row"><span class="pro-check">✓</span> 📊 Weekly performance reports</div>
+      <div class="pro-feature-row"><span class="pro-check">✓</span> 📊 Weekly report showing exactly where you're losing momentum</div>
+      <div class="pro-feature-row"><span class="pro-check">✓</span> ☀️ Morning briefing so you never waste the first hour of your day</div>
+      <div class="pro-feature-row"><span class="pro-check">✓</span> 🧠 AI that builds your habits and tasks from your goals — not generic advice</div>
+      <div class="pro-feature-row"><span class="pro-check">✓</span> ✨ Daily planner that knows what you're working toward</div>
+      <div class="pro-feature-row"><span class="pro-check">✓</span> ⚡ Apex Advisor: ask anything, get answers from your actual data</div>
     </div>
 
     <div class="field" style="margin-bottom:12px;">
@@ -737,7 +738,7 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ── Completed todos (shown at bottom until midnight) ───────
 function getCompletedTodos() {
@@ -999,8 +1000,8 @@ function checkMilestones() {
   const key = `compound_milestone_${daysSince}`;
   if (localStorage.getItem(key)) return;
   if (daysSince === 1) { toast('Day 2 — you came back. Most people don\'t. Keep going.'); localStorage.setItem(key, '1'); }
-  else if (daysSince === 7) { toast('🗓️ One week with Compound. Consistency is compounding.'); localStorage.setItem(key, '1'); }
-  else if (daysSince === 30) { toast('📅 30 days in. You\'ve built something real.'); localStorage.setItem(key, '1'); }
+  else if (daysSince === 7) { toast('🗓️ One week in. See exactly where you\'re winning — unlock your weekly report. ⚡'); localStorage.setItem(key, '1'); setTimeout(openProModal, 2000); }
+  else if (daysSince === 30) { toast('📅 30 days in. You\'ve built something real. Time to make it work harder for you. ⚡'); localStorage.setItem(key, '1'); setTimeout(openProModal, 2500); }
 }
 
 function showMondayStats() {
@@ -1327,7 +1328,7 @@ function renderHabits() {
         <div class="item-body">
           <div class="item-label ${checked?'done':''}">${esc(h.text)}</div>
           ${sparklineHtml(h)}
-          ${s>0?`<div class="streak ${s>=3?'hot':''}">🔥 ${s} day streak${shareBtn}${s>=7&&!isPro?' <span style="font-size:10px;opacity:0.8;cursor:pointer;" onclick="openProModal()">· unlock weekly report ⚡</span>':''}</div>`:''}
+          ${s>0?`<div class="streak ${s>=3?'hot':''}">🔥 ${s} day streak${shareBtn}${s>=7&&!isPro?'<button onclick="openProModal()" style="display:inline-flex;align-items:center;gap:3px;background:var(--ai-soft);border:1px solid var(--ai-border);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--ai);cursor:pointer;font-family:inherit;font-weight:600;margin-left:6px;min-height:26px;line-height:1;">⚡ Pro</button>':''}</div>`:''}
         </div>
         <button class="item-del" data-action="del-habit" data-id="${h.id}">×</button>
       </div>`;
@@ -1475,8 +1476,8 @@ document.addEventListener('click', async e => {
           if (i !== -1) h.habit_logs[i] = data;
           saveCache();
           const newStreak = calcStreak(h);
-          if (newStreak === 7) toast('🔥 7-day streak! One week of consistency — keep going.');
-          else if (newStreak === 30) toast('🏆 30-day streak! A full month — you\'re building a real habit.');
+          if (newStreak === 7) { toast('🔥 7-day streak! Your habits are compounding. See your full weekly report? ⚡'); setTimeout(openProModal, 2500); }
+          else if (newStreak === 30) { toast('🏆 30-day streak! A full month — you\'ve built a real habit. Level up with Pro. ⚡'); setTimeout(openProModal, 3000); }
           else if (newStreak === 100) toast('💎 100-day streak! Legendary consistency.');
         } catch(e) { h.habit_logs = h.habit_logs.filter(l => l !== tempLog); saveCache(); renderHabits(); toast('Could not update.'); }
       }
