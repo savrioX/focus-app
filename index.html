@@ -406,9 +406,18 @@
     <div style="font-size:22px;margin-bottom:6px;">⚡ You hit a Pro feature</div>
     <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px;">Free users see their streak data but can't act on it. Pro users know exactly what to fix each week — and they do.</p>
 
-    <div style="background:var(--ai-soft);border:1px solid var(--ai-border);border-radius:14px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:baseline;gap:6px;">
-      <span style="font-size:32px;font-weight:800;letter-spacing:-0.04em;color:var(--text);">$10</span>
-      <span style="font-size:14px;color:var(--muted);">/month · cancel anytime</span>
+    <div style="display:flex;gap:10px;margin-bottom:20px;">
+      <div style="flex:1;background:var(--ai-soft);border:1px solid var(--ai-border);border-radius:14px;padding:14px 16px;text-align:center;">
+        <div style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Monthly</div>
+        <div style="font-size:26px;font-weight:800;letter-spacing:-0.03em;color:var(--text);">$10</div>
+        <div style="font-size:11px;color:var(--muted);">per month</div>
+      </div>
+      <div style="flex:1;background:var(--ai-soft);border:2px solid var(--ai);border-radius:14px;padding:14px 16px;text-align:center;position:relative;">
+        <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--ai);color:#fff;font-size:10px;font-weight:700;padding:2px 10px;border-radius:20px;white-space:nowrap;">2 MONTHS FREE</div>
+        <div style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--ai);margin-bottom:6px;">Annual</div>
+        <div style="font-size:26px;font-weight:800;letter-spacing:-0.03em;color:var(--text);">$8</div>
+        <div style="font-size:11px;color:var(--muted);">per month · $96/yr</div>
+      </div>
     </div>
 
     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:24px;">
@@ -1143,7 +1152,7 @@ async function loadData() {
   }
 }
 
-function renderAll() { renderTodos(); renderGoals(); renderHabits(); }
+function renderAll() { renderTodos(); renderGoals(); renderHabits(); updateOnboardingChecklist(); }
 
 // Silent background refresh — no loading screen, just updates data
 async function silentRefresh() {
@@ -1219,7 +1228,7 @@ function renderGoals() {
   const list = document.getElementById('goals-list');
   const done = goals.filter(g => goalPct(g) === 100 && (g.goal_subtasks||[]).length > 0).length;
   document.getElementById('goals-count').textContent = goals.length ? `${done}/${goals.length} done` : '';
-  if (!goals.length) { list.innerHTML = '<div class="empty" style="line-height:1.7;">No goals yet.<br><span style="font-size:12px;color:var(--muted);">Start with one big goal — what do you want to build or achieve this semester?</span></div>'; return; }
+  if (!goals.length) { list.innerHTML = '<div class="empty" style="line-height:1.7;">No goals yet.<br><span style="font-size:12px;color:var(--muted);">Start with one big goal — what do you want to build or achieve?</span><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">' + ['Launch my first product','Grow to 1,000 followers','Build $500/month side income'].map(s=>`<button onclick="document.getElementById('goals-input').value=${JSON.stringify(s)};document.getElementById('goals-input').focus()" style="font-size:12px;border:1px solid var(--border);background:var(--bg);color:var(--muted);border-radius:99px;padding:4px 10px;cursor:pointer;font-family:inherit;">${s}</button>`).join('') + '</div></div>'; return; }
   list.innerHTML = goals.map(g => {
     const pct  = goalPct(g);
     const subs = [...(g.goal_subtasks||[])].sort((a,b) => new Date(a.created_at)-new Date(b.created_at));
@@ -1305,7 +1314,7 @@ function renderHabits() {
   const list = document.getElementById('habits-list');
   const doneToday = habits.filter(h => (h.habit_logs||[]).some(l => l.logged_date === today())).length;
   document.getElementById('habits-count').textContent = habits.length ? `${doneToday}/${habits.length} today` : '';
-  if (!habits.length) { list.innerHTML = '<div class="empty">No habits yet — try the <strong>📦 Starter packs</strong> above for instant suggestions.</div>'; return; }
+  if (!habits.length) { list.innerHTML = '<div class="empty" style="text-align:center;padding:20px 12px;display:flex;flex-direction:column;align-items:center;gap:12px;"><div style="font-size:28px;">🔥</div><div style="font-size:13px;color:var(--muted);line-height:1.6;">Daily habits compound into who you become.<br>Start with a proven pack.</div><button onclick="document.getElementById(\'packs-modal\').classList.add(\'show\')" style="background:var(--ai);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">📦 Browse starter packs</button></div>'; return; }
 
   let bannerHtml = '';
   const hour = new Date().getHours();
@@ -1584,14 +1593,49 @@ const openProModal  = () => {
 };
 const closeProModal = () => document.getElementById('pro-modal').classList.remove('show');
 
+function updateOnboardingChecklist() {
+  const el = document.getElementById('onboarding-checklist');
+  if (!el) return;
+  const step1 = goals.length > 0;
+  const step2 = habits.length > 0;
+  const step3 = !!localStorage.getItem('compound_day2');
+  const done = [step1, step2, step3].filter(Boolean).length;
+  if (done === 3) { el.remove(); localStorage.setItem('compound_onboarded','1'); return; }
+  const pct = Math.round(done / 3 * 100);
+  el.querySelector('#oc-bar').style.width = pct + '%';
+  el.querySelector('#oc-s1').style.opacity = step1 ? '0.45' : '1';
+  el.querySelector('#oc-s1 .oc-dot').textContent = step1 ? '✓' : '1';
+  el.querySelector('#oc-s2').style.opacity = step2 ? '0.45' : '1';
+  el.querySelector('#oc-s2 .oc-dot').textContent = step2 ? '✓' : '2';
+  el.querySelector('#oc-s3').style.opacity = '0.45';
+  el.querySelector('#oc-s3 .oc-dot').textContent = step3 ? '✓' : '3';
+}
+
 function showOnboardingTip() {
   if (localStorage.getItem('compound_onboarded')) return;
   const tip = document.createElement('div');
-  tip.id = 'onboarding-tip';
-  tip.style.cssText = 'background:var(--ai-soft);border:1px solid var(--ai-border);border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:13px;line-height:1.6;color:var(--text);display:flex;align-items:flex-start;gap:12px;';
-  tip.innerHTML = `<span style="font-size:20px;flex-shrink:0;">👋</span><div style="flex:1;"><strong>Welcome to Compound.</strong> Start by adding one goal — what do you want to achieve this semester? Then add 2-3 daily habits to back it up.<br><span style="color:var(--muted);font-size:12px;">Try the <strong>📦 Starter packs</strong> in the Habits card for instant suggestions.</span></div><button onclick="this.closest('#onboarding-tip').remove();localStorage.setItem('compound_onboarded','1')" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--muted);padding:0;flex-shrink:0;line-height:1;">×</button>`;
+  tip.id = 'onboarding-checklist';
+  tip.style.cssText = 'background:var(--ai-soft);border:1px solid var(--ai-border);border-radius:14px;padding:16px 18px;margin-bottom:16px;';
+  tip.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <span style="font-size:13px;font-weight:600;color:var(--text);">👋 Get started — 1 of 3 steps complete</span>
+      <div style="height:6px;width:120px;background:var(--border);border-radius:99px;overflow:hidden;"><div id="oc-bar" style="height:100%;background:var(--ai);border-radius:99px;width:33%;transition:width 0.4s;"></div></div>
+    </div>
+    <div id="oc-s1" style="display:flex;align-items:center;gap:10px;padding:7px 0;font-size:13px;cursor:pointer;" onclick="document.getElementById('goals-input')?.focus()">
+      <span class="oc-dot" style="width:22px;height:22px;border-radius:50%;background:var(--ai);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>
+      <span>Set your first goal</span>
+    </div>
+    <div id="oc-s2" style="display:flex;align-items:center;gap:10px;padding:7px 0;font-size:13px;cursor:pointer;" onclick="document.getElementById('packs-modal').classList.add('show')">
+      <span class="oc-dot" style="width:22px;height:22px;border-radius:50%;background:var(--ai);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
+      <span>Add a habit <span style="font-size:11px;color:var(--muted);">— or browse starter packs</span></span>
+    </div>
+    <div id="oc-s3" style="display:flex;align-items:center;gap:10px;padding:7px 0;font-size:13px;opacity:0.45;">
+      <span class="oc-dot" style="width:22px;height:22px;border-radius:50%;background:var(--ai);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>
+      <span>Come back tomorrow <span style="font-size:11px;color:var(--muted);">— your streak starts now</span></span>
+    </div>`;
   const grid = document.querySelector('.grid-wrap');
   if (grid) grid.insertBefore(tip, grid.firstChild);
+  updateOnboardingChecklist();
 }
 
 document.getElementById('pro-modal-close').addEventListener('click', closeProModal);
