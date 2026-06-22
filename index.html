@@ -115,8 +115,7 @@
     .divider { height: 1px; background: var(--border); margin: 14px 0; }
 
     /* ── AI pill row ─────────────────────── */
-    .ai-pills { display: none; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
-    body.has-ai .ai-pills { display: flex; }
+    .ai-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
 
     /* ── Inputs ──────────────────────────── */
     .input-row { display: flex; gap: 8px; margin-bottom: 14px; }
@@ -249,8 +248,8 @@
     #brief-content, #report-content { font-size: 14px; line-height: 1.8; color: var(--text); white-space: pre-wrap; max-height: 52vh; overflow-y: auto; background: var(--bg); border-radius: 10px; padding: 16px; margin: 14px 0; border: 1px solid var(--border); }
 
     /* ── AI buttons (clean pill style) ──── */
-    .btn-ai { display: none; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; background: var(--ai-soft); border: 1px solid var(--ai-border); border-radius: 99px; padding: 5px 12px; cursor: pointer; color: var(--ai); font-family: inherit; transition: all 0.15s; letter-spacing: 0.01em; white-space: nowrap; }
-    body.has-ai .btn-ai { display: inline-flex; }
+    .btn-ai { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; background: var(--ai-soft); border: 1px solid var(--ai-border); border-radius: 99px; padding: 5px 12px; cursor: pointer; color: var(--ai); font-family: inherit; transition: all 0.15s; letter-spacing: 0.01em; white-space: nowrap; opacity: 0.45; }
+    body.has-ai .btn-ai { opacity: 1; }
     .btn-ai:hover { background: rgba(124,58,237,0.14); border-color: rgba(124,58,237,0.3); }
     .btn-ai:active { transform: scale(0.97); }
     .btn-ai:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
@@ -401,7 +400,7 @@
       <div class="pro-feature-row"><span class="pro-check">✓</span> 📊 Weekly performance reports</div>
     </div>
 
-    <button class="btn-primary" id="checkout-btn" style="background:var(--ai);font-size:15px;padding:14px;letter-spacing:-0.01em;">⚡ $10/month — notify me at launch</button>
+    <button class="btn-primary" id="checkout-btn" style="background:var(--ai);font-size:15px;padding:14px;letter-spacing:-0.01em;">✉️ Get notified at launch</button>
     <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:10px;">Launching soon · follow <a href="https://www.instagram.com/thestartupjournal1/" target="_blank" rel="noopener" style="color:var(--ai);text-decoration:none;font-weight:600;">@thestartupjournal1</a> for the drop</p>
 
     <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
@@ -572,7 +571,10 @@
       </div>
       <div class="field">
         <label>Password</label>
-        <input type="password" id="auth-pass" placeholder="at least 6 characters" autocomplete="current-password">
+        <div style="position:relative;display:flex;align-items:center;">
+          <input type="password" id="auth-pass" placeholder="at least 6 characters" autocomplete="current-password" style="flex:1;padding-right:36px;">
+          <button type="button" id="pass-toggle" style="position:absolute;right:10px;background:none;border:none;cursor:pointer;font-size:16px;color:var(--muted);padding:0;line-height:1;" title="Show/hide password">👁</button>
+        </div>
       </div>
       <div id="age-check-wrap" style="display:flex;align-items:center;gap:10px;margin:10px 0 4px;">
         <input type="checkbox" id="age-check" style="width:16px;height:16px;accent-color:#7c3aed;cursor:pointer;flex-shrink:0;">
@@ -855,6 +857,10 @@ document.getElementById('forgot-btn').addEventListener('click', async () => {
 document.getElementById('auth-btn').addEventListener('click', doAuth);
 document.getElementById('auth-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doAuth(); });
 document.getElementById('auth-user').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('auth-pass').focus(); });
+document.getElementById('pass-toggle').addEventListener('click', () => {
+  const p = document.getElementById('auth-pass');
+  p.type = p.type === 'password' ? 'text' : 'password';
+});
 
 document.getElementById('google-btn').addEventListener('click', async () => {
   const btn = document.getElementById('google-btn');
@@ -955,6 +961,15 @@ let goals  = [];
 let habits = [];
 let isPro            = false;
 let stripeCustomerId = null;
+
+// Intercept clicks on locked AI buttons for non-Pro users
+document.addEventListener('click', e => {
+  const aiBtn = e.target.closest('.btn-ai');
+  if (aiBtn && !isPro) {
+    e.stopImmediatePropagation();
+    openProModal();
+  }
+}, true);
 
 async function initApp() {
   checkDevCode();
@@ -1236,7 +1251,7 @@ function renderHabits() {
         <div class="item-body">
           <div class="item-label ${checked?'done':''}">${esc(h.text)}</div>
           ${sparklineHtml(h)}
-          ${s>0?`<div class="streak ${s>=3?'hot':''}">🔥 ${s} day streak</div>`:''}
+          ${s>0?`<div class="streak ${s>=3?'hot':''}">🔥 ${s} day streak${s>=7&&!isPro?' <span style="font-size:10px;opacity:0.8;cursor:pointer;" onclick="openProModal()">· unlock weekly report ⚡</span>':''}</div>`:''}
         </div>
         <button class="item-del" data-action="del-habit" data-id="${h.id}">×</button>
       </div>`;
@@ -1438,7 +1453,7 @@ function updateAiVisibility() {
     unlockBtn.style.borderColor = 'rgba(102,126,234,0.4)';
     unlockBtn.style.fontWeight = '700';
   } else {
-    unlockBtn.textContent = '✨ Coming Soon';
+    unlockBtn.textContent = '⚡ Upgrade to Pro';
     unlockBtn.style.color = '#667eea';
     unlockBtn.style.borderColor = 'rgba(102,126,234,0.4)';
     unlockBtn.style.fontWeight = '600';
@@ -1541,12 +1556,20 @@ document.getElementById('settings-modal').addEventListener('click', e => { if (e
 
 // ── Stripe ────────────────────────────────────────────────
 async function startCheckout() {
-  // Payments not yet live — capture the intent instead of losing it
   const btn = document.getElementById('checkout-btn');
+  if (btn.dataset.joined) return;
   btn.disabled = true;
-  setTimeout(() => { btn.disabled = false; }, 2000);
-  toast('⚡ Pro launches soon — follow @thestartupjournal1 to catch it!');
-  window.open('https://www.instagram.com/thestartupjournal1/', '_blank', 'noopener');
+  try {
+    if (currentUser) {
+      await sb.from('profiles').update({ waitlist: true }).eq('id', currentUser.id);
+    }
+    btn.textContent = '✅ You\'re on the list!';
+    btn.dataset.joined = '1';
+    toast('You\'re on the waitlist — we\'ll email you the moment Pro goes live.');
+  } catch(e) {
+    btn.disabled = false;
+    toast('Something went wrong — try again.');
+  }
 }
 
 async function manageSubscription() {
@@ -2266,7 +2289,7 @@ document.getElementById('weekly-report-btn').addEventListener('click', async () 
 4. PRIORITY: The ONE thing I must focus on next week to move the needle most
 5. CHALLENGE: One specific challenge for me this week to level up
 
-Format with bold section headers. Be direct. Be brief. Make every word count.`
+Use plain text only — no asterisks, no markdown. Use ALL CAPS for section names. Be direct. Be brief. Make every word count.`
     }], getApexPrompt());
     loadingEl.classList.remove('visible');
     if (result) contentEl.textContent = result;
