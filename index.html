@@ -977,6 +977,33 @@ document.addEventListener('click', e => {
   }
 }, true);
 
+function checkMilestones() {
+  if (!currentUser?.created_at) return;
+  const daysSince = Math.floor((Date.now() - new Date(currentUser.created_at).getTime()) / 86400000);
+  const key = `compound_milestone_${daysSince}`;
+  if (localStorage.getItem(key)) return;
+  if (daysSince === 1) { toast('Day 2 — you came back. Most people don\'t. Keep going.'); localStorage.setItem(key, '1'); }
+  else if (daysSince === 7) { toast('🗓️ One week with Compound. Consistency is compounding.'); localStorage.setItem(key, '1'); }
+  else if (daysSince === 30) { toast('📅 30 days in. You\'ve built something real.'); localStorage.setItem(key, '1'); }
+}
+
+function showMondayStats() {
+  if (new Date().getDay() !== 1) return;
+  if (localStorage.getItem('compound_monday_' + today())) return;
+  const totalHabits = habits.length;
+  const totalGoals = goals.length;
+  const totalTodos = todos.length;
+  if (!totalHabits && !totalGoals) return;
+  const streaks = habits.map(h => calcStreak(h)).filter(s => s > 0);
+  const topStreak = streaks.length ? Math.max(...streaks) : 0;
+  const banner = document.createElement('div');
+  banner.style.cssText = 'background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:var(--text);display:flex;align-items:flex-start;gap:12px;';
+  banner.innerHTML = `<span style="font-size:20px;flex-shrink:0;">📊</span><div style="flex:1;"><strong>Weekly check-in</strong> — ${totalGoals} active goal${totalGoals!==1?'s':''}, ${totalHabits} habit${totalHabits!==1?'s':''}${topStreak?', top streak '+topStreak+' days':''}.<br><span style="color:var(--muted);font-size:12px;">New week, new momentum. What's the one thing to push forward today?</span></div><button onclick="this.closest('div').parentElement.remove();localStorage.setItem('compound_monday_${today()}','1')" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--muted);padding:0;flex-shrink:0;line-height:1;">×</button>`;
+  const grid = document.querySelector('.grid-wrap');
+  if (grid) grid.insertBefore(banner, grid.firstChild);
+  localStorage.setItem('compound_monday_' + today(), '1');
+}
+
 async function initApp() {
   checkDevCode();
   updateAiVisibility(); // show AI buttons immediately if dev code already in localStorage
@@ -984,6 +1011,8 @@ async function initApp() {
   await Promise.all([loadSettings(), loadProfile()]);
   handleProRedirect();
   updateApexGreeting();
+  checkMilestones();
+  showMondayStats();
 }
 
 // ── Dynamic Apex opening message ──────────────────────────
@@ -1246,21 +1275,43 @@ function sparklineHtml(h) {
   ).join('')}</div>`;
 }
 
+function shareStreak(habitName, streak) {
+  const msg = `I'm on a ${streak}-day streak with "${habitName}" on Compound — building the person I want to become. dailycompound.app`;
+  if (navigator.share) {
+    navigator.share({ text: msg }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(msg).then(() => toast('Streak link copied!'));
+  }
+}
+
 function renderHabits() {
   const list = document.getElementById('habits-list');
   const doneToday = habits.filter(h => (h.habit_logs||[]).some(l => l.logged_date === today())).length;
   document.getElementById('habits-count').textContent = habits.length ? `${doneToday}/${habits.length} today` : '';
   if (!habits.length) { list.innerHTML = '<div class="empty">No habits yet — try the <strong>📦 Starter packs</strong> above for instant suggestions.</div>'; return; }
-  list.innerHTML = habits.map(h => {
+
+  let bannerHtml = '';
+  const hour = new Date().getHours();
+  if (habits.length > 0 && doneToday === habits.length) {
+    bannerHtml = `<div style="background:linear-gradient(135deg,#1a0a2e,#0d1a0d);border:1px solid #22c55e44;border-radius:12px;padding:12px 16px;margin-bottom:12px;font-size:13px;color:#86efac;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:20px;">🎉</span><strong>All habits done today — you're building momentum.</strong></div>`;
+  } else if (hour >= 20 && doneToday < habits.length) {
+    const remaining = habits.length - doneToday;
+    bannerHtml = `<div style="background:#1a0a00;border:1px solid #f97316aa;border-radius:12px;padding:12px 16px;margin-bottom:12px;font-size:13px;color:#fdba74;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:18px;">⏰</span><span><strong>Your streak resets at midnight</strong> — ${remaining} habit${remaining>1?'s':''} left today.</span></div>`;
+  }
+
+  list.innerHTML = bannerHtml + habits.map(h => {
     const checked = (h.habit_logs||[]).some(l => l.logged_date === today());
     const s = calcStreak(h);
+    const shareBtn = s >= 7 ? `<button onclick="shareStreak(${JSON.stringify(esc(h.text))},${s})" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--muted);padding:2px 6px;border-radius:6px;margin-left:4px;" title="Share streak">↗</button>` : '';
     return `
       <div class="item">
         <div class="check ${checked?'on':''}" data-action="check-habit" data-id="${h.id}" data-checked="${checked}"></div>
         <div class="item-body">
           <div class="item-label ${checked?'done':''}">${esc(h.text)}</div>
           ${sparklineHtml(h)}
-          ${s>0?`<div class="streak ${s>=3?'hot':''}">🔥 ${s} day streak${s>=7&&!isPro?' <span style="font-size:10px;opacity:0.8;cursor:pointer;" onclick="openProModal()">· unlock weekly report ⚡</span>':''}</div>`:''}
+          ${s>0?`<div class="streak ${s>=3?'hot':''}">🔥 ${s} day streak${shareBtn}${s>=7&&!isPro?' <span style="font-size:10px;opacity:0.8;cursor:pointer;" onclick="openProModal()">· unlock weekly report ⚡</span>':''}</div>`:''}
         </div>
         <button class="item-del" data-action="del-habit" data-id="${h.id}">×</button>
       </div>`;
@@ -1341,6 +1392,10 @@ document.addEventListener('click', async e => {
       try {
         const { error } = await sb.from('goal_subtasks').update({ done: !done }).eq('id', el.dataset.sid);
         if (error) throw error;
+        if (!done) {
+          const subs = g.goal_subtasks;
+          if (subs.length > 0 && subs.every(sub => sub.done)) toast('🎯 Goal complete! "' + g.text.slice(0, 40) + (g.text.length > 40 ? '…' : '') + '"');
+        }
       } catch(e) { s.done = done; saveCache(); renderGoals(); toast('Could not update.'); }
       break;
     }
@@ -1403,6 +1458,10 @@ document.addEventListener('click', async e => {
           const i = h.habit_logs.indexOf(tempLog);
           if (i !== -1) h.habit_logs[i] = data;
           saveCache();
+          const newStreak = calcStreak(h);
+          if (newStreak === 7) toast('🔥 7-day streak! One week of consistency — keep going.');
+          else if (newStreak === 30) toast('🏆 30-day streak! A full month — you\'re building a real habit.');
+          else if (newStreak === 100) toast('💎 100-day streak! Legendary consistency.');
         } catch(e) { h.habit_logs = h.habit_logs.filter(l => l !== tempLog); saveCache(); renderHabits(); toast('Could not update.'); }
       }
       break;
