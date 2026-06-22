@@ -3,116 +3,145 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pricing - Compound</title>
-  <meta name="description" content="Compound is free to start. Upgrade to Pro for 10 dollars per month.">
+  <title>Pricing — Compound</title>
+  <meta name="description" content="Compound is free to start. Upgrade to Pro at $8/month (billed $96/year) — AI coach, weekly reports, and daily briefings for student entrepreneurs.">
   <meta property="og:title" content="Pricing — Compound">
-  <meta property="og:description" content="Free to start. Compound Pro is $10/month — AI coaching, morning briefings, and weekly reports.">
-  <meta property="og:url" content="https://dailycompound.app/pricing.html">
-  <link rel="canonical" href="https://dailycompound.app/pricing.html">
+  <meta property="og:description" content="Free to start. Pro at $8/month. Build the person you want to become.">
+  <meta property="og:url" content="https://dailycompound.app/pricing">
+  <meta property="og:image" content="https://dailycompound.app/logo.PNG">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://dailycompound.app/pricing">
   <meta name="theme-color" content="#09090b">
   <link rel="icon" type="image/png" href="logo.PNG">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f5f3; color: #18181b; line-height: 1.7; -webkit-font-smoothing: antialiased; }
-    .wrap { max-width: 900px; margin: 0 auto; padding: 60px 24px 120px; }
-    .back { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #71717a; text-decoration: none; margin-bottom: 48px; }
-    .back:hover { color: #18181b; }
-    .hero { text-align: center; margin-bottom: 56px; }
-    .hero h1 { font-size: 44px; font-weight: 800; letter-spacing: -0.04em; margin-bottom: 14px; }
-    .hero p { font-size: 16px; color: #71717a; max-width: 480px; margin: 0 auto; }
-    .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 56px; }
-    @media (max-width: 640px) { .cards { grid-template-columns: 1fr; } .hero h1 { font-size: 32px; } }
-    .card { background: #fff; border: 1px solid #ebebea; border-radius: 20px; padding: 32px; }
-    .card.featured { border-color: rgba(124,58,237,0.4); box-shadow: 0 0 0 4px rgba(124,58,237,0.06); }
-    .card-badge { display: inline-block; background: #7c3aed; color: #fff; font-size: 11px; font-weight: 700; text-transform: uppercase; border-radius: 99px; padding: 3px 10px; margin-bottom: 14px; }
-    .card-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
-    .card-price { display: flex; align-items: baseline; gap: 4px; margin: 16px 0 6px; }
-    .amount { font-size: 40px; font-weight: 800; }
-    .period { font-size: 14px; color: #71717a; }
-    .card-desc { font-size: 13px; color: #71717a; margin-bottom: 24px; }
-    .card-btn { display: block; width: 100%; background: #18181b; color: #fff; border: none; border-radius: 10px; padding: 13px; font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; text-align: center; text-decoration: none; margin-bottom: 24px; }
-    .card-btn:hover { opacity: 0.8; }
-    .card-btn.pro { background: #7c3aed; }
-    .card-btn.secondary { background: transparent; color: #18181b; border: 1.5px solid #ebebea; }
-    .divider { height: 1px; background: #ebebea; margin-bottom: 20px; }
-    .feature-list { display: flex; flex-direction: column; gap: 10px; }
-    .feature { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: #3f3f46; }
-    .feat-check { width: 18px; height: 18px; background: rgba(124,58,237,0.1); border-radius: 99px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 10px; color: #7c3aed; }
-    .feat-check.muted { background: #f4f4f5; color: #a1a1aa; }
-    .faq { margin-top: 8px; }
-    .faq h2 { font-size: 22px; font-weight: 700; margin-bottom: 24px; }
-    .faq-item { border-top: 1px solid #ebebea; padding: 20px 0; }
-    .faq-item:last-child { border-bottom: 1px solid #ebebea; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #09090b; color: #e2e8f0; line-height: 1.7; -webkit-font-smoothing: antialiased; }
+    .wrap { max-width: 820px; margin: 0 auto; padding: 60px 24px 120px; }
+    .back { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #a769ff; text-decoration: none; margin-bottom: 48px; font-weight: 600; }
+    .hero { text-align: center; margin-bottom: 48px; }
+    .hero h1 { font-size: clamp(28px,5vw,44px); font-weight: 800; letter-spacing: -0.04em; margin-bottom: 12px; }
+    .hero p { font-size: 16px; color: #94a3b8; max-width: 420px; margin: 0 auto; }
+    .billing-note { text-align: center; font-size: 12px; color: #a769ff; font-weight: 600; margin-bottom: 32px; letter-spacing: 0.04em; }
+    .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 56px; }
+    @media (max-width: 600px) { .cards { grid-template-columns: 1fr; } }
+    .card { background: #111113; border: 1px solid #27272a; border-radius: 18px; padding: 28px 24px; }
+    .card.featured { border: 2px solid #7c3aed; background: #0d0b14; position: relative; }
+    .card-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg,#7c3aed,#a769ff); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 14px; border-radius: 99px; white-space: nowrap; }
+    .card-name { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #94a3b8; margin-bottom: 16px; }
+    .card-name.pro-name { color: #a769ff; }
+    .card-price { font-size: 40px; font-weight: 800; letter-spacing: -0.04em; line-height: 1; margin-bottom: 4px; }
+    .card-period { font-size: 13px; color: #71717a; margin-bottom: 4px; }
+    .card-annual { font-size: 12px; color: #a769ff; font-weight: 600; margin-bottom: 20px; }
+    .card-desc { font-size: 13px; color: #94a3b8; line-height: 1.5; margin-bottom: 22px; }
+    .card-btn { display: block; text-align: center; padding: 13px; border-radius: 12px; font-weight: 700; font-size: 14px; text-decoration: none; margin-bottom: 22px; transition: opacity .2s; }
+    .btn-free { background: #1c1c1e; color: #e2e8f0; border: 1px solid #27272a; }
+    .btn-free:hover { border-color: #52525b; }
+    .btn-pro { background: linear-gradient(135deg,#7c3aed,#a769ff); color: #fff; }
+    .btn-pro:hover { opacity: .88; }
+    .divider { border: none; border-top: 1px solid #1e1e20; margin: 0 0 18px; }
+    .feature { display: flex; gap: 10px; font-size: 13px; padding: 5px 0; align-items: flex-start; }
+    .fc { flex-shrink: 0; margin-top: 2px; color: #a769ff; font-size: 12px; }
+    .fc.off { color: #3f3f46; }
+    .ft { color: #94a3b8; }
+    .ft.bright { color: #e2e8f0; }
+    .ft.dim { color: #3f3f46; text-decoration: line-through; }
+    .faq { margin-top: 64px; }
+    .faq h2 { font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 32px; }
+    .faq-item { border-top: 1px solid #1e1e20; padding: 20px 0; }
     .faq-q { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
     .faq-a { font-size: 13px; color: #71717a; line-height: 1.7; }
-    .faq-a a { color: #7c3aed; }
-    .footer { margin-top: 60px; padding-top: 24px; border-top: 1px solid #ebebea; font-size: 12px; color: #a1a1aa; display: flex; gap: 16px; }
-    .footer a { color: #a1a1aa; text-decoration: none; }
+    .faq-a a { color: #a769ff; }
+    footer { border-top: 1px solid #1e1e20; padding-top: 24px; margin-top: 64px; font-size: 12px; color: #52525b; display: flex; flex-wrap: wrap; gap: 16px; }
+    footer a { color: #71717a; text-decoration: none; }
   </style>
   <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
   <div class="wrap">
-    <a href="/" class="back">&larr; Back to Compound</a>
-    <div style="background:#18181b;border:1px solid rgba(124,58,237,0.3);border-radius:12px;padding:12px 20px;text-align:center;margin-bottom:32px;">
-      <p style="font-size:13px;color:#a78bfa;margin:0;">&#9889; <strong>Pro is launching soon.</strong> The free plan is live now &mdash; create your account and be first in line when Pro drops.</p>
-    </div>
+    <a href="/" class="back">&larr; Compound</a>
     <div class="hero">
-      <h1>Simple, honest pricing</h1>
-      <p>Start free. Upgrade when you are ready to unlock the full system.</p>
+      <h1>Simple pricing.<br>No surprises.</h1>
+      <p>Free to start. Upgrade when you're ready to go deeper.</p>
     </div>
+    <p class="billing-note">⚡ Pro is launching soon — join the waitlist inside the app</p>
     <div class="cards">
+      <!-- FREE -->
       <div class="card">
         <div class="card-name">Free</div>
-        <div class="card-price"><span class="amount">$0</span><span class="period">forever</span></div>
-        <div class="card-desc">Everything you need to get started and build real momentum.</div>
-        <a href="/" class="card-btn secondary">Get started free</a>
+        <div class="card-price">$0</div>
+        <div class="card-period">forever</div>
+        <div class="card-annual">&nbsp;</div>
+        <div class="card-desc">Everything you need to build your first habit and set your first goal.</div>
+        <a href="/" class="card-btn btn-free">Get started free</a>
         <div class="divider"></div>
-        <div class="feature-list">
-          <div class="feature"><div class="feat-check">&#10003;</div> Unlimited goals</div>
-          <div class="feature"><div class="feat-check">&#10003;</div> Unlimited habits with streaks</div>
-          <div class="feature"><div class="feat-check">&#10003;</div> Daily to-do list</div>
-          <div class="feature"><div class="feat-check">&#10003;</div> Focus timer</div>
-          <div class="feature"><div class="feat-check">&#10003;</div> Habit starter packs</div>
-          <div class="feature"><div class="feat-check muted">&mdash;</div> <span style="color:#a1a1aa;">Apex Advisor AI coach</span></div>
-          <div class="feature"><div class="feat-check muted">&mdash;</div> <span style="color:#a1a1aa;">Morning briefings</span></div>
-          <div class="feature"><div class="feat-check muted">&mdash;</div> <span style="color:#a1a1aa;">Weekly performance reports</span></div>
-          <div class="feature"><div class="feat-check muted">&mdash;</div> <span style="color:#a1a1aa;">AI daily planning</span></div>
-        </div>
+        <div class="feature"><span class="fc">✓</span><span class="ft bright">Goals with progress tracking</span></div>
+        <div class="feature"><span class="fc">✓</span><span class="ft bright">Habit streaks and sparklines</span></div>
+        <div class="feature"><span class="fc">✓</span><span class="ft bright">Daily to-do list</span></div>
+        <div class="feature"><span class="fc">✓</span><span class="ft bright">Focus timer</span></div>
+        <div class="feature"><span class="fc">✓</span><span class="ft bright">Habit starter packs</span></div>
+        <div class="feature"><span class="fc off">✗</span><span class="ft dim">Weekly report</span></div>
+        <div class="feature"><span class="fc off">✗</span><span class="ft dim">Morning briefings</span></div>
+        <div class="feature"><span class="fc off">✗</span><span class="ft dim">AI goal → habits builder</span></div>
+        <div class="feature"><span class="fc off">✗</span><span class="ft dim">Apex AI coach</span></div>
       </div>
+
+      <!-- PRO -->
       <div class="card featured">
-        <div class="card-badge">Most popular</div>
-        <div class="card-name">Compound Pro</div>
-        <div class="card-price"><span class="amount">$10</span><span class="period">/month &middot; cancel anytime</span></div>
-        <div class="card-desc">The full system. Your AI advisor, coach, and analyst in one place. <strong>Launching soon.</strong></div>
-        <a href="https://www.instagram.com/thestartupjournal1/" target="_blank" rel="noopener" class="card-btn pro">&#9889; Launching soon &mdash; get notified</a>
+        <div class="card-badge">⚡ Most Popular</div>
+        <div class="card-name pro-name">Pro</div>
+        <div class="card-price">$8</div>
+        <div class="card-period">/month · billed $96/year</div>
+        <div class="card-annual">Save $24 · 2 months free · or $10/mo monthly</div>
+        <div class="card-desc">For people serious about building habits that actually compound.</div>
+        <a href="/" class="card-btn btn-pro">Join the waitlist →</a>
         <div class="divider"></div>
-        <div class="feature-list">
-          <div class="feature"><div class="feat-check">&#10003;</div> Everything in Free</div>
-          <div class="feature"><div class="feat-check">&#10003;</div> <strong>Apex Advisor</strong> &mdash; unlimited AI coaching</div>
-          <div class="feature"><div class="feat-check">&#10003;</div> Morning briefings &mdash; daily AI read on your day</div>
-          <div class="feature"><div class="feat-check">&#10003;</div> Weekly performance reports &mdash; honest feedback</div>
-          <div class="feature"><div class="feat-check">&#10003;</div> AI daily planning &mdash; build your to-do from goals</div>
-          <div class="feature"><div class="feat-check">&#10003;</div> Goal &rarr; habits &amp; tasks builder</div>
-          <div class="feature"><div class="feat-check">&#10003;</div> Priority support</div>
-        </div>
+        <div class="feature"><span class="fc">✓</span><span class="ft bright">Everything in Free</span></div>
+        <div class="feature"><span class="fc">✓</span><span class="ft bright">📊 <strong>Weekly report</strong> — see exactly where you're losing momentum</span></div>
+        <div class="feature"><span class="fc">✓</span><span class="ft bright">☀️ <strong>Morning briefing</strong> so you never waste the first hour</span></div>
+        <div class="feature"><span class="fc">✓</span><span class="ft bright">🧠 AI builds your habits and tasks from your goals</span></div>
+        <div class="feature"><span class="fc">✓</span><span class="ft bright">✨ Daily AI task planning</span></div>
+        <div class="feature"><span class="fc">✓</span><span class="ft bright">⚡ Apex Advisor — ask anything, answers from your data</span></div>
+        <div style="margin-top:14px;font-size:12px;color:#52525b;text-align:center;">Cancel anytime · No credit card until launch</div>
       </div>
     </div>
+
     <div class="faq">
       <h2>Common questions</h2>
-      <div class="faq-item"><div class="faq-q">Can I cancel anytime?</div><div class="faq-a">Yes. Cancel from account settings at any time. Pro access continues until end of billing period. No questions asked.</div></div>
-      <div class="faq-item"><div class="faq-q">What AI powers Apex Advisor?</div><div class="faq-a">Apex Advisor is powered by <strong>Claude by Anthropic</strong> &mdash; one of the most capable AI models available. It knows your goals, habits, and tasks to give coaching that is actually relevant to your life.</div></div>
-      <div class="faq-item"><div class="faq-q">Is my data private?</div><div class="faq-a">Yes. We do not sell your data or use it for advertising. When you use AI features, only what is needed is sent to Anthropic to generate a response. See our <a href="/privacy.html">Privacy Policy</a>.</div></div>
-      <div class="faq-item"><div class="faq-q">Do you offer student discounts?</div><div class="faq-a">At $10/month Compound is already priced for students. If you have a promo code enter it at checkout. Email <a href="mailto:hello@dailycompound.app">hello@dailycompound.app</a> for special situations.</div></div>
-      <div class="faq-item"><div class="faq-q">How is payment handled?</div><div class="faq-a">All payments are processed securely by <strong>Stripe</strong>. We never store your card details. Manage your subscription from account settings anytime.</div></div>
+      <div class="faq-item">
+        <div class="faq-q">When does Pro launch?</div>
+        <div class="faq-a">Very soon. Join the waitlist inside the app (click any Pro feature) — you'll be emailed the moment it goes live. Follow <a href="https://www.instagram.com/thestartupjournal1/" target="_blank" rel="noopener">@thestartupjournal1</a> for the live drop.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Monthly or annual — what's the difference?</div>
+        <div class="faq-a">Annual billing is $96/year ($8/month equivalent) — you save $24 vs paying monthly. Monthly is $10/month, no commitment. Both cancel anytime.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Can I cancel anytime?</div>
+        <div class="faq-a">Yes, anytime. No contracts. Your free tier features stay active after you cancel.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What AI powers Apex Advisor?</div>
+        <div class="faq-a">Apex is powered by <strong>Claude by Anthropic</strong> — one of the most capable AI models available. It reads your actual goals, habits, and tasks to give advice that's relevant to your life, not generic templates.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Is my data private?</div>
+        <div class="faq-a">Yes. We never sell your data. AI features only send what's needed to generate a response. See our <a href="/privacy.html">Privacy Policy</a>.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">How is payment handled?</div>
+        <div class="faq-a">All payments go through <strong>Stripe</strong>. We never store card details. Manage or cancel from account settings anytime.</div>
+      </div>
     </div>
-    <div class="footer">
+
+    <footer>
       <span>&copy; 2026 Compound</span>
+      <a href="/">App</a>
+      <a href="/focus-app-for-students">For students</a>
+      <a href="/focus-timer-entrepreneurs">For entrepreneurs</a>
       <a href="/terms.html">Terms</a>
       <a href="/privacy.html">Privacy</a>
       <a href="https://www.instagram.com/thestartupjournal1/" target="_blank" rel="noopener">Instagram</a>
-      <a href="mailto:hello@dailycompound.app">Contact</a>
-    </div>
+    </footer>
   </div>
 </body>
 </html>

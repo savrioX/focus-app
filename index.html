@@ -73,7 +73,7 @@
       #auth-screen { flex-direction: column; }
       .land-left { padding: 40px 28px 36px; min-height: auto; }
       .land-headline { font-size: 28px; }
-      .land-right { width: 100%; padding: 0 20px 48px; }
+      .land-right { width: 100%; padding: 0 20px 48px; order: -1; }
       .land-features { display: flex; flex-wrap: wrap; gap: 8px; }
       .land-feat { font-size: 13px; }
       .land-quote { display: none; }
@@ -585,7 +585,7 @@
     </div>
 
     <div class="land-links">
-      <a href="/pricing.html">Pricing</a>
+      <a href="/pricing">Pricing</a>
       <a href="https://www.instagram.com/thestartupjournal1/" target="_blank" rel="noopener">Instagram</a>
       <a href="/terms.html">Terms</a>
       <a href="/privacy.html">Privacy</a>
@@ -608,10 +608,6 @@
           <button type="button" id="pass-toggle" style="position:absolute;right:10px;background:none;border:none;cursor:pointer;font-size:16px;color:var(--muted);padding:0;line-height:1;" title="Show/hide password">👁</button>
         </div>
       </div>
-      <div id="age-check-wrap" style="display:flex;align-items:center;gap:10px;margin:10px 0 4px;">
-        <input type="checkbox" id="age-check" style="width:16px;height:16px;accent-color:#7c3aed;cursor:pointer;flex-shrink:0;">
-        <label for="age-check" style="font-size:12px;color:var(--muted);cursor:pointer;line-height:1.5;">I confirm I am 18 years of age or older</label>
-      </div>
       <button class="btn-primary" id="auth-btn">Create account</button>
       <div class="auth-err" id="auth-err"></div>
       <div id="forgot-wrap" style="text-align:center;margin-top:10px;display:none;">
@@ -627,7 +623,7 @@
         Continue with Google
       </button>
       <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:20px;line-height:1.6;">
-        By signing up you agree to our <a href="/terms.html" target="_blank" style="color:var(--muted);text-decoration:underline;">Terms</a> and <a href="/privacy.html" target="_blank" style="color:var(--muted);text-decoration:underline;">Privacy Policy</a>.
+        By signing up you confirm you are 18+ and agree to our <a href="/terms.html" target="_blank" style="color:var(--muted);text-decoration:underline;">Terms</a> and <a href="/privacy.html" target="_blank" style="color:var(--muted);text-decoration:underline;">Privacy Policy</a>.
       </p>
     </div>
   </div>
@@ -915,10 +911,6 @@ document.getElementById('google-btn').addEventListener('click', async () => {
 });
 
 async function doAuth() {
-  if (isRegister && !document.getElementById('age-check').checked) {
-    document.getElementById('auth-err').textContent = 'You must be 18 or older to create an account.';
-    return;
-  }
   const username = document.getElementById('auth-user').value.trim().toLowerCase();
   const password = document.getElementById('auth-pass').value;
   const errEl    = document.getElementById('auth-err');
@@ -1710,11 +1702,14 @@ async function startCheckout() {
     toast('Enter your email to get notified.');
     return;
   }
+  if (!currentUser) {
+    toast('Create your free account first — then join the waitlist from your dashboard.');
+    return;
+  }
   btn.disabled = true;
   try {
-    if (currentUser) {
-      await sb.from('profiles').update({ waitlist: true, waitlist_email: email }).eq('id', currentUser.id);
-    }
+    const { error: updateErr } = await sb.from('profiles').update({ waitlist: true, waitlist_email: email }).eq('id', currentUser.id);
+    if (updateErr) throw updateErr;
     btn.textContent = '✅ You\'re on the list!';
     btn.dataset.joined = '1';
     toast('You\'re on the waitlist — we\'ll email you the moment Pro goes live.');
