@@ -11,9 +11,15 @@
   <meta property="og:url" content="https://dailycompound.app">
   <meta name="twitter:card" content="summary">
   <meta name="theme-color" content="#09090b">
+  <link rel="preconnect" href="https://diwwapnpnffubepdvrxg.supabase.co">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="canonical" href="https://dailycompound.app/">
   <link rel="icon" type="image/png" href="logo.PNG">
-  <link rel="apple-touch-icon" href="logo.PNG">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Compound">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
@@ -298,11 +304,21 @@
       .header-right::-webkit-scrollbar { display: none; }
       .user-badge { font-size: 11px; padding: 2px 7px; flex-shrink: 0; }
       .btn-icon { font-size: 11px; padding: 4px 8px; white-space: nowrap; flex-shrink: 0; }
-      #btn-signout { display: none; } /* accessible via sign-out flow — too tight on mobile */
+      #btn-signout { display: none; }
       .grid-wrap { padding: 20px 14px 140px; }
       .grid { grid-template-columns: 1fr; gap: 14px; }
       #chat-panel { width: calc(100vw - 16px) !important; right: 8px; left: 8px; bottom: 80px; height: 60vh; }
       #resize-top, #resize-left { display: none; }
+      /* Touch target fixes — 44px minimum per Apple/Google guidelines */
+      .check { min-width: 28px; min-height: 44px; width: 28px; border-radius: 8px; }
+      .scheck { min-width: 24px; min-height: 36px; width: 24px; border-radius: 5px; }
+      .item-del { min-width: 36px; min-height: 36px; display: flex; align-items: center; justify-content: center; opacity: 0.5; }
+      .item { gap: 8px; padding: 4px 2px; }
+      .subtask { padding: 6px 2px; }
+      /* Focus bar mobile layout */
+      #focus-bar { padding: 6px 12px; gap: 8px; flex-wrap: wrap; justify-content: center; }
+      .focus-ctrl { padding: 8px 14px; min-height: 36px; }
+      #focus-mode-label { font-size: 12px; }
     }
     /* Lift chat button + panel above focus bar when it's visible */
     body.focus-active #chat-btn  { bottom: 80px; transition: bottom 0.3s ease; }
@@ -2401,5 +2417,13 @@ document.getElementById('report-modal').addEventListener('click', e => { if (e.t
   <button onclick="document.getElementById('cookie-banner').style.display='none';try{localStorage.setItem('cookie_ok','1');}catch(e){}" style="background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;flex-shrink:0;">Got it</button>
 </div>
 <script>if(localStorage.getItem('cookie_ok')){document.getElementById('cookie-banner').style.display='none';}</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .catch(err => console.log('SW registration failed:', err));
+    });
+  }
+</script>
 </body>
 </html>

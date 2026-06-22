@@ -130,6 +130,75 @@ Reel/post (pillar 2 or 4 = reach)
 
 ---
 
+## 5b. TikTok Expansion (Cross-Platform Growth)
+
+### Why TikTok Now
+
+TikTok uses an **interest graph** — a zero-follower account can go wide on Day 1 if the hook is strong. Instagram uses a social graph and suppresses new accounts. Post to TikTok first, then cross-post to Instagram 24-48h later.
+
+96% of a TikTok post's total reach happens in the first 10 days. Iterate fast.
+
+### Cross-Posting Workflow
+
+1. Film raw (iPhone, vertical 9:16)
+2. Edit in CapCut → export clean, watermark-free 1080x1920 MP4
+3. Post to TikTok first (best window: 7-9am or 7-11pm)
+4. Post to Instagram 24-48h later (best window: 9am-12pm or 6-9pm)
+5. Keep all text/faces in center 60% of frame — satisfies both platforms
+
+Never post a TikTok-watermarked file to Instagram or vice versa. Both platforms suppress it.
+
+### Formats TikTok Amplifies Most in 2026
+
+TikTok is now distributing 60-90s videos more aggressively (competing with YouTube Shorts). This format maps directly to your War Story and Scoreboard pillars.
+
+---
+
+## 5c. SEO Channel (Live)
+
+### Pages Deployed
+
+5 keyword-targeted landing pages are now live on dailycompound.app:
+
+| Keyword | URL | Est. Monthly Searches |
+|---|---|---|
+| best focus app for students | /focus-app-for-students | 2,400-4,000 |
+| habit tracker for college students | /habit-tracker-college-students | 1,200-2,500 |
+| productivity app for student entrepreneurs | /productivity-app-student-entrepreneurs | 800-1,500 |
+| compound habit app | /compound-habit-app | 300-600 |
+| focus timer for entrepreneurs | /focus-timer-entrepreneurs | 500-1,000 |
+
+### Next Steps
+
+1. Set up Google Search Console → verify dailycompound.app → submit sitemap
+2. Create `/sitemap.xml` (list all pages)
+3. Each video pillar maps to a keyword — your TikTok content calendar IS your SEO strategy
+
+---
+
+## 5d. Affiliate Program (Future, Post-Launch)
+
+Based on Systeme.io (60-70% of revenue from affiliates) and Marc Lou (ShipFast):
+
+- **Commission:** 30% lifetime recurring ($3/month per referred user) — beats 20% industry standard
+- **Cookie:** Permanent (no 30-day expiry) — incentivizes evergreen blog content by affiliates
+- **Access:** No application, anyone can join
+- **Recruit:** Student bloggers, productivity YouTubers, Notion template creators
+- **Flywheel:** Affiliates write "Compound vs [competitor]" comparison posts → SEO traffic → your signups
+
+---
+
+## 5e. ManyChat (Comment → DM Automation)
+
+When a post performs well, add a comment-to-DM trigger:
+- User comments a keyword (e.g., "COMPOUND")
+- ManyChat auto-DMs them with the link
+- Higher CTR than link-in-bio (native Instagram DM = trusted)
+
+Setup: manychat.com → Connect Instagram → Comment Flow → Trigger: "COMPOUND" → Message: "Here's the link: dailycompound.app"
+
+---
+
 ## 6. Cadence & Measurement
 
 - **3 posts/week minimum** (Mon build / Wed war story or system / Sun scoreboard) + stories on build days.
