@@ -301,6 +301,8 @@
       #btn-signout { display: none; } /* accessible via sign-out flow — too tight on mobile */
       .grid-wrap { padding: 20px 14px 140px; }
       .grid { grid-template-columns: 1fr; gap: 14px; }
+      #chat-panel { width: calc(100vw - 16px) !important; right: 8px; left: 8px; bottom: 80px; height: 60vh; }
+      #resize-top, #resize-left { display: none; }
     }
     /* Lift chat button + panel above focus bar when it's visible */
     body.focus-active #chat-btn  { bottom: 80px; transition: bottom 0.3s ease; }
@@ -400,6 +402,10 @@
       <div class="pro-feature-row"><span class="pro-check">✓</span> 📊 Weekly performance reports</div>
     </div>
 
+    <div class="field" style="margin-bottom:12px;">
+      <label style="font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">Notify me at</label>
+      <input type="email" id="waitlist-email" placeholder="your@email.com" style="width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;background:var(--bg);color:var(--text);outline:none;box-sizing:border-box;">
+    </div>
     <button class="btn-primary" id="checkout-btn" style="background:var(--ai);font-size:15px;padding:14px;letter-spacing:-0.01em;">✉️ Get notified at launch</button>
     <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:10px;">Launching soon · follow <a href="https://www.instagram.com/thestartupjournal1/" target="_blank" rel="noopener" style="color:var(--ai);text-decoration:none;font-weight:600;">@thestartupjournal1</a> for the drop</p>
 
@@ -1079,6 +1085,9 @@ async function loadData() {
     saveCache();
     setLoading(false);
     renderAll();
+    if (!hasCached && goals.length === 0 && habits.length === 0 && todos.length === 0) {
+      showOnboardingTip();
+    }
   } catch (e) {
     if (hasCached) return; // Already showing cached data — don't show error
     document.getElementById('load-spinner').style.display = 'none';
@@ -1115,7 +1124,7 @@ function renderTodos() {
   const list = document.getElementById('todo-list');
   const done = Object.entries(getCompletedTodos()).map(([id, v]) => ({ id, text: v.text }));
   document.getElementById('todo-count').textContent = todos.length ? `${todos.length} left` : (done.length ? 'all done 🎉' : '');
-  if (!todos.length && !done.length) { list.innerHTML = '<div class="empty">Nothing yet — add your first task.</div>'; return; }
+  if (!todos.length && !done.length) { list.innerHTML = '<div class="empty">Nothing yet — add a task above, or use <strong>✨ Plan my day</strong> to get AI suggestions.</div>'; return; }
   list.innerHTML = [
     ...todos.map(t => `
       <div class="item" data-id="${t.id}">
@@ -1164,7 +1173,7 @@ function renderGoals() {
   const list = document.getElementById('goals-list');
   const done = goals.filter(g => goalPct(g) === 100 && (g.goal_subtasks||[]).length > 0).length;
   document.getElementById('goals-count').textContent = goals.length ? `${done}/${goals.length} done` : '';
-  if (!goals.length) { list.innerHTML = '<div class="empty">No goals yet — add one above.</div>'; return; }
+  if (!goals.length) { list.innerHTML = '<div class="empty" style="line-height:1.7;">No goals yet.<br><span style="font-size:12px;color:var(--muted);">Start with one big goal — what do you want to build or achieve this semester?</span></div>'; return; }
   list.innerHTML = goals.map(g => {
     const pct  = goalPct(g);
     const subs = [...(g.goal_subtasks||[])].sort((a,b) => new Date(a.created_at)-new Date(b.created_at));
@@ -1241,7 +1250,7 @@ function renderHabits() {
   const list = document.getElementById('habits-list');
   const doneToday = habits.filter(h => (h.habit_logs||[]).some(l => l.logged_date === today())).length;
   document.getElementById('habits-count').textContent = habits.length ? `${doneToday}/${habits.length} today` : '';
-  if (!habits.length) { list.innerHTML = '<div class="empty">No habits yet — add one above.</div>'; return; }
+  if (!habits.length) { list.innerHTML = '<div class="empty">No habits yet — try the <strong>📦 Starter packs</strong> above for instant suggestions.</div>'; return; }
   list.innerHTML = habits.map(h => {
     const checked = (h.habit_logs||[]).some(l => l.logged_date === today());
     const s = calcStreak(h);
@@ -1490,8 +1499,24 @@ document.querySelectorAll('.size-btn').forEach(btn => {
 applyPrefs();
 
 const openSettings  = () => document.getElementById('settings-modal').classList.add('show');
-const openProModal  = () => document.getElementById('pro-modal').classList.add('show');
+const openProModal  = () => {
+  const emailInput = document.getElementById('waitlist-email');
+  if (emailInput && !emailInput.value && currentUser?.email && !currentUser.email.endsWith('@focus.local')) {
+    emailInput.value = currentUser.email;
+  }
+  document.getElementById('pro-modal').classList.add('show');
+};
 const closeProModal = () => document.getElementById('pro-modal').classList.remove('show');
+
+function showOnboardingTip() {
+  if (localStorage.getItem('compound_onboarded')) return;
+  const tip = document.createElement('div');
+  tip.id = 'onboarding-tip';
+  tip.style.cssText = 'background:var(--ai-soft);border:1px solid var(--ai-border);border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:13px;line-height:1.6;color:var(--text);display:flex;align-items:flex-start;gap:12px;';
+  tip.innerHTML = `<span style="font-size:20px;flex-shrink:0;">👋</span><div style="flex:1;"><strong>Welcome to Compound.</strong> Start by adding one goal — what do you want to achieve this semester? Then add 2-3 daily habits to back it up.<br><span style="color:var(--muted);font-size:12px;">Try the <strong>📦 Starter packs</strong> in the Habits card for instant suggestions.</span></div><button onclick="this.closest('#onboarding-tip').remove();localStorage.setItem('compound_onboarded','1')" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--muted);padding:0;flex-shrink:0;line-height:1;">×</button>`;
+  const grid = document.querySelector('.grid-wrap');
+  if (grid) grid.insertBefore(tip, grid.firstChild);
+}
 
 document.getElementById('pro-modal-close').addEventListener('click', closeProModal);
 document.getElementById('pro-modal').addEventListener('click', e => { if (e.target === document.getElementById('pro-modal')) closeProModal(); });
@@ -1558,10 +1583,17 @@ document.getElementById('settings-modal').addEventListener('click', e => { if (e
 async function startCheckout() {
   const btn = document.getElementById('checkout-btn');
   if (btn.dataset.joined) return;
+  const emailInput = document.getElementById('waitlist-email');
+  const email = emailInput?.value.trim();
+  if (!email || !email.includes('@')) {
+    emailInput?.focus();
+    toast('Enter your email to get notified.');
+    return;
+  }
   btn.disabled = true;
   try {
     if (currentUser) {
-      await sb.from('profiles').update({ waitlist: true }).eq('id', currentUser.id);
+      await sb.from('profiles').update({ waitlist: true, waitlist_email: email }).eq('id', currentUser.id);
     }
     btn.textContent = '✅ You\'re on the list!';
     btn.dataset.joined = '1';

@@ -41,17 +41,34 @@ module.exports = async function handler(req, res) {
   try {
     const selectedModel = ALLOWED_MODELS.has(model) ? model : DEFAULT_MODEL;
 
+    // Wrap system prompt as array with cache_control so the static prompt +
+    // tool definitions are cached across turns (90% cheaper after first call)
+    const systemText = system || 'You are a helpful productivity coach.';
+    const systemBlock = [{ type: 'text', text: systemText, cache_control: { type: 'ephemeral' } }];
+
     const reqBody = {
       model:      selectedModel,
       max_tokens: 2048,
-      system:     system || 'You are a helpful productivity coach.',
+      system:     systemBlock,
       messages,
     };
-    if (tools && tools.length) reqBody.tools = tools;
+
+    if (tools && tools.length) {
+      // Add cache_control to the last tool — caches all tools in one breakpoint
+      const cachedTools = tools.map((t, i) =>
+        i === tools.length - 1 ? { ...t, cache_control: { type: 'ephemeral' } } : t
+      );
+      reqBody.tools = cachedTools;
+    }
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method:  'POST',
-      headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+      headers: {
+        'x-api-key':        apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-beta':   'prompt-caching-2024-07-31',
+        'content-type':     'application/json',
+      },
       body:    JSON.stringify(reqBody),
     });
     const data = await response.json();
