@@ -1,7 +1,7 @@
-// Override via DEV_CODES env var (comma-separated) to rotate without a deploy
-const DEV_CODES     = (process.env.DEV_CODES || 'COMPOUNDPRO,APEX2025,DAILYGRIND')
+const DEV_CODES     = (process.env.DEV_CODES || '')
   .split(',').map(c => c.trim().toUpperCase()).filter(Boolean);
-const DEFAULT_MODEL = 'claude-haiku-4-5';
+const DEFAULT_MODEL  = 'claude-haiku-4-5';
+const ALLOWED_MODELS = new Set(['claude-haiku-4-5', 'claude-haiku-4-5-20251001', 'claude-sonnet-4-6']);
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST')
@@ -39,11 +39,11 @@ module.exports = async function handler(req, res) {
   if (!apiKey) return res.status(500).json({ error: 'Server API key not configured.' });
 
   try {
-    const selectedModel = model || DEFAULT_MODEL;
+    const selectedModel = ALLOWED_MODELS.has(model) ? model : DEFAULT_MODEL;
 
     const reqBody = {
       model:      selectedModel,
-      max_tokens: 512,
+      max_tokens: 2048,
       system:     system || 'You are a helpful productivity coach.',
       messages,
     };

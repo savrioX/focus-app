@@ -847,7 +847,7 @@ document.getElementById('forgot-btn').addEventListener('click', async () => {
   const username = document.getElementById('auth-user').value.trim();
   const errEl = document.getElementById('auth-err');
   if (!username) { errEl.textContent = 'Enter your username first.'; return; }
-  const email = username.includes('@') ? username : username + '@compound.users.app';
+  const email = username.includes('@') ? username : toEmail(username);
   const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: 'https://dailycompound.app' });
   if (error) { errEl.textContent = 'Could not send reset email. Try again.'; }
   else { errEl.style.color = 'var(--ai)'; errEl.textContent = 'Reset link sent! Check your inbox.'; }
@@ -1524,7 +1524,7 @@ async function applyCode() {
 }
 
 function checkDevCode() {
-  if (localStorage.getItem(DEV_KEY) === '1') { isPro = true; }
+  // Pro status is determined server-side in loadProfile() only
 }
 
 document.getElementById('refresh-btn').addEventListener('click', async () => {
@@ -1552,10 +1552,11 @@ async function startCheckout() {
 async function manageSubscription() {
   if (!stripeCustomerId) { toast('No subscription found.'); return; }
   try {
+    const { headers, extra } = await buildAuthPayload();
     const res = await fetch('/api/customer-portal', {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ customerId: stripeCustomerId }),
+      headers,
+      body: JSON.stringify({ customerId: stripeCustomerId, ...extra }),
     });
     const { url, error } = await res.json();
     if (error) throw new Error(error);
@@ -1605,7 +1606,7 @@ function withTimeout(promise, ms) {
   return Promise.race([promise, new Promise(function(_, rej) { setTimeout(function() { rej(new Error('Request timed out')); }, ms); })]);
 }
 async function callClaude(messages, system) {
-  const data = await callClaudeRaw(messages, system, null);
+  const data = await withTimeout(callClaudeRaw(messages, system, null), 25000);
   return data?.text ?? null;
 }
 
@@ -1926,7 +1927,7 @@ async function sendChat() {
     let finalText = null;
 
     while (true) {
-      const resp = await callClaudeRaw(messages, getApexPrompt(), APEX_TOOLS);
+      const resp = await withTimeout(callClaudeRaw(messages, getApexPrompt(), APEX_TOOLS), 25000);
       if (!resp) break;
 
       if (resp.stop_reason === 'tool_use') {
@@ -1960,7 +1961,6 @@ async function sendChat() {
   } catch(e) {
     thinking.remove();
     appendMsg('ai', 'Something went wrong — try again.');
-    console.error(e);
   } finally { btn.disabled = false; inp.focus(); }
 }
 
@@ -2076,8 +2076,8 @@ function renderPacks() {
   const list = document.getElementById('packs-list');
   list.innerHTML = HABIT_PACKS.map(pack => `
     <div class="pack-card">
-      <div class="pack-name">${pack.name}</div>
-      <div class="pack-desc">${pack.desc}</div>
+      <div class="pack-name">${esc(pack.name)}</div>
+      <div class="pack-desc">${esc(pack.desc)}</div>
       <div class="pack-habits">${pack.habits.map(h => `<span class="pack-habit-tag">${esc(h)}</span>`).join('')}</div>
       <button class="pack-add-btn" data-pack="${pack.id}">Add ${pack.habits.length} habits →</button>
     </div>
