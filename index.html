@@ -1020,7 +1020,9 @@ function checkMilestones() {
   const key = `compound_milestone_${daysSince}`;
   if (localStorage.getItem(key)) return;
   if (daysSince === 1) { toast('Day 2 — you came back. Most people don\'t. Keep going.'); localStorage.setItem(key, '1'); }
+  else if (daysSince === 3) { toast('3 days straight. The habit is forming — don\'t break it now.'); localStorage.setItem(key, '1'); }
   else if (daysSince === 7) { toast('🗓️ One week in. See exactly where you\'re winning — unlock your weekly report. ⚡'); localStorage.setItem(key, '1'); setTimeout(openProModal, 2000); }
+  else if (daysSince === 14) { toast('📅 Two weeks in. You\'ve built real systems. Time to see what\'s actually working. ⚡'); localStorage.setItem(key, '1'); setTimeout(openProModal, 2500); }
   else if (daysSince === 30) { toast('📅 30 days in. You\'ve built something real. Time to make it work harder for you. ⚡'); localStorage.setItem(key, '1'); setTimeout(openProModal, 2500); }
 }
 
@@ -1232,14 +1234,30 @@ function renderTodos() {
     </div>`;
     return;
   }
-  list.innerHTML = [
+  // All-done celebration block — shown when active list is empty but completed items exist
+  let celebrationHtml = '';
+  if (!todos.length && done.length) {
+    const streaks = habits.map(h => calcStreak(h)).filter(s => s > 0);
+    const topStreak = streaks.length ? Math.max(...streaks) : 0;
+    const streakLine = topStreak >= 2 ? `<div style="font-size:12px;color:var(--muted);margin-top:4px;">🔥 ${topStreak}-day habit streak — keep it up.</div>` : '';
+    const proNudge = !isPro ? `<button onclick="openProModal()" style="margin-top:10px;display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;background:var(--ai-soft);border:1px solid var(--ai-border);border-radius:99px;padding:5px 12px;cursor:pointer;color:var(--ai);font-family:inherit;">⚡ Track your wins with Pro</button>` : '';
+    celebrationHtml = `<div style="padding:12px 6px 8px;text-align:center;">
+      <div style="font-size:22px;margin-bottom:6px;">✅</div>
+      <div style="font-size:14px;font-weight:700;color:var(--text);">You crushed today's list.</div>
+      ${streakLine}
+      <div style="margin-top:10px;"><button onclick="document.getElementById('todo-input').focus()" style="font-size:12px;font-weight:600;background:var(--surface);border:1px solid var(--border);border-radius:99px;padding:6px 14px;cursor:pointer;color:var(--text);font-family:inherit;transition:all 0.15s;">+ Set tomorrow's priorities</button></div>
+      ${proNudge}
+    </div><div style="height:1px;background:var(--border);margin:8px 0;"></div>`;
+  }
+
+  list.innerHTML = celebrationHtml + [
     ...todos.map(t => `
       <div class="item" data-id="${t.id}">
         <div class="check" data-action="check-todo" data-id="${t.id}"></div>
         <div class="item-body"><div class="item-label">${esc(t.text)}</div></div>
         <button class="item-del" data-action="del-todo" data-id="${t.id}">×</button>
       </div>`),
-    ...(done.length ? [`<div style="height:1px;background:var(--border);margin:8px 0;"></div>`] : []),
+    ...(done.length && todos.length ? [`<div style="height:1px;background:var(--border);margin:8px 0;"></div>`] : []),
     ...done.map(t => `
       <div class="item" style="opacity:0.45;">
         <div class="check on" style="pointer-events:none;"></div>
