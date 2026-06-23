@@ -1506,7 +1506,10 @@ document.addEventListener('click', async e => {
         if (error) throw error;
         if (!done) {
           const subs = g.goal_subtasks;
-          if (subs.length > 0 && subs.every(sub => sub.done)) toast('🎯 Goal complete! "' + g.text.slice(0, 40) + (g.text.length > 40 ? '…' : '') + '"');
+          if (subs.length > 0 && subs.every(sub => sub.done)) {
+            toast('🎯 Goal complete! "' + g.text.slice(0, 40) + (g.text.length > 40 ? '…' : '') + '"');
+            if (!isPro) setTimeout(openProModal, 2500);
+          }
         }
       } catch(e) { s.done = done; saveCache(); renderGoals(); toast('Could not update.'); }
       break;
