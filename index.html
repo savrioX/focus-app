@@ -1508,7 +1508,15 @@ document.addEventListener('click', async e => {
           const subs = g.goal_subtasks;
           if (subs.length > 0 && subs.every(sub => sub.done)) {
             toast('🎯 Goal complete! "' + g.text.slice(0, 40) + (g.text.length > 40 ? '…' : '') + '"');
-            if (!isPro) setTimeout(openProModal, 2500);
+            if (!isPro) setTimeout(() => {
+              const list = document.getElementById('goals-list');
+              if (!list || list.querySelector('.goal-pro-nudge')) return;
+              const nudge = document.createElement('div');
+              nudge.className = 'goal-pro-nudge';
+              nudge.style.cssText = 'margin-top:12px;background:var(--ai-soft);border:1px solid var(--ai-border);border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;';
+              nudge.innerHTML = `<span style="font-size:12px;color:var(--ai);font-weight:500;">Want Apex to analyze your goal patterns and tell you what to tackle next?</span><button onclick="openProModal()" style="font-size:11px;font-weight:700;background:var(--ai);color:#fff;border:none;border-radius:8px;padding:5px 12px;cursor:pointer;font-family:inherit;white-space:nowrap;">Get Pro</button><button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0;">×</button>`;
+              list.appendChild(nudge);
+            }, 1500);
           }
         }
       } catch(e) { s.done = done; saveCache(); renderGoals(); toast('Could not update.'); }
