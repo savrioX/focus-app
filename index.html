@@ -2481,7 +2481,12 @@ function focusNext() {
   focusSeconds = FOCUS_MODES[focusModeIdx].minutes * 60;
   focusRunning = false; clearInterval(focusInterval);
   focusRender();
-  toast(focusModeIdx === 0 ? '✓ Break done — back to work!' : focusModeIdx === 1 ? '✓ Focus session done — take a break!' : '✓ Time for a long break!');
+  const focusMsgs = [
+    '✓ Break over. Lock back in.',
+    !isPro ? '✓ 25 min done. Ask Apex what to tackle next. ⚡' : '✓ Focus session complete. Take a break.',
+    '✓ Long break earned. You put in the work.'
+  ];
+  toast(focusMsgs[focusModeIdx]);
 }
 
 document.getElementById('btn-focus-timer').addEventListener('click', () => {
