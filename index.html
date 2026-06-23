@@ -291,6 +291,8 @@
     .cmsg.user { align-self: flex-end; background: var(--accent); color: #fff; border-radius: 10px 10px 2px 10px; }
     .cmsg.ai { align-self: flex-start; background: var(--bg); color: var(--text); border-radius: 10px 10px 10px 2px; }
     .cmsg.thinking { color: var(--muted); font-style: italic; }
+    .apex-chip { font-size: 12px; font-weight: 500; font-family: inherit; background: var(--bg); color: var(--ai); border: 1px solid var(--ai-border); border-radius: 99px; padding: 5px 12px; cursor: pointer; transition: background 0.15s, border-color 0.15s; white-space: nowrap; }
+    .apex-chip:hover { background: var(--ai-soft); border-color: var(--ai); }
     #chat-foot { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border); flex-shrink: 0; }
     #chat-inp { flex: 1; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 13px; font-family: inherit; background: var(--bg); color: var(--text); outline: none; }
     #chat-inp:focus { border-color: var(--accent); }
@@ -523,6 +525,11 @@
   </div>
   <div id="chat-msgs">
     <div class="cmsg ai" id="apex-intro">I'm Apex — your personal advisor inside Compound. I can see your goals, habits, and todos. Ask me anything: what to focus on, how to break through a plateau, or how to structure your week.</div>
+    <div id="apex-chips" style="display:flex;flex-wrap:wrap;gap:6px;padding:6px 14px 10px;">
+      <button class="apex-chip" onclick="apexChip('What should I focus on today?')">What should I focus on?</button>
+      <button class="apex-chip" onclick="apexChip('Review my habits and tell me what to fix.')">Review my habits</button>
+      <button class="apex-chip" onclick="apexChip('Help me break my biggest goal into steps.')">Break down a goal</button>
+    </div>
   </div>
   <div id="chat-foot">
     <input type="text" id="chat-inp" placeholder="Ask your coach…">
@@ -2186,6 +2193,14 @@ function appendMsg(role, text) {
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
   return div;
+}
+
+function apexChip(text) {
+  const chips = document.getElementById('apex-chips');
+  if (chips) chips.style.display = 'none';
+  const inp = document.getElementById('chat-inp');
+  inp.value = text;
+  sendChat();
 }
 
 async function sendChat() {
