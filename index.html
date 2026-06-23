@@ -320,6 +320,10 @@
       #focus-bar { padding: 6px 12px; gap: 8px; flex-wrap: wrap; justify-content: center; }
       .focus-ctrl { padding: 8px 14px; min-height: 36px; }
       #focus-mode-label { font-size: 12px; }
+      /* Prevent iOS auto-zoom on input focus (triggered by font-size < 16px) */
+      input[type="text"], textarea, .cform-input, #chat-inp { font-size: 16px !important; }
+      /* Bring add buttons up to 44px minimum touch target */
+      .btn-add { height: 44px; }
     }
     /* Lift chat button + panel above focus bar when it's visible */
     body.focus-active #chat-btn  { bottom: 80px; transition: bottom 0.3s ease; }
@@ -403,8 +407,8 @@
 <div id="pro-modal">
   <div class="modal-card" style="max-width:400px;">
     <button class="modal-close" id="pro-modal-close">×</button>
-    <div style="font-size:22px;margin-bottom:6px;">⚡ You hit a Pro feature</div>
-    <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px;">Free users see their streak data but can't act on it. Pro users know exactly what to fix each week — and they do.</p>
+    <div style="font-size:22px;margin-bottom:6px;">⚡ This is Pro territory.</div>
+    <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px;">You're using Compound the right way. Pro unlocks the AI layer — so your system actually tells you what's working and what to do next.</p>
 
     <div style="display:flex;gap:10px;margin-bottom:20px;">
       <div style="flex:1;background:var(--ai-soft);border:1px solid var(--ai-border);border-radius:14px;padding:14px 16px;text-align:center;">
@@ -421,11 +425,11 @@
     </div>
 
     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:24px;">
-      <div class="pro-feature-row"><span class="pro-check">✓</span> 📊 Weekly report showing exactly where you're losing momentum</div>
-      <div class="pro-feature-row"><span class="pro-check">✓</span> ☀️ Morning briefing so you never waste the first hour of your day</div>
-      <div class="pro-feature-row"><span class="pro-check">✓</span> 🧠 AI that builds your habits and tasks from your goals — not generic advice</div>
+      <div class="pro-feature-row"><span class="pro-check">✓</span> ⚡ Apex Advisor — ask anything, get answers from your actual goals and habits</div>
+      <div class="pro-feature-row"><span class="pro-check">✓</span> ☀️ Morning briefing — Apex reads your data and plans your day before you wake up</div>
+      <div class="pro-feature-row"><span class="pro-check">✓</span> 📊 Weekly report — see exactly where you're losing momentum and what to fix</div>
+      <div class="pro-feature-row"><span class="pro-check">✓</span> 🧠 AI action steps — Apex breaks your goals into tasks, not generic advice</div>
       <div class="pro-feature-row"><span class="pro-check">✓</span> ✨ Daily planner that knows what you're working toward</div>
-      <div class="pro-feature-row"><span class="pro-check">✓</span> ⚡ Apex Advisor: ask anything, get answers from your actual data</div>
     </div>
 
     <div class="field" style="margin-bottom:12px;">
@@ -596,7 +600,12 @@
   <div class="land-right">
     <div class="auth-card">
       <h2 id="auth-title">Create your account</h2>
-      <p id="auth-sub" style="margin-bottom:20px;">Free to start. Pick a username and password.</p>
+      <p id="auth-sub" style="margin-bottom:20px;">Free forever. Your goals, habits, and AI coach in 60 seconds.</p>
+      <button class="btn-google" id="google-btn">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Continue with Google
+      </button>
+      <div class="auth-divider">or</div>
       <div class="field">
         <label>Username</label>
         <input type="text" id="auth-user" placeholder="e.g. alex" autocomplete="username" spellcheck="false">
@@ -617,13 +626,8 @@
         <span id="auth-switch-text">Already have an account?</span>
         <button id="auth-toggle">Sign in</button>
       </div>
-      <div class="auth-divider">or</div>
-      <button class="btn-google" id="google-btn">
-        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-        Continue with Google
-      </button>
-      <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:20px;line-height:1.6;">
-        By signing up you confirm you are 18+ and agree to our <a href="/terms.html" target="_blank" style="color:var(--muted);text-decoration:underline;">Terms</a> and <a href="/privacy.html" target="_blank" style="color:var(--muted);text-decoration:underline;">Privacy Policy</a>.
+      <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:16px;line-height:1.6;">
+        By signing up you agree to our <a href="/terms.html" target="_blank" style="color:var(--muted);text-decoration:underline;">Terms</a> and <a href="/privacy.html" target="_blank" style="color:var(--muted);text-decoration:underline;">Privacy Policy</a>.
       </p>
     </div>
   </div>
@@ -641,7 +645,7 @@
       <div class="header-right">
         <div class="user-badge"><span id="user-label"></span><span id="sync-dot" title="Synced"></span></div>
         <button class="btn-icon" id="btn-focus-timer">🎯 Focus</button>
-        <button class="btn-icon" id="btn-unlock-ai" style="border-color:rgba(124,58,237,0.3);color:var(--ai);font-weight:600;">✨ Unlock AI</button>
+        <button class="btn-icon" id="btn-unlock-ai" style="border-color:rgba(124,58,237,0.3);color:var(--ai);font-weight:600;">⚡ Get Pro</button>
         <button class="btn-icon" id="btn-settings">⚙️ Settings</button>
         <button class="btn-icon" id="btn-signout">Sign out</button>
       </div>
@@ -860,7 +864,7 @@ try { sessionStorage.removeItem('show_signin'); } catch(e) {}
 
 function syncAuthUI() {
   document.getElementById('auth-title').textContent      = isRegister ? 'Create your account'        : 'Welcome back';
-  document.getElementById('auth-sub').textContent         = isRegister ? 'Pick a username and password to get started.' : 'Sign in to continue.';
+  document.getElementById('auth-sub').textContent         = isRegister ? 'Free forever. Your goals, habits, and AI coach in 60 seconds.' : 'Welcome back.';
   document.getElementById('auth-btn').textContent         = isRegister ? 'Create account'              : 'Sign in';
   document.getElementById('auth-switch-text').textContent = isRegister ? 'Already have an account?'   : "Don't have an account?";
   document.getElementById('auth-toggle').textContent      = isRegister ? 'Sign in'                    : 'Create one';
@@ -961,6 +965,21 @@ sb.auth.onAuthStateChange((event, session) => {
     document.getElementById('user-label').textContent    = username;
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('app').style.display         = 'block';
+    // Send welcome email to brand-new Google OAuth signups (only provider with real emails)
+    if (event === 'SIGNED_IN' && !appStarted) {
+      setTimeout(() => {
+        const ageSecs = (Date.now() - new Date(currentUser.created_at).getTime()) / 1000;
+        if (ageSecs < 90 && currentUser.app_metadata?.provider === 'google') {
+          const firstName = currentUser.user_metadata?.full_name?.split(' ')[0] ||
+                            currentUser.user_metadata?.name?.split(' ')[0] || null;
+          fetch('/api/email-welcome', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: currentUser.email, firstName })
+          }).catch(() => {});
+        }
+      }, 3000);
+    }
     // Run initApp once per sign-in, outside the auth lock — not on every
     // TOKEN_REFRESHED / USER_UPDATED event.
     if (!appStarted) { appStarted = true; setTimeout(initApp, 0); }
@@ -1038,27 +1057,60 @@ function updateApexGreeting() {
   const intro = document.getElementById('apex-intro');
   if (!intro) return;
   const name = document.getElementById('user-label').textContent || 'you';
-  const goalCount  = goals.length;
-  const habitCount = habits.length;
-  const todoCount  = todos.length;
-  const doneToday  = habits.filter(h => (h.habit_logs||[]).some(l => l.logged_date === today())).length;
-  const hotStreaks  = habits.filter(h => calcStreak(h) >= 3);
+  const goalCount   = goals.length;
+  const habitCount  = habits.length;
+  const todoCount   = todos.length;
+  const doneToday   = habits.filter(h => (h.habit_logs||[]).some(l => l.logged_date === today())).length;
+  const remaining   = habitCount - doneToday;
+  const hotStreaks   = habits.filter(h => calcStreak(h) >= 3);
+  const topStreak   = hotStreaks.length ? hotStreaks.reduce((a,b) => calcStreak(a)>=calcStreak(b)?a:b) : null;
+  const goalsNoSteps = goals.filter(g => !(g.goal_subtasks||[]).length);
+  const hour = new Date().getHours();
 
-  let msg = `Hey ${name} — `;
+  let msg = `Hey ${name}. `;
+
+  // Empty state — no setup yet
   if (goalCount === 0 && habitCount === 0) {
-    msg += `welcome to Compound. I'm Apex, your personal advisor. Add a goal or habit and I'll help you build a plan around it.`;
+    msg += `I'm Apex — your AI advisor inside Compound. Add one goal and I'll help you break it into the exact steps that move the needle.`;
+    intro.textContent = msg; return;
+  }
+
+  // All habits done today — positive reinforcement + next action
+  if (habitCount > 0 && doneToday === habitCount) {
+    msg += `All ${habitCount} habit${habitCount > 1 ? 's' : ''} checked off today. `;
+    if (topStreak) msg += `${topStreak.text} is on a ${calcStreak(topStreak)}-day streak. `;
+    msg += todoCount > 0
+      ? `You've got ${todoCount} task${todoCount > 1 ? 's' : ''} left — want a focus session?`
+      : `Nothing left on your list. Want to review your goals and plan tomorrow?`;
+    intro.textContent = msg; return;
+  }
+
+  // Evening + habits still incomplete — urgency nudge
+  if (hour >= 19 && habitCount > 0 && remaining > 0) {
+    msg += `${remaining} habit${remaining > 1 ? 's' : ''} still unchecked — your streak resets at midnight. `;
+    if (topStreak) msg += `${topStreak.text} is at ${calcStreak(topStreak)} days. Worth keeping alive.`;
+    intro.textContent = msg; return;
+  }
+
+  // Has goals with no steps — push the AI planner
+  if (goalsNoSteps.length > 0) {
+    msg += `"${goalsNoSteps[0].text}" has no action steps yet. `;
+    msg += `Want me to break it down into a step-by-step plan?`;
+    intro.textContent = msg; return;
+  }
+
+  // Normal daily state — concise status + one nudge
+  if (goalCount > 0) msg += `${goalCount} goal${goalCount > 1 ? 's' : ''} in progress. `;
+  if (habitCount > 0 && doneToday > 0) {
+    msg += `${doneToday}/${habitCount} habits done today. `;
+    if (topStreak) msg += `${topStreak.text}: ${calcStreak(topStreak)}-day streak 🔥. `;
+  } else if (habitCount > 0) {
+    msg += `${habitCount} habit${habitCount > 1 ? 's' : ''} waiting to be logged. `;
+  }
+  if (todoCount > 0) {
+    msg += `${todoCount} task${todoCount > 1 ? 's' : ''} on your list.`;
   } else {
-    if (goalCount > 0) msg += `you're working on ${goalCount} goal${goalCount > 1 ? 's' : ''}`;
-    if (goalCount > 0 && habitCount > 0) msg += ` and `;
-    if (habitCount > 0) msg += `tracking ${habitCount} habit${habitCount > 1 ? 's' : ''}`;
-    msg += '.';
-    if (doneToday > 0 && habitCount > 0) {
-      msg += ` You've checked off ${doneToday}/${habitCount} habits today`;
-      if (hotStreaks.length > 0) msg += ` — ${hotStreaks[0].text} is on a ${calcStreak(hotStreaks[0])}-day streak 🔥`;
-      msg += '.';
-    }
-    if (todoCount > 0) msg += ` ${todoCount} task${todoCount > 1 ? 's' : ''} on your list.`;
-    msg += ' What do you want to work on?';
+    msg += `No tasks yet — want me to plan your day?`;
   }
   intro.textContent = msg;
 }
@@ -1171,7 +1223,15 @@ function renderTodos() {
   const list = document.getElementById('todo-list');
   const done = Object.entries(getCompletedTodos()).map(([id, v]) => ({ id, text: v.text }));
   document.getElementById('todo-count').textContent = todos.length ? `${todos.length} left` : (done.length ? 'all done 🎉' : '');
-  if (!todos.length && !done.length) { list.innerHTML = '<div class="empty">Nothing yet — add a task above, or use <strong>✨ Plan my day</strong> to get AI suggestions.</div>'; return; }
+  if (!todos.length && !done.length) {
+    const chips = ['2hr deep work block','Review goals + habits','Post content today','Read for 30 minutes','Cold outreach — 5 messages'];
+    list.innerHTML = `<div style="padding:14px 6px;">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:10px;line-height:1.6;">What needs to happen today? Quick start:</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">${chips.map(s=>`<button onclick="document.getElementById('todo-input').value=${JSON.stringify(s)};document.getElementById('todo-input').focus()" style="font-size:12px;border:1px solid var(--border);background:var(--bg);color:var(--muted);border-radius:99px;padding:5px 12px;cursor:pointer;font-family:inherit;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--ai)';this.style.color='var(--ai)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">${s}</button>`).join('')}</div>
+      <button onclick="document.getElementById('plan-day-btn').click()" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;background:var(--ai-soft);border:1px solid var(--ai-border);border-radius:99px;padding:6px 14px;cursor:pointer;color:var(--ai);font-family:inherit;">✨ Let Apex plan my day</button>
+    </div>`;
+    return;
+  }
   list.innerHTML = [
     ...todos.map(t => `
       <div class="item" data-id="${t.id}">
@@ -1220,7 +1280,15 @@ function renderGoals() {
   const list = document.getElementById('goals-list');
   const done = goals.filter(g => goalPct(g) === 100 && (g.goal_subtasks||[]).length > 0).length;
   document.getElementById('goals-count').textContent = goals.length ? `${done}/${goals.length} done` : '';
-  if (!goals.length) { list.innerHTML = '<div class="empty" style="line-height:1.7;">No goals yet.<br><span style="font-size:12px;color:var(--muted);">Start with one big goal — what do you want to build or achieve?</span><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">' + ['Launch my first product','Grow to 1,000 followers','Build $500/month side income'].map(s=>`<button onclick="document.getElementById('goals-input').value=${JSON.stringify(s)};document.getElementById('goals-input').focus()" style="font-size:12px;border:1px solid var(--border);background:var(--bg);color:var(--muted);border-radius:99px;padding:4px 10px;cursor:pointer;font-family:inherit;">${s}</button>`).join('') + '</div></div>'; return; }
+  if (!goals.length) {
+    const gChips = ['Launch my first product','Grow to 1,000 followers','Build $500/month side income','Get my first paying customer'];
+    list.innerHTML = `<div style="padding:14px 6px;">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:10px;line-height:1.6;">Set the outcomes you're building toward. Quick start:</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">${gChips.map(s=>`<button onclick="document.getElementById('goals-input').value=${JSON.stringify(s)};document.getElementById('goals-input').focus()" style="font-size:12px;border:1px solid var(--border);background:var(--bg);color:var(--muted);border-radius:99px;padding:5px 12px;cursor:pointer;font-family:inherit;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--ai)';this.style.color='var(--ai)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">${s}</button>`).join('')}</div>
+      <button onclick="document.getElementById('ai-build-plan-btn').click()" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;background:var(--ai-soft);border:1px solid var(--ai-border);border-radius:99px;padding:6px 14px;cursor:pointer;color:var(--ai);font-family:inherit;">✨ Let Apex build my plan</button>
+    </div>`;
+    return;
+  }
   list.innerHTML = goals.map(g => {
     const pct  = goalPct(g);
     const subs = [...(g.goal_subtasks||[])].sort((a,b) => new Date(a.created_at)-new Date(b.created_at));
@@ -1306,7 +1374,15 @@ function renderHabits() {
   const list = document.getElementById('habits-list');
   const doneToday = habits.filter(h => (h.habit_logs||[]).some(l => l.logged_date === today())).length;
   document.getElementById('habits-count').textContent = habits.length ? `${doneToday}/${habits.length} today` : '';
-  if (!habits.length) { list.innerHTML = '<div class="empty" style="text-align:center;padding:20px 12px;display:flex;flex-direction:column;align-items:center;gap:12px;"><div style="font-size:28px;">🔥</div><div style="font-size:13px;color:var(--muted);line-height:1.6;">Daily habits compound into who you become.<br>Start with a proven pack.</div><button onclick="document.getElementById(\'packs-modal\').classList.add(\'show\')" style="background:var(--ai);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">📦 Browse starter packs</button></div>'; return; }
+  if (!habits.length) {
+    const hChips = ['1hr deep work','Morning journaling','Exercise','Read 20 pages','No social media before noon'];
+    list.innerHTML = `<div style="padding:14px 6px;">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:10px;line-height:1.6;">The systems you build now run your future company. Quick start:</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">${hChips.map(s=>`<button onclick="document.getElementById('habits-input').value=${JSON.stringify(s)};document.getElementById('habits-input').focus()" style="font-size:12px;border:1px solid var(--border);background:var(--bg);color:var(--muted);border-radius:99px;padding:5px 12px;cursor:pointer;font-family:inherit;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--ai)';this.style.color='var(--ai)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">${s}</button>`).join('')}</div>
+      <button onclick="document.getElementById('packs-modal').classList.add('show')" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;background:var(--ai-soft);border:1px solid var(--ai-border);border-radius:99px;padding:6px 14px;cursor:pointer;color:var(--ai);font-family:inherit;">📦 Browse starter packs</button>
+    </div>`;
+    return;
+  }
 
   let bannerHtml = '';
   const hour = new Date().getHours();
@@ -1595,11 +1671,18 @@ function updateOnboardingChecklist() {
   if (done === 3) { el.remove(); localStorage.setItem('compound_onboarded','1'); return; }
   const pct = Math.round(done / 3 * 100);
   el.querySelector('#oc-bar').style.width = pct + '%';
+  const titles = [
+    'You\'re in — build your system in 3 moves.',
+    '1 down — 2 more moves to activate your system.',
+    '2 down — one move left. You\'re almost there.',
+  ];
+  const titleEl = el.querySelector('#oc-title');
+  if (titleEl) titleEl.textContent = titles[done] || titles[0];
   el.querySelector('#oc-s1').style.opacity = step1 ? '0.45' : '1';
   el.querySelector('#oc-s1 .oc-dot').textContent = step1 ? '✓' : '1';
   el.querySelector('#oc-s2').style.opacity = step2 ? '0.45' : '1';
   el.querySelector('#oc-s2 .oc-dot').textContent = step2 ? '✓' : '2';
-  el.querySelector('#oc-s3').style.opacity = '0.45';
+  el.querySelector('#oc-s3').style.opacity = step3 ? '0.45' : (step1 && step2 ? '1' : '0.45');
   el.querySelector('#oc-s3 .oc-dot').textContent = step3 ? '✓' : '3';
 }
 
@@ -1610,20 +1693,20 @@ function showOnboardingTip() {
   tip.style.cssText = 'background:var(--ai-soft);border:1px solid var(--ai-border);border-radius:14px;padding:16px 18px;margin-bottom:16px;';
   tip.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-      <span style="font-size:13px;font-weight:600;color:var(--text);">👋 Get started — 1 of 3 steps complete</span>
-      <div style="height:6px;width:120px;background:var(--border);border-radius:99px;overflow:hidden;"><div id="oc-bar" style="height:100%;background:var(--ai);border-radius:99px;width:33%;transition:width 0.4s;"></div></div>
+      <span id="oc-title" style="font-size:13px;font-weight:600;color:var(--text);">You're in — build your system in 3 moves.</span>
+      <div style="height:6px;width:100px;background:var(--border);border-radius:99px;overflow:hidden;flex-shrink:0;margin-left:12px;"><div id="oc-bar" style="height:100%;background:var(--ai);border-radius:99px;width:0%;transition:width 0.4s;"></div></div>
     </div>
     <div id="oc-s1" style="display:flex;align-items:center;gap:10px;padding:7px 0;font-size:13px;cursor:pointer;" onclick="document.getElementById('goals-input')?.focus()">
       <span class="oc-dot" style="width:22px;height:22px;border-radius:50%;background:var(--ai);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>
-      <span>Set your first goal</span>
+      <span>Set your #1 goal <span style="font-size:11px;color:var(--muted);">— Apex breaks it into steps automatically</span></span>
     </div>
     <div id="oc-s2" style="display:flex;align-items:center;gap:10px;padding:7px 0;font-size:13px;cursor:pointer;" onclick="document.getElementById('packs-modal').classList.add('show')">
       <span class="oc-dot" style="width:22px;height:22px;border-radius:50%;background:var(--ai);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
-      <span>Add a habit <span style="font-size:11px;color:var(--muted);">— or browse starter packs</span></span>
+      <span>Add one daily habit <span style="font-size:11px;color:var(--muted);">— the compound effect starts on day 1</span></span>
     </div>
     <div id="oc-s3" style="display:flex;align-items:center;gap:10px;padding:7px 0;font-size:13px;opacity:0.45;">
       <span class="oc-dot" style="width:22px;height:22px;border-radius:50%;background:var(--ai);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>
-      <span>Come back tomorrow <span style="font-size:11px;color:var(--muted);">— your streak starts now</span></span>
+      <span>Come back tomorrow <span style="font-size:11px;color:var(--muted);">— your streak starts tonight</span></span>
     </div>`;
   const grid = document.querySelector('.grid-wrap');
   if (grid) grid.insertBefore(tip, grid.firstChild);
