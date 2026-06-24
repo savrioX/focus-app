@@ -437,12 +437,8 @@
       <div class="pro-feature-row"><span class="pro-check">✓</span> ✨ Daily planner that knows what you're working toward</div>
     </div>
 
-    <div class="field" style="margin-bottom:12px;">
-      <label style="font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">Notify me at</label>
-      <input type="email" id="waitlist-email" placeholder="your@email.com" style="width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;background:var(--bg);color:var(--text);outline:none;box-sizing:border-box;">
-    </div>
-    <button class="btn-primary" id="checkout-btn" style="background:var(--ai);font-size:15px;padding:14px;letter-spacing:-0.01em;">✉️ Get notified at launch</button>
-    <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:10px;">Launching soon · follow <a href="https://www.instagram.com/thestartupjournal1/" target="_blank" rel="noopener" style="color:var(--ai);text-decoration:none;font-weight:600;">@thestartupjournal1</a> for the drop</p>
+    <button class="btn-primary" id="checkout-btn" style="background:var(--ai);font-size:15px;padding:14px;letter-spacing:-0.01em;">⚡ Upgrade to Pro</button>
+    <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:10px;">Billed monthly or annually · cancel anytime</p>
 
     <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
       <button id="show-code-btn" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;font-family:inherit;width:100%;text-align:center;">Have a code?</button>
@@ -1691,11 +1687,7 @@ document.querySelectorAll('.size-btn').forEach(btn => {
 applyPrefs();
 
 const openSettings  = () => document.getElementById('settings-modal').classList.add('show');
-const openProModal  = () => {
-  const emailInput = document.getElementById('waitlist-email');
-  if (emailInput && !emailInput.value && currentUser?.email && !currentUser.email.endsWith('@focus.local')) {
-    emailInput.value = currentUser.email;
-  }
+const openProModal = () => {
   document.getElementById('pro-modal').classList.add('show');
 };
 const closeProModal = () => document.getElementById('pro-modal').classList.remove('show');
@@ -1821,27 +1813,25 @@ document.getElementById('settings-modal').addEventListener('click', e => { if (e
 // ── Stripe ────────────────────────────────────────────────
 async function startCheckout() {
   const btn = document.getElementById('checkout-btn');
-  if (btn.dataset.joined) return;
-  const emailInput = document.getElementById('waitlist-email');
-  const email = emailInput?.value.trim();
-  if (!email || !email.includes('@')) {
-    emailInput?.focus();
-    toast('Enter your email to get notified.');
-    return;
-  }
+  if (btn.disabled) return;
   if (!currentUser) {
-    toast('Create your free account first — then join the waitlist from your dashboard.');
+    toast('Create your free account first — then upgrade from your dashboard.');
     return;
   }
   btn.disabled = true;
+  btn.textContent = 'Redirecting…';
   try {
-    const { error: updateErr } = await sb.from('profiles').update({ waitlist: true, waitlist_email: email }).eq('id', currentUser.id);
-    if (updateErr) throw updateErr;
-    btn.textContent = '✅ You\'re on the list!';
-    btn.dataset.joined = '1';
-    toast('You\'re on the waitlist — we\'ll email you the moment Pro goes live.');
+    const res = await fetch('/api/create-checkout', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ userId: currentUser.id, email: currentUser.email }),
+    });
+    const { url, error } = await res.json();
+    if (error) throw new Error(error);
+    window.location.href = url;
   } catch(e) {
     btn.disabled = false;
+    btn.textContent = '⚡ Upgrade to Pro';
     toast('Something went wrong — try again.');
   }
 }
@@ -2489,16 +2479,12 @@ function focusNext() {
   focusSeconds = FOCUS_MODES[focusModeIdx].minutes * 60;
   focusRunning = false; clearInterval(focusInterval);
   focusRender();
-  if (focusModeIdx === 1) {
-    focusCompleteToast(isPro);
-  } else {
-    const focusMsgs = [
-      '✓ Break over. Lock back in.',
-      '',
-      '✓ Long break earned. You put in the work.'
-    ];
-    toast(focusMsgs[focusModeIdx]);
-  }
+  const focusMsgs = [
+    '✓ Break over. Lock back in.',
+    !isPro ? '✓ 25 min done. Ask Apex what to tackle next. ⚡' : '✓ Focus session complete. Take a break.',
+    '✓ Long break earned. You put in the work.'
+  ];
+  toast(focusMsgs[focusModeIdx]);
 }
 
 document.getElementById('btn-focus-timer').addEventListener('click', () => {
