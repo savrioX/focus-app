@@ -199,8 +199,6 @@
     #settings-modal, #pro-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 400; padding: 24px; }
     #settings-modal.show, #pro-modal.show { display: flex; }
     .pro-feature-row { font-size: 13px; display: flex; align-items: center; gap: 8px; padding: 4px 0; }
-    .plan-card { cursor: pointer; transition: opacity 0.15s, border-color 0.15s; }
-    .plan-card.plan-dim { opacity: 0.5; }
     .pro-check { color: #22c55e; font-weight: 700; flex-shrink: 0; }
     .modal-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px; width: 100%; max-width: 440px; position: relative; box-shadow: var(--shadow-md); }
     .modal-card h3 { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
@@ -1017,6 +1015,11 @@ document.addEventListener('click', e => {
 function checkMilestones() {
   if (!currentUser?.created_at) return;
   const daysSince = Math.floor((Date.now() - new Date(currentUser.created_at).getTime()) / 86400000);
+  // Mark day-2 return so the onboarding checklist step 3 can complete
+  if (daysSince >= 1 && !localStorage.getItem('compound_day2')) {
+    localStorage.setItem('compound_day2', '1');
+    updateOnboardingChecklist();
+  }
   const key = `compound_milestone_${daysSince}`;
   if (localStorage.getItem(key)) return;
   if (daysSince === 1) { toast('Day 2 — you came back. Most people don\'t. Keep going.'); localStorage.setItem(key, '1'); }
