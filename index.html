@@ -1643,14 +1643,16 @@ function updateAiVisibility() {
   const unlockBtn = document.getElementById('btn-unlock-ai');
   if (isPro) {
     unlockBtn.textContent = '⚡ Pro';
+    unlockBtn.style.background = '';
     unlockBtn.style.color = '#667eea';
     unlockBtn.style.borderColor = 'rgba(102,126,234,0.4)';
     unlockBtn.style.fontWeight = '700';
   } else {
     unlockBtn.textContent = '⚡ Upgrade to Pro';
-    unlockBtn.style.color = '#667eea';
-    unlockBtn.style.borderColor = 'rgba(102,126,234,0.4)';
-    unlockBtn.style.fontWeight = '600';
+    unlockBtn.style.background = '#7c3aed';
+    unlockBtn.style.color = '#fff';
+    unlockBtn.style.borderColor = '#7c3aed';
+    unlockBtn.style.fontWeight = '700';
   }
 }
 
