@@ -200,7 +200,7 @@
     #settings-modal.show, #pro-modal.show { display: flex; }
     .pro-feature-row { font-size: 13px; display: flex; align-items: center; gap: 8px; padding: 4px 0; }
     .pro-check { color: #22c55e; font-weight: 700; flex-shrink: 0; }
-    .modal-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px; width: 100%; max-width: 440px; position: relative; box-shadow: var(--shadow-md); }
+    .modal-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px; width: 100%; max-width: 440px; position: relative; box-shadow: var(--shadow-md); max-height: calc(100dvh - 48px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
     .modal-card h3 { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
     .modal-card > p { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
     .modal-close { position: absolute; top: 18px; right: 18px; background: var(--bg); border: 1px solid var(--border); border-radius: 99px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; color: var(--muted); line-height: 1; transition: all 0.15s; }
@@ -743,7 +743,7 @@
   </div>
 </div>
 
-<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ── Completed todos (shown at bottom until midnight) ───────
 function getCompletedTodos() {
@@ -1128,7 +1128,7 @@ async function loadProfile() {
       .eq('id', currentUser.id)
       .single();
     if (data) {
-      isPro            = !!data.is_pro;
+      isPro            = !!data.is_pro || hasDevUnlock();
       stripeCustomerId = data.stripe_customer_id || null;
     } else if (error && error.code === 'PGRST116') {
       // No profile row yet — create one now
@@ -1144,9 +1144,16 @@ function handleProRedirect() {
   if (!status) return;
   window.history.replaceState({}, '', window.location.pathname);
   if (status === 'success') {
-    toast('🎉 Welcome to Pro! Your AI features are now active.');
-    // Webhook may take a moment — re-check profile after 4 s
-    setTimeout(async () => { await loadProfile(); }, 4000);
+    toast('🎉 Welcome to Pro! Activating your AI features…');
+    // The Stripe webhook can take a few seconds — poll until it lands (max ~20 s)
+    let tries = 0;
+    const poll = async () => {
+      await loadProfile();
+      if (isPro) { toast('⚡ Pro is live — your AI coach is ready.'); return; }
+      if (++tries < 7) setTimeout(poll, 3000);
+      else toast('Payment received — refresh in a moment to activate Pro.');
+    };
+    setTimeout(poll, 2000);
   } else if (status === 'cancel') {
     toast('No worries — you can upgrade anytime from the header.');
   }
@@ -1232,7 +1239,7 @@ function renderTodos() {
     const chips = ['2hr deep work block','Review goals + habits','Post content today','Read for 30 minutes','Cold outreach — 5 messages'];
     list.innerHTML = `<div style="padding:14px 6px;">
       <div style="font-size:13px;color:var(--muted);margin-bottom:10px;line-height:1.6;">What needs to happen today? Quick start:</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">${chips.map(s=>`<button onclick="document.getElementById('todo-input').value=${JSON.stringify(s)};document.getElementById('todo-input').focus()" style="font-size:12px;border:1px solid var(--border);background:var(--bg);color:var(--muted);border-radius:99px;padding:5px 12px;cursor:pointer;font-family:inherit;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--ai)';this.style.color='var(--ai)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">${s}</button>`).join('')}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">${chips.map(s=>`<button onclick="document.getElementById('todo-input').value=${esc(JSON.stringify(s))};document.getElementById('todo-input').focus()" style="font-size:12px;border:1px solid var(--border);background:var(--bg);color:var(--muted);border-radius:99px;padding:5px 12px;cursor:pointer;font-family:inherit;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--ai)';this.style.color='var(--ai)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">${s}</button>`).join('')}</div>
       <button onclick="document.getElementById('plan-day-btn').click()" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;background:var(--ai-soft);border:1px solid var(--ai-border);border-radius:99px;padding:6px 14px;cursor:pointer;color:var(--ai);font-family:inherit;">✨ Let Apex plan my day</button>
     </div>`;
     return;
@@ -1305,7 +1312,7 @@ function renderGoals() {
     const gChips = ['Launch my first product','Grow to 1,000 followers','Build $500/month side income','Get my first paying customer'];
     list.innerHTML = `<div style="padding:14px 6px;">
       <div style="font-size:13px;color:var(--muted);margin-bottom:10px;line-height:1.6;">Set the outcomes you're building toward. Quick start:</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">${gChips.map(s=>`<button onclick="document.getElementById('goals-input').value=${JSON.stringify(s)};document.getElementById('goals-input').focus()" style="font-size:12px;border:1px solid var(--border);background:var(--bg);color:var(--muted);border-radius:99px;padding:5px 12px;cursor:pointer;font-family:inherit;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--ai)';this.style.color='var(--ai)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">${s}</button>`).join('')}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">${gChips.map(s=>`<button onclick="document.getElementById('goals-input').value=${esc(JSON.stringify(s))};document.getElementById('goals-input').focus()" style="font-size:12px;border:1px solid var(--border);background:var(--bg);color:var(--muted);border-radius:99px;padding:5px 12px;cursor:pointer;font-family:inherit;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--ai)';this.style.color='var(--ai)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">${s}</button>`).join('')}</div>
       <button onclick="document.getElementById('ai-build-plan-btn').click()" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;background:var(--ai-soft);border:1px solid var(--ai-border);border-radius:99px;padding:6px 14px;cursor:pointer;color:var(--ai);font-family:inherit;">✨ Let Apex build my plan</button>
     </div>`;
     return;
@@ -1399,8 +1406,8 @@ function renderHabits() {
     const hChips = ['1hr deep work','Morning journaling','Exercise','Read 20 pages','No social media before noon'];
     list.innerHTML = `<div style="padding:14px 6px;">
       <div style="font-size:13px;color:var(--muted);margin-bottom:10px;line-height:1.6;">The systems you build now run your future company. Quick start:</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">${hChips.map(s=>`<button onclick="document.getElementById('habits-input').value=${JSON.stringify(s)};document.getElementById('habits-input').focus()" style="font-size:12px;border:1px solid var(--border);background:var(--bg);color:var(--muted);border-radius:99px;padding:5px 12px;cursor:pointer;font-family:inherit;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--ai)';this.style.color='var(--ai)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">${s}</button>`).join('')}</div>
-      <button onclick="document.getElementById('packs-modal').classList.add('show')" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;background:var(--ai-soft);border:1px solid var(--ai-border);border-radius:99px;padding:6px 14px;cursor:pointer;color:var(--ai);font-family:inherit;">📦 Browse starter packs</button>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">${hChips.map(s=>`<button onclick="document.getElementById('habits-input').value=${esc(JSON.stringify(s))};document.getElementById('habits-input').focus()" style="font-size:12px;border:1px solid var(--border);background:var(--bg);color:var(--muted);border-radius:99px;padding:5px 12px;cursor:pointer;font-family:inherit;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--ai)';this.style.color='var(--ai)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">${s}</button>`).join('')}</div>
+      <button onclick="openPacksModal()" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;background:var(--ai-soft);border:1px solid var(--ai-border);border-radius:99px;padding:6px 14px;cursor:pointer;color:var(--ai);font-family:inherit;">📦 Browse starter packs</button>
     </div>`;
     return;
   }
@@ -1419,7 +1426,7 @@ function renderHabits() {
   list.innerHTML = bannerHtml + habits.map(h => {
     const checked = (h.habit_logs||[]).some(l => l.logged_date === today());
     const s = calcStreak(h);
-    const shareBtn = s >= 7 ? `<button onclick="shareStreak(${JSON.stringify(esc(h.text))},${s})" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--muted);padding:2px 6px;border-radius:6px;margin-left:4px;" title="Share streak">↗</button>` : '';
+    const shareBtn = s >= 7 ? `<button onclick="shareStreak(${esc(JSON.stringify(h.text))},${s})" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--muted);padding:2px 6px;border-radius:6px;margin-left:4px;" title="Share streak">↗</button>` : '';
     return `
       <div class="item">
         <div class="check ${checked?'on':''}" data-action="check-habit" data-id="${h.id}" data-checked="${checked}"></div>
@@ -1731,7 +1738,7 @@ function showOnboardingTip() {
       <span class="oc-dot" style="width:22px;height:22px;border-radius:50%;background:var(--ai);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>
       <span>Set your #1 goal <span style="font-size:11px;color:var(--muted);">— Apex breaks it into steps automatically</span></span>
     </div>
-    <div id="oc-s2" style="display:flex;align-items:center;gap:10px;padding:7px 0;font-size:13px;cursor:pointer;" onclick="document.getElementById('packs-modal').classList.add('show')">
+    <div id="oc-s2" style="display:flex;align-items:center;gap:10px;padding:7px 0;font-size:13px;cursor:pointer;" onclick="openPacksModal()">
       <span class="oc-dot" style="width:22px;height:22px;border-radius:50%;background:var(--ai);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
       <span>Add one daily habit <span style="font-size:11px;color:var(--muted);">— the compound effect starts on day 1</span></span>
     </div>
@@ -1789,8 +1796,14 @@ async function applyCode() {
   }
 }
 
+function hasDevUnlock() {
+  try { return localStorage.getItem(DEV_KEY) === '1' && !!localStorage.getItem('compound_dev_code'); }
+  catch(e) { return false; }
+}
 function checkDevCode() {
-  // Pro status is determined server-side in loadProfile() only
+  // Paid Pro is determined server-side in loadProfile(). Promo/dev-code Pro
+  // persists locally — the code itself is re-validated by /api/claude on every call.
+  if (hasDevUnlock()) isPro = true;
 }
 
 document.getElementById('refresh-btn').addEventListener('click', async () => {
@@ -2398,10 +2411,11 @@ async function addPack(packId) {
   toast(`✓ Added ${added} habits from "${pack.name}"`);
 }
 
-document.getElementById('packs-btn').addEventListener('click', () => {
+function openPacksModal() {
   renderPacks();
   document.getElementById('packs-modal').classList.add('show');
-});
+}
+document.getElementById('packs-btn').addEventListener('click', openPacksModal);
 document.getElementById('packs-close').addEventListener('click', () => document.getElementById('packs-modal').classList.remove('show'));
 document.getElementById('packs-modal').addEventListener('click', e => {
   if (e.target === document.getElementById('packs-modal')) document.getElementById('packs-modal').classList.remove('show');
@@ -2457,7 +2471,7 @@ const FOCUS_MODES = [
   { label: 'BREAK',  minutes:  5, desc: 'Short break' },
   { label: 'LONG ☕', minutes: 15, desc: 'Long break' },
 ];
-let focusModeIdx = 0, focusSeconds = 25 * 60, focusRunning = false, focusInterval = null;
+let focusModeIdx = 0, focusSeconds = 25 * 60, focusRunning = false, focusInterval = null, focusEndsAt = null;
 
 function focusFmt(s) { return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; }
 
@@ -2492,18 +2506,27 @@ document.getElementById('focus-close-btn').addEventListener('click', () => {
   document.getElementById('focus-bar').classList.remove('visible');
   document.body.classList.remove('focus-active');
 });
+// Wall-clock based tick — setInterval is throttled/suspended in background
+// tabs and locked phones, so we always derive remaining time from Date.now().
+function focusTick() {
+  focusSeconds = Math.max(0, Math.round((focusEndsAt - Date.now()) / 1000));
+  if (focusSeconds <= 0) { clearInterval(focusInterval); focusRunning = false; focusNext(); return; }
+  focusRender();
+}
 document.getElementById('focus-toggle').addEventListener('click', () => {
   if (focusRunning) {
     clearInterval(focusInterval); focusRunning = false;
+    focusSeconds = Math.max(0, Math.round((focusEndsAt - Date.now()) / 1000));
   } else {
     focusRunning = true;
-    focusInterval = setInterval(() => {
-      focusSeconds--;
-      if (focusSeconds <= 0) { clearInterval(focusInterval); focusRunning = false; focusNext(); return; }
-      focusRender();
-    }, 1000);
+    focusEndsAt = Date.now() + focusSeconds * 1000;
+    focusInterval = setInterval(focusTick, 500);
   }
   focusRender();
+});
+// Catch up instantly when the user returns to the tab/phone
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && focusRunning) focusTick();
 });
 document.getElementById('focus-skip').addEventListener('click', () => {
   clearInterval(focusInterval); focusRunning = false; focusNext();
