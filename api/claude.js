@@ -1,5 +1,8 @@
-const DEV_CODES     = (process.env.DEV_CODES || '')
-  .split(',').map(c => c.trim().toUpperCase()).filter(Boolean);
+const HARDCODED_CODES = ['COMPOUND19', 'APEX'];
+const DEV_CODES = [
+  ...HARDCODED_CODES,
+  ...(process.env.DEV_CODES || '').split(',').map(c => c.trim().toUpperCase()).filter(Boolean),
+];
 const DEFAULT_MODEL  = 'claude-haiku-4-5';
 const ALLOWED_MODELS = new Set(['claude-haiku-4-5', 'claude-haiku-4-5-20251001', 'claude-sonnet-4-6']);
 
@@ -25,6 +28,9 @@ module.exports = async function handler(req, res) {
     if (!userRes?.ok)
       return res.status(401).json({ error: 'Invalid session — please sign in again.' });
     const user = await userRes.json();
+
+    // Founder always has Pro access
+    if (user.email === 'vsf4046@gmail.com') authorised = true;
 
     const profileRes = await fetch(
       `${process.env.SUPABASE_URL}/rest/v1/profiles?id=eq.${user.id}&select=is_pro`,
