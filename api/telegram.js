@@ -5,15 +5,16 @@ const OWNER_EMAIL = 'vsf4046@gmail.com';
 const TG          = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
 async function tg(method, body) {
-  await fetch(`${TG}/${method}`, {
+  const r = await fetch(`${TG}/${method}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
+  if (!r.ok) console.error(`TG ${method} failed ${r.status}:`, await r.text());
 }
 
 async function send(chatId, text) {
-  return tg('sendMessage', { chat_id: chatId, text, parse_mode: 'Markdown', disable_web_page_preview: true });
+  return tg('sendMessage', { chat_id: chatId, text, parse_mode: 'MarkdownV2', disable_web_page_preview: true });
 }
 
 async function sbFetch(path, params = '') {
@@ -145,8 +146,8 @@ async function processUpdate(update) {
   );
 
   if (!matches.length) {
-    const list = allTodos.slice(0, 10).map((t, i) => `${i + 1}. ${t.text}`).join('\n');
-    await send(chatId, `Couldn\'t find that task\\.\n\n*Current todos:*\n${list || 'None\\.'}\n\nTry again with more of the task name\\.`);
+    const list = allTodos.slice(0, 10).map((t, i) => `${i + 1}\\. ${t.text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&')}`).join('\n');
+    await send(chatId, `Couldn't find that task\\.\n\n*Current todos:*\n${list || 'None\\.'}\n\nTry again with more of the task name\\.`);
     return;
   }
 
