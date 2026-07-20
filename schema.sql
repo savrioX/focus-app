@@ -101,6 +101,7 @@ create policy "users can insert feedback" on feedback
 --
 -- alter table profiles add column if not exists email text;
 -- alter table profiles add column if not exists morning_briefing boolean default false;
+-- alter table profiles add column if not exists active_context text;
 --
 -- email: real email for username/password users (optional, provided at signup)
 -- morning_briefing: user opted in to daily morning briefing email

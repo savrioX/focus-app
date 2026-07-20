@@ -32,6 +32,20 @@ async function sbDelete(path, params = '') {
   if (!res.ok) throw new Error(`Supabase DELETE ${res.status}`);
 }
 
+async function sbPatch(path, params = '', body = {}) {
+  const res = await fetch(`${SB_URL}/rest/v1/${path}${params}`, {
+    method: 'PATCH',
+    headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`Supabase PATCH ${res.status}`);
+}
+
+async function getOwnerContext(uid) {
+  const rows = await sbFetch('profiles', `?id=eq.${uid}&select=active_context&limit=1`);
+  return rows[0]?.active_context || null;
+}
+
 // Find Savrio's Supabase UUID by email (searches up to 500 users)
 let _ownerUid = null;
 async function getOwnerUserId() {
@@ -58,7 +72,7 @@ async function processUpdate(update) {
   // /start always works — reveals chat ID so it can be added to Vercel env vars
   if (text === '/start' || text === '/hello') {
     await send(chatId,
-      `👋 Compound OS bot is live\\.\n\n*Your chat ID:* \`${chatId}\`\n\nAdd this to Vercel → Settings → Environment Variables as \`TELEGRAM_CHAT_ID\` so morning briefings land here\\.\n\n*Commands:*\n/list — current todos\n/habits — today's habits\n/done \\[task\\] — complete a todo`
+      `👋 Compound OS bot is live\\.\n\n*Your chat ID:* \`${chatId}\`\n\nAdd this to Vercel → Settings → Environment Variables as \`TELEGRAM_CHAT_ID\`, then redeploy\\.\n\n*Commands:*\n/list — current todos\n/habits — today\'s habits\n/done \\[task\\] — complete a todo\n/context — what you\'re building\n/focus \\[text\\] — update your focus \\(syncs to Compound\\)`
     );
     return;
   }
@@ -93,6 +107,28 @@ async function processUpdate(update) {
       return `${done ? '✅' : '⬜'} ${t}`;
     });
     await send(chatId, `*Today\'s habits:*\n\n${lines.join('\n')}`);
+    return;
+  }
+
+  // /context or /brain — show active context
+  if (text === '/context' || text === '/brain') {
+    const ctx = await getOwnerContext(uid);
+    if (!ctx) {
+      await send(chatId, 'No focus set yet\\.\n\nUse `/focus [what you\'re building]` to set it\\.');
+    } else {
+      const escaped = ctx.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
+      await send(chatId, `*What you\'re building:*\n\n${escaped}`);
+    }
+    return;
+  }
+
+  // /focus [text] — update active context (syncs to Compound app)
+  if (/^\/focus\s+/i.test(text)) {
+    const newCtx = text.replace(/^\/focus\s+/i, '').trim();
+    if (!newCtx) { await send(chatId, 'What are you building? Send:\n`/focus [description]`'); return; }
+    await sbPatch('profiles', `?id=eq.${uid}`, { active_context: newCtx });
+    const escaped = newCtx.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
+    await send(chatId, `✅ Focus updated\\. Compound and Claude now know:\n\n_${escaped}_`);
     return;
   }
 

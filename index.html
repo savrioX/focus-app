@@ -110,6 +110,15 @@
     .btn-icon { font-size: 12px; background: transparent; border: 1px solid var(--border); border-radius: 8px; padding: 5px 11px; cursor: pointer; color: var(--muted); font-family: inherit; transition: all 0.15s; white-space: nowrap; font-weight: 500; }
     .btn-icon:hover { color: var(--text); border-color: var(--muted); background: var(--surface); }
 
+    /* ── Active context card ─────────────── */
+    .context-card { background: linear-gradient(135deg,rgba(124,58,237,0.09),rgba(167,105,255,0.04)); border: 1px solid rgba(124,58,237,0.22); border-radius: 16px; padding: 18px 22px; margin-bottom: 24px; cursor: text; transition: border-color 0.2s; }
+    .context-card:hover { border-color: rgba(124,58,237,0.45); }
+    .context-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #a769ff; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+    .context-label span { font-size: 11px; font-weight: 400; letter-spacing: 0; text-transform: none; color: rgba(255,255,255,0.25); }
+    .context-body { font-size: 14px; color: rgba(255,255,255,0.8); line-height: 1.65; white-space: pre-wrap; word-break: break-word; }
+    .context-body.empty { color: rgba(255,255,255,0.28); font-style: italic; }
+    .context-card textarea { width: 100%; background: none; border: none; outline: none; font-family: inherit; font-size: 14px; color: rgba(255,255,255,0.85); line-height: 1.65; resize: none; min-height: 64px; }
+
     /* ── Grid ────────────────────────────── */
     .grid-wrap { padding: 32px 24px 120px; max-width: 1000px; margin: 0 auto; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 20px; }
@@ -655,6 +664,13 @@
   </div>
 
   <div class="grid-wrap">
+
+  <!-- Active context / brain card -->
+  <div class="context-card" id="context-card">
+    <div class="context-label">⚡ What I'm building <span>tap to edit · syncs to Telegram</span></div>
+    <div class="context-body empty" id="context-body">Set your current focus — Claude and your Telegram bot will always know what you're working on.</div>
+  </div>
+
   <div class="grid">
 
     <!-- Todos -->
@@ -1015,6 +1031,7 @@ let goals  = [];
 let habits = [];
 let isPro            = false;
 let stripeCustomerId = null;
+let activeContext    = '';
 
 // Intercept clicks on locked AI buttons for non-Pro users
 document.addEventListener('click', e => {
@@ -1137,12 +1154,14 @@ async function loadProfile() {
   if (!currentUser) return;
   try {
     const { data, error } = await sb.from('profiles')
-      .select('is_pro, stripe_customer_id')
+      .select('is_pro, stripe_customer_id, active_context')
       .eq('id', currentUser.id)
       .single();
     if (data) {
       isPro            = !!data.is_pro || hasDevUnlock() || currentUser.email === 'vsf4046@gmail.com';
       stripeCustomerId = data.stripe_customer_id || null;
+      activeContext    = data.active_context || '';
+      renderContextCard();
     } else if (error && error.code === 'PGRST116') {
       // No profile row yet — create one now
       await sb.from('profiles').insert({ id: currentUser.id, is_pro: false }).select().single();
@@ -1154,6 +1173,44 @@ async function loadProfile() {
   } catch(e) { /* profile unavailable — default false */ }
   updateAiVisibility();
 }
+
+function renderContextCard() {
+  const el = document.getElementById('context-body');
+  if (!el) return;
+  if (activeContext) {
+    el.className = 'context-body';
+    el.textContent = activeContext;
+  } else {
+    el.className = 'context-body empty';
+    el.textContent = 'Set your current focus — Claude and your Telegram bot will always know what you\'re working on.';
+  }
+}
+
+document.getElementById('context-card')?.addEventListener('click', function() {
+  const el = document.getElementById('context-body');
+  if (!el || el.querySelector('textarea')) return;
+  const ta = document.createElement('textarea');
+  ta.value = activeContext;
+  ta.rows  = Math.max(3, (activeContext.match(/\n/g)||[]).length + 2);
+  el.className = 'context-body';
+  el.innerHTML = '';
+  el.appendChild(ta);
+  ta.focus();
+  ta.selectionStart = ta.selectionEnd = ta.value.length;
+
+  async function saveContext() {
+    const val = ta.value.trim();
+    activeContext = val;
+    renderContextCard();
+    if (!currentUser) return;
+    try {
+      await sb.from('profiles').upsert({ id: currentUser.id, active_context: val });
+    } catch(e) {}
+  }
+
+  ta.addEventListener('blur', saveContext);
+  ta.addEventListener('keydown', e => { if (e.key === 'Escape') { renderContextCard(); } });
+});
 
 function handleProRedirect() {
   const params = new URLSearchParams(window.location.search);
