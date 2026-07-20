@@ -9,7 +9,9 @@
     { "src": "api/email-welcome.js",           "use": "@vercel/node" },
     { "src": "api/cron-streak-reminder.js",    "use": "@vercel/node" },
     { "src": "api/cron-weekly-digest.js",      "use": "@vercel/node" },
-    { "src": "api/cron-daily-digest.js",       "use": "@vercel/node" },
+    { "src": "api/cron-daily-digest.js",         "use": "@vercel/node" },
+    { "src": "api/cron-morning-briefing.js",    "use": "@vercel/node" },
+    { "src": "api/telegram.js",                "use": "@vercel/node" },
     { "src": "*.html",                         "use": "@vercel/static" },
     { "src": "*.PNG",                          "use": "@vercel/static" },
     { "src": "*.png",                          "use": "@vercel/static" },
@@ -27,7 +29,9 @@
     { "src": "/api/email-welcome",          "dest": "/api/email-welcome.js"          },
     { "src": "/api/cron-streak-reminder",   "dest": "/api/cron-streak-reminder.js"   },
     { "src": "/api/cron-weekly-digest",      "dest": "/api/cron-weekly-digest.js"     },
-    { "src": "/api/cron-daily-digest",       "dest": "/api/cron-daily-digest.js"      },
+    { "src": "/api/cron-daily-digest",         "dest": "/api/cron-daily-digest.js"        },
+    { "src": "/api/cron-morning-briefing",    "dest": "/api/cron-morning-briefing.js"    },
+    { "src": "/api/telegram",                "dest": "/api/telegram.js"                },
     { "src": "/sw.js", "dest": "/sw.js", "headers": { "Service-Worker-Allowed": "/" } },
     { "handle": "filesystem" },
     { "src": "/(.*)",                       "dest": "/$1.html"                       }
@@ -44,6 +48,10 @@
     {
       "path": "/api/cron-daily-digest",
       "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron-morning-briefing",
+      "schedule": "0 7 * * *"
     }
   ]
 }

@@ -96,6 +96,16 @@ alter table feedback enable row level security;
 create policy "users can insert feedback" on feedback
   for insert with check ((select auth.uid()) = user_id or user_id is null);
 
+-- ── Migration: morning briefing email capture ────────────────────────────
+-- Run this once in Supabase Dashboard → SQL Editor
+--
+-- alter table profiles add column if not exists email text;
+-- alter table profiles add column if not exists morning_briefing boolean default false;
+--
+-- email: real email for username/password users (optional, provided at signup)
+-- morning_briefing: user opted in to daily morning briefing email
+-- ─────────────────────────────────────────────────────────────────────────
+
 -- ── To apply RLS optimizations to existing tables in Supabase SQL editor: ──
 -- Drop old policies and recreate with (select auth.uid()) for each table above.
 -- Example for todos:

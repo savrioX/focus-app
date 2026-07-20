@@ -614,6 +614,11 @@
           <button type="button" id="pass-toggle" style="position:absolute;right:10px;background:none;border:none;cursor:pointer;font-size:16px;color:var(--muted);padding:0;line-height:1;" title="Show/hide password">👁</button>
         </div>
       </div>
+      <div class="field" id="email-wrap" style="display:none;">
+        <label for="auth-email">Email <span style="font-weight:400;color:var(--muted);">(optional)</span></label>
+        <input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email">
+        <p style="margin:4px 0 0;font-size:11px;color:var(--muted);line-height:1.5;">Get a daily morning briefing with your top habit and next goal step. No spam, unsubscribe anytime.</p>
+      </div>
       <button class="btn-primary" id="auth-btn">Create account</button>
       <div class="auth-err" id="auth-err"></div>
       <div id="forgot-wrap" style="text-align:center;margin-top:10px;display:none;">
@@ -856,16 +861,19 @@ function setLoading(on) {
 
 // ── Auth ──────────────────────────────────────────────────
 let currentUser = null;
-let isRegister = sessionStorage.getItem('show_signin') !== '1';
+let isRegister  = sessionStorage.getItem('show_signin') !== '1';
+let pendingEmail = null;
 try { sessionStorage.removeItem('show_signin'); } catch(e) {}
 
 function syncAuthUI() {
-  document.getElementById('auth-title').textContent      = isRegister ? 'Create your account'        : 'Welcome back';
-  document.getElementById('auth-sub').textContent         = isRegister ? 'Free forever. Your goals, habits, and AI coach in 60 seconds.' : 'Welcome back.';
-  document.getElementById('auth-btn').textContent         = isRegister ? 'Create account'              : 'Sign in';
-  document.getElementById('auth-switch-text').textContent = isRegister ? 'Already have an account?'   : "Don't have an account?";
-  document.getElementById('auth-toggle').textContent      = isRegister ? 'Sign in'                    : 'Create one';
+  document.getElementById('auth-title').textContent      = isRegister ? 'Create your account'                            : 'Welcome back';
+  document.getElementById('auth-sub').textContent         = isRegister ? 'Free to start. Build your system in 60 seconds.' : 'Welcome back.';
+  document.getElementById('auth-btn').textContent         = isRegister ? 'Create account'                                 : 'Sign in';
+  document.getElementById('auth-switch-text').textContent = isRegister ? 'Already have an account?'                      : "Don't have an account?";
+  document.getElementById('auth-toggle').textContent      = isRegister ? 'Sign in'                                       : 'Create one';
   document.getElementById('forgot-wrap').style.display     = isRegister ? 'none' : 'block';
+  const emailWrap = document.getElementById('email-wrap');
+  if (emailWrap) emailWrap.style.display = isRegister ? '' : 'none';
   const ageWrap = document.getElementById('age-check-wrap');
   if (ageWrap) ageWrap.style.display = isRegister ? 'flex' : 'none';
   const ageCheck = document.getElementById('age-check');
@@ -927,6 +935,10 @@ async function doAuth() {
   if (isRegister) {
     const { error } = await sb.auth.signUp({ email: toEmail(username), password, options: { data: { username } } });
     if (error) { errEl.textContent = error.message.includes('already') ? 'Username taken — try another.' : error.message; btn.disabled = false; syncAuthUI(); }
+    else {
+      const ev = (document.getElementById('auth-email')?.value || '').trim();
+      if (ev && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ev)) pendingEmail = ev;
+    }
   } else {
     const { error } = await sb.auth.signInWithPassword({ email: toEmail(username), password });
     if (error) { errEl.textContent = 'Incorrect username or password.'; btn.disabled = false; syncAuthUI(); }
@@ -1134,6 +1146,10 @@ async function loadProfile() {
     } else if (error && error.code === 'PGRST116') {
       // No profile row yet — create one now
       await sb.from('profiles').insert({ id: currentUser.id, is_pro: false }).select().single();
+      if (pendingEmail) {
+        try { await sb.from('profiles').update({ email: pendingEmail, morning_briefing: true }).eq('id', currentUser.id); } catch(e) {}
+        pendingEmail = null;
+      }
     }
   } catch(e) { /* profile unavailable — default false */ }
   updateAiVisibility();
@@ -1990,7 +2006,7 @@ function getSystemPrompt() {
 
 // ── AI Features ───────────────────────────────────────────
 
-// Suggest steps for a goal
+// Suggest steps for a goal — routes each step to habits or todos based on type
 async function suggestSteps(goalId) {
   const g   = goals.find(x => x.id === goalId);
   const btn = document.querySelector(`[data-action="ai-steps"][data-gid="${goalId}"]`);
@@ -2000,15 +2016,45 @@ async function suggestSteps(goalId) {
   try {
     const result = await callClaude([{
       role: 'user',
-      content: `My goal is: "${g.text}"\n\nSuggest 4-5 specific, actionable steps to achieve this. Return ONLY a numbered list, one step per line, no intro or explanation.`
+      content: `My goal is: "${g.text}"\n\nSuggest 4-5 specific, actionable steps to achieve this goal.\nFor each step, classify it as:\n- "habit" if it should be done repeatedly (daily or weekly)\n- "todo" if it is a one-time action\n\nReturn ONLY this format, one per line, no extra text:\nhabit: [step]\ntodo: [step]`
     }], getSystemPrompt());
     if (!result) return;
-    const lines = result.split('\n').map(l => l.replace(/^\d+[\.\)]\s*/,'').trim()).filter(l => l.length > 0);
-    for (const text of lines) {
-      const { data, error } = await sb.from('goal_subtasks').insert({ goal_id: goalId, text, done: false }).select().single();
-      if (!error && data) g.goal_subtasks.push(data);
+
+    const lines = result.split('\n').map(l => l.trim()).filter(l => /^(habit|todo):/i.test(l));
+    let habitsAdded = 0, todosAdded = 0;
+
+    for (const line of lines) {
+      const isHabit = /^habit:/i.test(line);
+      const text = line.replace(/^(habit|todo):\s*/i, '').trim();
+      if (!text) continue;
+
+      if (isHabit) {
+        const tempId = 'tmp_h_' + Date.now() + '_' + Math.random();
+        habits.unshift({ id: tempId, text, user_id: currentUser.id, created_at: new Date().toISOString(), habit_logs: [] });
+        try {
+          const { data, error } = await sb.from('habits').insert({ text, user_id: currentUser.id }).select().single();
+          const i = habits.findIndex(h => h.id === tempId);
+          if (!error && data) { if (i !== -1) habits[i] = { ...data, habit_logs: [] }; habitsAdded++; }
+          else if (i !== -1) habits.splice(i, 1);
+        } catch(e) { habits = habits.filter(h => h.id !== tempId); }
+      } else {
+        const tempId = 'tmp_t_' + Date.now() + '_' + Math.random();
+        todos.unshift({ id: tempId, text, user_id: currentUser.id, created_at: new Date().toISOString() });
+        try {
+          const { data, error } = await sb.from('todos').insert({ text, user_id: currentUser.id }).select().single();
+          const i = todos.findIndex(t => t.id === tempId);
+          if (!error && data) { if (i !== -1) todos[i] = data; todosAdded++; }
+          else if (i !== -1) todos.splice(i, 1);
+        } catch(e) { todos = todos.filter(t => t.id !== tempId); }
+      }
     }
-    saveCache(); renderGoals();
+
+    saveCache(); renderAll();
+    const parts = [];
+    if (habitsAdded) parts.push(`${habitsAdded} habit${habitsAdded !== 1 ? 's' : ''}`);
+    if (todosAdded)  parts.push(`${todosAdded} todo${todosAdded !== 1 ? 's' : ''}`);
+    if (parts.length) toast(`✨ Added ${parts.join(' + ')} from your goal`);
+    else toast('No steps added — try again.');
   } catch(e) {
     toast('Could not get suggestions — try again.');
   } finally {
