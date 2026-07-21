@@ -15,7 +15,7 @@ async function sendTelegram(text) {
     await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: TG_CHAT_ID, text, parse_mode: 'Markdown', disable_web_page_preview: true }),
+      body: JSON.stringify({ chat_id: TG_CHAT_ID, text, parse_mode: 'MarkdownV2', disable_web_page_preview: true }),
     });
   } catch (_) {}
 }
