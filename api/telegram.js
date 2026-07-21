@@ -96,12 +96,14 @@ async function processUpdate(update) {
   const text   = (msg.text || '').trim();
   const lower  = text.toLowerCase();
 
-  // /start — always works, reveals chat ID
-  if (lower === '/start' || lower === '/hello') {
-    await send(chatId,
-      `👋 *Compound OS bot is live\\.*\n\n*Your chat ID:* \`${esc(chatId)}\`\n\nAdd as \`TELEGRAM_CHAT_ID\` in Vercel env vars, then redeploy\\.\n\n` +
-      `*Commands:*\n/tasks — your todo list\n/habits — today\'s habits\n/add \\[task\\] — add a todo\n/focus \\[text\\] — update your focus\n/context — what you\'re building\n/debug — check bot status`
-    );
+  // /start — always works. Use plain text (no parse_mode) so MarkdownV2 can never break it.
+  // Also strip @botname suffix Telegram appends in group contexts.
+  const baseCmd = lower.split('@')[0];
+  if (baseCmd === '/start' || baseCmd === '/hello') {
+    await tg('sendMessage', {
+      chat_id: chatId,
+      text: `Compound OS bot is live.\n\nYour chat ID: ${chatId}\n\nAdd TELEGRAM_CHAT_ID = ${chatId} in Vercel env vars, then redeploy.\n\nCommands:\n/tasks — todo list (reply with a number to complete)\n/habits — today's habits\n/add [task] — add a todo\n/brain — your second brain\n/note [text] — add brain note\n/focus [text] — update what you're building\n/context — see current focus\n/debug — check bot status`,
+    });
     return;
   }
 
@@ -215,6 +217,34 @@ async function processUpdate(update) {
     return;
   }
 
+  // ── /note [text] or "note [text]" — add to second brain ─────────────────
+  const noteMatch = text.match(/^(?:\/note|note)\s+(.+)/i);
+  if (noteMatch) {
+    const content = noteMatch[1].trim();
+    await sbInsert('brain', { user_id: uid, source: 'telegram', type: 'note', content });
+    await send(chatId, `🧠 Added to brain:\n\n_${esc(content)}_`);
+    return;
+  }
+
+  // ── /brain or /thoughts — show recent second brain entries ───────────────
+  if (lower === '/brain' || lower === '/thoughts') {
+    const rows = await sbFetch('brain', `?user_id=eq.${uid}&order=created_at.desc&limit=7`);
+    if (!rows.length) {
+      await send(chatId, `🧠 Your second brain is empty\\.\n\nAdd a note: \`/note \\[text\\]\`\nOr open: [dailycompound\\.app/brain](https://dailycompound.app/brain)`);
+      return;
+    }
+    const srcLabel = { claude_code: '🤖 Claude Code', claude_chat: '🤖 Claude.ai', telegram: '📱 Telegram', compound: '⚡ Compound', savrio: '✍️ You' };
+    const typeLabel = { note: 'Note', insight: 'Insight', suggestion: 'Suggestion', reflection: 'Reflection', context: 'Context' };
+    const lines = rows.map(r => {
+      const src     = esc(srcLabel[r.source] || r.source);
+      const type    = esc(typeLabel[r.type] || r.type);
+      const content = r.content.length > 250 ? r.content.slice(0, 250) + '…' : r.content;
+      return `${src} — _${type}_\n${esc(content)}`;
+    });
+    await send(chatId, `🧠 *Second Brain \\(last ${rows.length}\\):*\n\n${lines.join('\n\n─────\n\n')}\n\n[Open →](https://dailycompound.app/brain)`);
+    return;
+  }
+
   // ── /done [text] — fuzzy match (legacy / last resort) ────────────────────
   const doneCmd = text.match(/^\/done\s+(.+)/i);
   if (doneCmd) {
@@ -241,11 +271,13 @@ async function processUpdate(update) {
   // ── Fallback: help ────────────────────────────────────────────────────────
   await send(chatId,
     `Not sure what you mean\\. Here\'s what I understand:\n\n` +
-    `/tasks — see your list\n` +
-    `*1* or *2, 3* — complete by number\n` +
+    `/tasks — see your todo list\n` +
+    `*1* or *2, 3* — complete tasks by number\n` +
     `*add \\[task\\]* — add a todo\n` +
     `*done all* — clear everything\n` +
     `/habits — today\'s habits\n` +
+    `/brain — your second brain\n` +
+    `*note \\[text\\]* — add brain note\n` +
     `/focus \\[text\\] — update what you\'re building\n` +
     `/debug — check bot status`
   );

@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Second Brain — Compound</title>
+  <meta name="theme-color" content="#09090b">
+  <link rel="icon" type="image/png" href="logo.PNG">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #f5f5f3; --surface: #ffffff; --border: #ebebea;
+      --text: #18181b; --muted: #71717a; --faded: #d4d4d8;
+      --ai: #7c3aed; --ai-soft: rgba(124,58,237,0.08); --ai-border: rgba(124,58,237,0.18);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06); --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    body.dark {
+      --bg: #09090b; --surface: #18181b; --border: #27272a;
+      --text: #fafafa; --muted: #71717a; --faded: #3f3f46;
+      --ai-soft: rgba(167,139,250,0.1); --ai-border: rgba(167,139,250,0.2);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.3); --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; -webkit-font-smoothing: antialiased; }
+
+    /* ── Header ───────────────────────────────────── */
+    .app-header { position: sticky; top: 0; z-index: 50; background: rgba(245,245,243,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+    body.dark .app-header { background: rgba(9,9,11,0.85); }
+    .header-inner { display: flex; align-items: center; gap: 10px; max-width: 880px; margin: 0 auto; padding: 0 24px; height: 56px; }
+    .logo { display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--text); font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
+    .logo img { width: 26px; height: 26px; border-radius: 6px; }
+    .sep { width: 1px; height: 18px; background: var(--border); flex-shrink: 0; }
+    .page-title { font-size: 13px; color: var(--muted); font-weight: 500; }
+    .hgap { flex: 1; }
+    .user-badge { font-size: 12px; color: var(--muted); background: var(--bg); border: 1px solid var(--border); border-radius: 99px; padding: 3px 10px; white-space: nowrap; max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
+    .btn-sm { font-size: 12px; background: transparent; border: 1px solid var(--border); border-radius: 8px; padding: 5px 11px; cursor: pointer; color: var(--muted); font-family: inherit; transition: all 0.15s; white-space: nowrap; font-weight: 500; text-decoration: none; display: inline-block; }
+    .btn-sm:hover { color: var(--text); border-color: var(--muted); background: var(--surface); }
+    @media (max-width: 600px) { .user-badge { display: none; } }
+
+    /* ── Layout ───────────────────────────────────── */
+    .wrap { max-width: 880px; margin: 0 auto; padding: 28px 24px 80px; display: grid; grid-template-columns: 1fr 280px; gap: 24px; }
+    @media (max-width: 760px) { .wrap { grid-template-columns: 1fr; padding: 20px 14px 60px; } }
+
+    /* ── Main column ──────────────────────────────── */
+    .main { min-width: 0; }
+
+    /* Context card */
+    .ctx-card { background: linear-gradient(135deg,rgba(124,58,237,0.09),rgba(167,105,255,0.04)); border: 1px solid rgba(124,58,237,0.22); border-radius: 16px; padding: 16px 20px; margin-bottom: 20px; }
+    .ctx-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #a769ff; margin-bottom: 8px; }
+    .ctx-body { font-size: 14px; line-height: 1.65; color: rgba(167,139,250,0.9); }
+    body:not(.dark) .ctx-body { color: #4c1d95; }
+    .ctx-empty { color: rgba(167,139,250,0.45); font-style: italic; }
+
+    /* Filter tabs */
+    .filter-row { display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: auto; margin-bottom: 16px; padding-bottom: 2px; -ms-overflow-style: none; scrollbar-width: none; }
+    .filter-row::-webkit-scrollbar { display: none; }
+    .filter-btn { font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 99px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
+    .filter-btn.active { background: var(--ai); border-color: var(--ai); color: #fff; }
+    .filter-btn:not(.active):hover { border-color: var(--muted); color: var(--text); }
+
+    /* Add note */
+    .add-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 14px 16px; margin-bottom: 20px; box-shadow: var(--shadow-sm); }
+    .add-card textarea { width: 100%; background: none; border: none; outline: none; font-family: inherit; font-size: 14px; color: var(--text); line-height: 1.6; resize: none; min-height: 68px; }
+    .add-card textarea::placeholder { color: var(--faded); }
+    .add-footer { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+    .add-select { font-size: 12px; font-family: inherit; border: 1px solid var(--border); border-radius: 8px; padding: 5px 10px; background: var(--bg); color: var(--text); outline: none; cursor: pointer; }
+    .add-gap { flex: 1; }
+    .btn-add { background: var(--ai); color: #fff; border: none; border-radius: 10px; padding: 8px 16px; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; transition: opacity 0.15s; }
+    .btn-add:hover { opacity: 0.85; }
+    .btn-add:disabled { opacity: 0.4; cursor: not-allowed; }
+    .add-hint { font-size: 11px; color: var(--faded); margin-top: 4px; padding: 0 2px; }
+
+    /* Entry feed */
+    .date-label { font-size: 10px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--faded); margin: 18px 0 8px; }
+    .entry-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 8px; box-shadow: var(--shadow-sm); transition: border-color 0.15s; }
+    .entry-card:hover { border-color: var(--faded); }
+    .entry-top { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+    .badge { font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; border-radius: 99px; padding: 2px 8px; white-space: nowrap; }
+    .src-claude_code  { background: rgba(124,58,237,0.12); color: #7c3aed; }
+    .src-claude_chat  { background: rgba(139,92,246,0.12); color: #7c3aed; }
+    .src-telegram     { background: rgba(59,130,246,0.12); color: #2563eb; }
+    .src-compound     { background: rgba(5,150,105,0.12);  color: #059669; }
+    .src-savrio       { background: rgba(245,158,11,0.12); color: #d97706; }
+    body.dark .src-claude_code { background: rgba(167,139,250,0.15); color: #a78bfa; }
+    body.dark .src-claude_chat { background: rgba(167,139,250,0.15); color: #c4b5fd; }
+    body.dark .src-telegram    { background: rgba(96,165,250,0.15);  color: #60a5fa; }
+    body.dark .src-compound    { background: rgba(52,211,153,0.15);  color: #34d399; }
+    body.dark .src-savrio      { background: rgba(251,191,36,0.15);  color: #fbbf24; }
+    .type-badge { font-size: 11px; color: var(--muted); }
+    .entry-meta { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .entry-time { font-size: 11px; color: var(--faded); }
+    .entry-del { background: none; border: none; font-size: 16px; color: var(--faded); cursor: pointer; transition: color 0.15s; line-height: 1; padding: 0 2px; }
+    .entry-del:hover { color: #dc2626; }
+    .entry-content { font-size: 14px; color: var(--text); line-height: 1.65; white-space: pre-wrap; word-break: break-word; }
+
+    .empty-state { text-align: center; padding: 48px 20px; color: var(--muted); font-size: 13px; line-height: 1.7; }
+    .loading { text-align: center; padding: 36px; color: var(--faded); font-size: 13px; }
+
+    /* ── Sidebar ──────────────────────────────────── */
+    .sidebar { display: flex; flex-direction: column; gap: 14px; }
+    @media (max-width: 760px) { .sidebar { order: -1; } }
+
+    .side-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; box-shadow: var(--shadow-sm); }
+    .side-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+    .snap-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+    .snap-num { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; color: var(--text); }
+    .snap-label { font-size: 13px; color: var(--muted); }
+    .snap-sub { font-size: 11px; color: var(--faded); margin-top: 2px; }
+    .snap-divider { height: 1px; background: var(--border); margin: 12px 0; }
+
+    .setup-step { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+    .step-num { font-size: 10px; font-weight: 700; background: var(--ai-soft); color: var(--ai); border: 1px solid var(--ai-border); border-radius: 99px; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+    .step-text { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .step-code { font-family: monospace; font-size: 11px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 2px 6px; color: var(--text); word-break: break-all; }
+
+    /* Auth gate */
+    #auth-gate { display: none; min-height: 100vh; align-items: center; justify-content: center; text-align: center; padding: 40px; flex-direction: column; gap: 14px; }
+    #auth-gate.visible { display: flex; }
+
+    /* Toast */
+    #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--text); color: var(--bg); border-radius: 10px; padding: 10px 18px; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 999; white-space: nowrap; }
+    #toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<!-- Not logged in -->
+<div id="auth-gate">
+  <p style="font-size:16px;font-weight:700;">🧠 Second Brain</p>
+  <p style="font-size:13px;color:var(--muted);">Sign in to Compound to access your second brain.</p>
+  <a href="/" style="display:inline-block;background:var(--ai);color:#fff;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:600;text-decoration:none;margin-top:4px;">← Go to Compound</a>
+</div>
+
+<!-- App -->
+<div id="app" style="display:none;">
+
+  <header class="app-header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <img src="logo.PNG" alt="Compound">
+        Compound
+      </a>
+      <div class="sep"></div>
+      <span class="page-title">Second Brain</span>
+      <div class="hgap"></div>
+      <span class="user-badge" id="user-label"></span>
+      <a href="/" class="btn-sm">← App</a>
+      <button class="btn-sm" id="btn-signout">Sign out</button>
+    </div>
+  </header>
+
+  <div class="wrap">
+
+    <!-- ── Main ── -->
+    <div class="main">
+
+      <!-- Active context -->
+      <div class="ctx-card">
+        <div class="ctx-label">⚡ Active Focus</div>
+        <div class="ctx-body ctx-empty" id="ctx-body">Loading…</div>
+      </div>
+
+      <!-- Filter tabs -->
+      <div class="filter-row" id="filter-row">
+        <button class="filter-btn active" data-source="">All</button>
+        <button class="filter-btn" data-source="claude_code">Claude Code</button>
+        <button class="filter-btn" data-source="claude_chat">Claude.ai</button>
+        <button class="filter-btn" data-source="telegram">Telegram</button>
+        <button class="filter-btn" data-source="compound">Compound</button>
+        <button class="filter-btn" data-source="savrio">My Notes</button>
+      </div>
+
+      <!-- Add note -->
+      <div class="add-card">
+        <textarea id="note-input" placeholder="Add a note — your thought, a task suggestion, a reflection, anything…" rows="3"></textarea>
+        <div class="add-footer">
+          <select class="add-select" id="note-source">
+            <option value="savrio">My Note</option>
+            <option value="compound">Compound</option>
+          </select>
+          <select class="add-select" id="note-type">
+            <option value="note">Note</option>
+            <option value="insight">Insight</option>
+            <option value="suggestion">Suggestion</option>
+            <option value="reflection">Reflection</option>
+          </select>
+          <div class="add-gap"></div>
+          <button class="btn-add" id="note-submit">Add to Brain →</button>
+        </div>
+        <div class="add-hint">Cmd+Enter to submit · Also add via Telegram: /note [text]</div>
+      </div>
+
+      <!-- Entries -->
+      <div id="entries-wrap">
+        <div class="loading">Loading your second brain…</div>
+      </div>
+
+    </div>
+
+    <!-- ── Sidebar ── -->
+    <div class="sidebar">
+
+      <!-- Compound snapshot -->
+      <div class="side-card">
+        <div class="side-title">Compound Snapshot</div>
+        <div id="snapshot">
+          <div class="loading" style="padding:12px 0;">Loading…</div>
+        </div>
+      </div>
+
+      <!-- Claude.ai setup -->
+      <div class="side-card">
+        <div class="side-title">Connect Claude.ai</div>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px;">Set up a Claude.ai Project so Claude there knows your full context and can write to your brain.</p>
+        <div class="setup-step">
+          <span class="step-num">1</span>
+          <span class="step-text">Go to <strong>claude.ai → Projects → New Project</strong></span>
+        </div>
+        <div class="setup-step">
+          <span class="step-num">2</span>
+          <span class="step-text">Paste the system prompt from your Claude Code session (ask Claude Code to generate it)</span>
+        </div>
+        <div class="setup-step">
+          <span class="step-num">3</span>
+          <span class="step-text">For write access, add your brain API secret to Vercel and share it with Claude in the conversation</span>
+        </div>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+          <div style="font-size:11px;color:var(--faded);line-height:1.6;">Brain API endpoint:</div>
+          <div class="step-code" style="margin-top:4px;">GET dailycompound.app/api/brain?secret=CRON_SECRET</div>
+        </div>
+      </div>
+
+      <!-- Telegram -->
+      <div class="side-card">
+        <div class="side-title">Telegram Commands</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="font-size:12px;color:var(--muted);"><code style="font-size:11px;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border);">/brain</code> — see recent entries</div>
+          <div style="font-size:12px;color:var(--muted);"><code style="font-size:11px;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border);">/note [text]</code> — add a note</div>
+          <div style="font-size:12px;color:var(--muted);"><code style="font-size:11px;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border);">/tasks</code> — todo list</div>
+          <div style="font-size:12px;color:var(--muted);"><code style="font-size:11px;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border);">1</code> or <code style="font-size:11px;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border);">2, 3</code> — complete tasks</div>
+          <div style="font-size:12px;color:var(--muted);"><code style="font-size:11px;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border);">add [task]</code> — add todo</div>
+          <div style="font-size:12px;color:var(--muted);"><code style="font-size:11px;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border);">/focus [text]</code> — update focus</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL  = 'https://diwwapnpnffubepdvrxg.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRpd3dhcG5wbmZmdWJlcGR2cnhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MDU1OTgsImV4cCI6MjA5NDI4MTU5OH0.UFCnZe_a0LhOifMph-61zP3dHniF95jiiHtGpw3z45w';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+let currentUser  = null;
+let brainEntries = [];
+let activeSource = '';
+
+function toast(msg, dur = 2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+function esc(t) {
+  const d = document.createElement('div');
+  d.textContent = String(t);
+  return d.innerHTML;
+}
+
+const SRC_LABEL  = { claude_code: 'Claude Code', claude_chat: 'Claude.ai', telegram: 'Telegram', compound: 'Compound', savrio: 'My Note' };
+const TYPE_ICON  = { note: '', insight: '🔍 Insight', suggestion: '💡 Suggestion', reflection: '🌙 Reflection', context: '⚡ Context' };
+
+function relTime(iso) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  if (d < 7) return `${d}d ago`;
+  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+}
+
+function dayLabel(iso) {
+  const d     = new Date(iso);
+  const today = new Date();
+  const yest  = new Date(today); yest.setDate(today.getDate() - 1);
+  if (d.toDateString() === today.toDateString()) return 'Today';
+  if (d.toDateString() === yest.toDateString())  return 'Yesterday';
+  return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' });
+}
+
+function renderEntries() {
+  const wrap    = document.getElementById('entries-wrap');
+  const entries = activeSource ? brainEntries.filter(e => e.source === activeSource) : brainEntries;
+
+  if (!entries.length) {
+    const label = activeSource ? (SRC_LABEL[activeSource] || activeSource) : 'second brain';
+    wrap.innerHTML = `<div class="empty-state">Your ${esc(label)} is empty.<br>Add a note above or via Telegram <code>/note [text]</code></div>`;
+    return;
+  }
+
+  // Group by day
+  const groups = {};
+  entries.forEach(e => {
+    const label = dayLabel(e.created_at);
+    if (!groups[label]) groups[label] = [];
+    groups[label].push(e);
+  });
+
+  wrap.innerHTML = Object.entries(groups).map(([label, list]) => `
+    <div class="date-label">${esc(label)}</div>
+    ${list.map(e => `
+      <div class="entry-card" data-id="${e.id}">
+        <div class="entry-top">
+          <span class="badge src-${e.source}">${esc(SRC_LABEL[e.source] || e.source)}</span>
+          ${TYPE_ICON[e.type] ? `<span class="type-badge">${esc(TYPE_ICON[e.type])}</span>` : ''}
+          <div class="entry-meta">
+            <span class="entry-time">${esc(relTime(e.created_at))}</span>
+            <button class="entry-del" data-id="${e.id}">×</button>
+          </div>
+        </div>
+        <div class="entry-content">${esc(e.content)}</div>
+      </div>
+    `).join('')}
+  `).join('');
+
+  wrap.querySelectorAll('.entry-del').forEach(btn => {
+    btn.addEventListener('click', () => deleteEntry(btn.dataset.id));
+  });
+}
+
+async function loadEntries() {
+  const { data, error } = await sb.from('brain').select('*').order('created_at', { ascending: false }).limit(200);
+  if (error) { console.error('Brain load error:', error); return; }
+  brainEntries = data || [];
+  renderEntries();
+}
+
+async function addEntry() {
+  const input   = document.getElementById('note-input');
+  const content = input.value.trim();
+  if (!content) return;
+
+  const source = document.getElementById('note-source').value;
+  const type   = document.getElementById('note-type').value;
+  const btn    = document.getElementById('note-submit');
+  btn.disabled = true;
+
+  const { data, error } = await sb.from('brain')
+    .insert({ user_id: currentUser.id, source, type, content })
+    .select().single();
+  btn.disabled = false;
+
+  if (error) { toast('Could not save — check your connection.'); return; }
+  input.value = '';
+  brainEntries.unshift(data);
+  renderEntries();
+  toast('Added to brain.');
+}
+
+async function deleteEntry(id) {
+  const { error } = await sb.from('brain').delete().eq('id', id);
+  if (error) { toast('Could not delete.'); return; }
+  brainEntries = brainEntries.filter(e => e.id !== id);
+  renderEntries();
+}
+
+async function loadContext() {
+  const { data } = await sb.from('profiles').select('active_context').eq('id', currentUser.id).single();
+  const el = document.getElementById('ctx-body');
+  if (data?.active_context) {
+    el.textContent = data.active_context;
+    el.classList.remove('ctx-empty');
+  } else {
+    el.textContent = 'No active focus set. Open Compound → tap the purple card to set it.';
+  }
+}
+
+async function loadSnapshot() {
+  const today = new Date().toISOString().split('T')[0];
+  const uid   = currentUser.id;
+
+  const [tRes, hRes, gRes] = await Promise.all([
+    sb.from('todos').select('id', { count: 'exact', head: true }).eq('user_id', uid),
+    sb.from('habits').select('id, text, habit_logs(logged_date)').eq('user_id', uid).limit(20),
+    sb.from('goals').select('id, goal_subtasks(done)', { count: 'exact' }).eq('user_id', uid),
+  ]);
+
+  const todoCount  = tRes.count || 0;
+  const habits     = hRes.data || [];
+  const goalCount  = gRes.count || 0;
+
+  // Calculate best streak
+  let topStreak = 0; let topHabit = '';
+  habits.forEach(h => {
+    const dates = new Set((h.habit_logs || []).map(l => l.logged_date));
+    let streak = 0;
+    const d = new Date(today + 'T00:00:00');
+    d.setDate(d.getDate() - 1);
+    while (dates.has(d.toISOString().split('T')[0])) { streak++; d.setDate(d.getDate() - 1); }
+    if (streak > topStreak) { topStreak = streak; topHabit = h.text; }
+  });
+
+  const doneToday  = habits.filter(h => (h.habit_logs || []).some(l => l.logged_date === today)).length;
+
+  document.getElementById('snapshot').innerHTML = `
+    <div class="snap-row">
+      <span class="snap-num">${todoCount}</span>
+      <span class="snap-label">active todo${todoCount !== 1 ? 's' : ''}</span>
+    </div>
+    <div class="snap-divider"></div>
+    <div class="snap-row">
+      <span class="snap-num">${doneToday}/${habits.length}</span>
+      <span class="snap-label">habits today</span>
+    </div>
+    ${topStreak > 0 ? `<div class="snap-sub">🔥 ${topStreak}-day streak${topHabit ? ` — ${topHabit.length > 28 ? topHabit.slice(0,28) + '…' : topHabit}` : ''}</div>` : ''}
+    <div class="snap-divider"></div>
+    <div class="snap-row">
+      <span class="snap-num">${goalCount}</span>
+      <span class="snap-label">goal${goalCount !== 1 ? 's' : ''}</span>
+    </div>
+    <div style="margin-top:12px;"><a href="/" style="font-size:12px;color:var(--ai);text-decoration:none;font-weight:600;">Open Compound →</a></div>
+  `;
+}
+
+// Filter tabs
+document.getElementById('filter-row').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeSource = btn.dataset.source;
+  renderEntries();
+});
+
+// Add entry
+document.getElementById('note-submit').addEventListener('click', addEntry);
+document.getElementById('note-input').addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') addEntry();
+});
+
+// Sign out
+document.getElementById('btn-signout').addEventListener('click', async () => {
+  await sb.auth.signOut();
+  window.location.href = '/';
+});
+
+// Dark mode — inherit compound_dark from localStorage
+const dm = localStorage.getItem('compound_dark');
+if (dm === '1' || (dm === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+  document.body.classList.add('dark');
+}
+
+// Init
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session?.user) {
+    document.getElementById('auth-gate').classList.add('visible');
+    return;
+  }
+  currentUser = session.user;
+  document.getElementById('app').style.display = '';
+  const label = currentUser.email || currentUser.user_metadata?.name || currentUser.id.slice(0, 8);
+  document.getElementById('user-label').textContent = label;
+  await Promise.all([loadEntries(), loadContext(), loadSnapshot()]);
+})();
+</script>
+</body>
+</html>

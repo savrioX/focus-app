@@ -12,6 +12,7 @@
     { "src": "api/cron-daily-digest.js",         "use": "@vercel/node" },
     { "src": "api/cron-morning-briefing.js",    "use": "@vercel/node" },
     { "src": "api/telegram.js",                "use": "@vercel/node" },
+    { "src": "api/brain.js",                  "use": "@vercel/node" },
     { "src": "*.html",                         "use": "@vercel/static" },
     { "src": "*.PNG",                          "use": "@vercel/static" },
     { "src": "*.png",                          "use": "@vercel/static" },
@@ -32,6 +33,7 @@
     { "src": "/api/cron-daily-digest",         "dest": "/api/cron-daily-digest.js"        },
     { "src": "/api/cron-morning-briefing",    "dest": "/api/cron-morning-briefing.js"    },
     { "src": "/api/telegram",                "dest": "/api/telegram.js"                },
+    { "src": "/api/brain",                   "dest": "/api/brain.js"                   },
     { "src": "/sw.js", "dest": "/sw.js", "headers": { "Service-Worker-Allowed": "/" } },
     { "handle": "filesystem" },
     { "src": "/(.*)",                       "dest": "/$1.html"                       }
