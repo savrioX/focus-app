@@ -107,6 +107,12 @@ create policy "users can insert feedback" on feedback
 -- morning_briefing: user opted in to daily morning briefing email
 -- ─────────────────────────────────────────────────────────────────────────
 
+-- ── Apex migrations — run in Supabase SQL Editor ───────────────────────────
+-- alter table todos add column if not exists due_date date;
+-- alter table profiles add column if not exists apex_plan jsonb;
+-- alter table profiles add column if not exists apex_plan_updated_at timestamptz;
+-- ─────────────────────────────────────────────────────────────────────────────
+
 -- ── To apply RLS optimizations to existing tables in Supabase SQL editor: ──
 -- Drop old policies and recreate with (select auth.uid()) for each table above.
 -- Example for todos:

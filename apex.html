@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex — AI Chief of Staff</title>
+  <style>
+    :root {
+      --bg: #0a0a0a; --surface: #111111; --surface2: #161616;
+      --border: #1f1f1f; --border2: #2a2a2a;
+      --text: #ffffff; --muted: #71717a; --sub: #a1a1aa;
+      --ai: #7c3aed; --ai-bright: #a769ff;
+      --ai-soft: rgba(124,58,237,0.10); --ai-border: rgba(124,58,237,0.30);
+      --green: #22c55e; --green-soft: rgba(34,197,94,0.10);
+      --yellow: #eab308; --yellow-soft: rgba(234,179,8,0.10);
+      --red: #ef4444; --red-soft: rgba(239,68,68,0.10);
+      --shadow: 0 4px 24px rgba(0,0,0,0.4);
+      --radius: 14px;
+    }
+    [data-light] {
+      --bg: #f8f8f8; --surface: #ffffff; --surface2: #f4f4f5;
+      --border: #e4e4e7; --border2: #d4d4d8;
+      --text: #09090b; --muted: #71717a; --sub: #52525b;
+      --ai-soft: rgba(124,58,237,0.06); --ai-border: rgba(124,58,237,0.25);
+      --shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { color-scheme: dark; }
+    [data-light] html { color-scheme: light; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100dvh; font-size: 14px; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; font-family: inherit; }
+
+    /* ── Header ───────────────────────────────── */
+    .apex-header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--bg); border-bottom: 1px solid var(--border);
+      padding: 0 24px; height: 56px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .apex-brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 16px; letter-spacing: -0.03em; color: var(--ai-bright); }
+    .apex-brand-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ai-bright); box-shadow: 0 0 8px var(--ai); }
+    .back-link { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 4px; transition: color 0.15s; }
+    .back-link:hover { color: var(--text); }
+    .header-actions { display: flex; align-items: center; gap: 8px; }
+    .btn-generate { background: var(--ai); color: #fff; border: none; border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 600; transition: opacity 0.15s; display: flex; align-items: center; gap: 6px; }
+    .btn-generate:hover { opacity: 0.85; }
+    .btn-generate:disabled { opacity: 0.45; cursor: not-allowed; }
+    .plan-meta { font-size: 11px; color: var(--muted); }
+
+    /* ── Main layout ──────────────────────────── */
+    .apex-main { display: grid; grid-template-columns: 420px 1fr; gap: 20px; padding: 20px 24px 40px; max-width: 1400px; margin: 0 auto; }
+    @media (max-width: 900px) { .apex-main { grid-template-columns: 1fr; } }
+    @media (max-width: 620px) { .apex-main { padding: 14px 14px 80px; gap: 14px; } .apex-header { padding: 0 14px; } }
+
+    /* ── Cards ────────────────────────────────── */
+    .apex-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .card-head { padding: 16px 18px 0; display: flex; align-items: center; justify-content: space-between; }
+    .card-title { font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
+    .card-body { padding: 14px 18px 18px; }
+
+    /* ── Plan empty ───────────────────────────── */
+    .plan-empty { padding: 48px 24px; text-align: center; }
+    .plan-empty-icon { font-size: 32px; margin-bottom: 12px; }
+    .plan-empty-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+    .plan-empty-sub { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+    /* ── Plan sections ────────────────────────── */
+    .plan-section { padding: 14px 18px; border-bottom: 1px solid var(--border); }
+    .plan-section:last-child { border-bottom: none; }
+    .plan-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    .plan-analysis { font-size: 13px; line-height: 1.7; color: var(--sub); }
+    .focus-box { background: var(--ai-soft); border: 1px solid var(--ai-border); border-radius: 10px; padding: 12px 14px; font-size: 13px; font-weight: 600; color: var(--ai-bright); line-height: 1.5; }
+    .habit-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; border-radius: 99px; padding: 3px 10px; font-weight: 500; margin: 3px 3px 3px 0; }
+    .habit-keep { background: var(--green-soft); color: var(--green); }
+    .habit-fix { background: var(--yellow-soft); color: var(--yellow); }
+    .habit-drop { background: var(--red-soft); color: var(--red); text-decoration: line-through; }
+    .habit-add { background: var(--ai-soft); color: var(--ai-bright); border: 1px dashed var(--ai-border); }
+    .habit-fix-note { font-size: 11px; color: var(--muted); margin-top: 2px; padding-left: 4px; }
+    .goal-row { padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .goal-row:last-child { border-bottom: none; }
+    .goal-row-top { display: flex; align-items: flex-start; gap: 8px; }
+    .goal-status { font-size: 11px; width: 18px; flex-shrink: 0; margin-top: 1px; }
+    .goal-name { font-size: 13px; font-weight: 600; line-height: 1.4; }
+    .goal-blocker { font-size: 12px; color: var(--muted); margin-top: 3px; padding-left: 26px; }
+    .goal-next { font-size: 12px; color: var(--ai-bright); margin-top: 3px; padding-left: 26px; font-weight: 500; }
+    .schedule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .schedule-block { background: var(--surface2); border-radius: 8px; padding: 10px 12px; }
+    .schedule-time { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--muted); letter-spacing: 0.06em; margin-bottom: 4px; }
+    .schedule-activity { font-size: 12px; line-height: 1.5; }
+    .improvement-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .improvement-item { display: flex; gap: 10px; font-size: 13px; line-height: 1.5; }
+    .improvement-num { width: 20px; height: 20px; border-radius: 50%; background: var(--ai-soft); color: var(--ai-bright); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+    .suggested-tasks { display: flex; flex-direction: column; gap: 6px; }
+    .suggested-task { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; padding: 8px 10px; background: var(--surface2); border-radius: 8px; }
+    .btn-add-task { background: var(--ai); color: #fff; border: none; border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 600; transition: opacity 0.15s; flex-shrink: 0; }
+    .btn-add-task:hover { opacity: 0.8; }
+    .btn-add-all { background: none; border: 1px solid var(--ai-border); color: var(--ai-bright); border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 600; width: 100%; margin-top: 8px; transition: background 0.15s; }
+    .btn-add-all:hover { background: var(--ai-soft); }
+
+    /* ── Calendar ─────────────────────────────── */
+    .cal-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(100px, 1fr)); gap: 8px; min-width: 700px; padding: 14px 18px 0; }
+    .cal-day { background: var(--surface2); border-radius: 10px; padding: 10px; min-height: 120px; cursor: pointer; border: 2px solid transparent; transition: border-color 0.15s; }
+    .cal-day.today { border-color: var(--ai); }
+    .cal-day.drop-target { border-color: var(--ai-bright); background: var(--ai-soft); }
+    .cal-day-head { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+    .cal-day-date { font-size: 18px; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 8px; }
+    .cal-day.today .cal-day-date { color: var(--ai-bright); }
+    .cal-task { font-size: 11px; line-height: 1.4; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 5px 7px; margin-bottom: 5px; cursor: pointer; transition: border-color 0.15s; }
+    .cal-task:hover { border-color: var(--muted); }
+    .cal-task-add { font-size: 11px; color: var(--muted); cursor: pointer; padding: 3px 0; transition: color 0.15s; }
+    .cal-task-add:hover { color: var(--ai-bright); }
+    .unscheduled-section { padding: 14px 18px 18px; border-top: 1px solid var(--border); }
+    .unscheduled-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+    .unscheduled-tasks { display: flex; flex-wrap: wrap; gap: 6px; }
+    .unsched-task { font-size: 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 99px; padding: 4px 12px; cursor: pointer; transition: border-color 0.15s, background 0.15s; white-space: nowrap; max-width: 200px; overflow: hidden; text-overflow: ellipsis; }
+    .unsched-task:hover { border-color: var(--muted); }
+    .unsched-task.selected { background: var(--ai-soft); border-color: var(--ai); color: var(--ai-bright); }
+    .unsched-empty { font-size: 13px; color: var(--muted); }
+    .select-hint { font-size: 11px; color: var(--ai-bright); margin-top: 8px; display: none; }
+    .select-hint.show { display: block; }
+
+    /* ── Sync section ─────────────────────────── */
+    .sync-card { margin-top: 0; }
+    .sync-body { padding: 14px 18px 18px; }
+    textarea#sync-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: inherit; font-size: 13px; line-height: 1.6; padding: 12px 14px; resize: vertical; min-height: 90px; outline: none; transition: border-color 0.15s; }
+    textarea#sync-input:focus { border-color: var(--ai-border); }
+    .sync-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+    .btn-sync { background: var(--ai); color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-size: 12px; font-weight: 600; transition: opacity 0.15s; }
+    .btn-sync:hover { opacity: 0.85; }
+    .btn-sync:disabled { opacity: 0.45; cursor: not-allowed; }
+    .sync-status { font-size: 12px; color: var(--muted); }
+    .recent-syncs { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+    .sync-entry { background: var(--surface2); border-radius: 8px; padding: 10px 12px; }
+    .sync-entry-meta { font-size: 10px; color: var(--muted); margin-bottom: 4px; }
+    .sync-entry-text { font-size: 12px; line-height: 1.6; color: var(--sub); }
+
+    /* ── Loading ──────────────────────────────── */
+    .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.2); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Toast ────────────────────────────────── */
+    #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; font-size: 13px; padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 999; white-space: nowrap; }
+    #toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<header class="apex-header">
+  <a href="/" class="back-link">← Compound</a>
+  <div class="apex-brand">
+    <div class="apex-brand-dot"></div>
+    Apex
+  </div>
+  <div class="header-actions">
+    <span class="plan-meta" id="plan-meta"></span>
+    <button class="btn-generate" id="btn-generate">
+      <span id="gen-icon">⚡</span>
+      <span id="gen-label">Generate Plan</span>
+    </button>
+  </div>
+</header>
+
+<main class="apex-main">
+
+  <!-- LEFT: Plan -->
+  <div>
+    <div class="apex-card" id="plan-card">
+      <div id="plan-empty" class="plan-empty">
+        <div class="plan-empty-icon">⚡</div>
+        <div class="plan-empty-title">No plan yet</div>
+        <div class="plan-empty-sub">Hit Generate Plan and Apex will analyze your goals, habits, todos, and brain notes to build your self-improvement plan.</div>
+      </div>
+      <div id="plan-content" style="display:none"></div>
+    </div>
+
+    <!-- Context sync -->
+    <div class="apex-card sync-card" style="margin-top:16px;">
+      <div class="card-head" style="padding-bottom:10px;">
+        <span class="card-title">Sync from Claude.ai</span>
+      </div>
+      <div class="sync-body">
+        <textarea id="sync-input" placeholder="Paste a Claude.ai conversation, insight, or decision worth remembering…"></textarea>
+        <div class="sync-row">
+          <button class="btn-sync" id="btn-sync">Sync to Apex</button>
+          <span class="sync-status" id="sync-status"></span>
+        </div>
+        <div class="recent-syncs" id="recent-syncs"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Calendar -->
+  <div>
+    <div class="apex-card">
+      <div class="card-head">
+        <span class="card-title">Schedule</span>
+        <span style="font-size:11px;color:var(--muted);">Click a task, then a day to schedule it</span>
+      </div>
+      <div class="cal-scroll">
+        <div class="cal-grid" id="cal-grid"></div>
+      </div>
+      <div class="unscheduled-section">
+        <div class="unscheduled-label">Unscheduled</div>
+        <div class="unscheduled-tasks" id="unscheduled-tasks"></div>
+        <div class="select-hint" id="select-hint">Now click a day to schedule it →</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL  = 'https://diwwapnpnffubepdvrxg.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRpd3dhcG5wbmZmdWJlcGR2cnhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MDU1OTgsImV4cCI6MjA5NDI4MTU5OH0.UFCnZe_a0LhOifMph-61zP3dHniF95jiiHtGpw3z45w';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, { auth: { flowType: 'implicit' } });
+
+const DARK_KEY = 'compound_dark';
+let session = null;
+let todos = [];
+let selectedTaskId = null;
+
+// ── Theme ──────────────────────────────────────────────────
+function applyTheme() {
+  const dark = localStorage.getItem(DARK_KEY) !== 'false';
+  document.documentElement.toggleAttribute('data-light', !dark);
+}
+applyTheme();
+
+// ── Toast ──────────────────────────────────────────────────
+function toast(msg, dur = 2400) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), dur);
+}
+
+// ── Auth ───────────────────────────────────────────────────
+async function init() {
+  const { data } = await sb.auth.getSession();
+  session = data.session;
+  if (!session) { location.href = '/'; return; }
+  await Promise.all([loadCalendar(), loadCachedPlan(), loadRecentSyncs()]);
+}
+
+// ── Calendar ───────────────────────────────────────────────
+async function loadCalendar() {
+  const { data } = await sb.from('todos').select('*').order('created_at', { ascending: true });
+  todos = data || [];
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const grid = document.getElementById('cal-grid');
+  const unscheduled = document.getElementById('unscheduled-tasks');
+  const today = new Date();
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  // Build 7-day columns
+  grid.innerHTML = '';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    const dateStr = d.toISOString().split('T')[0];
+    const isToday = i === 0;
+    const dayTodos = todos.filter(t => t.due_date === dateStr);
+
+    const col = document.createElement('div');
+    col.className = 'cal-day' + (isToday ? ' today' : '');
+    col.dataset.date = dateStr;
+    col.innerHTML = `
+      <div class="cal-day-head">${days[d.getDay()]}</div>
+      <div class="cal-day-date">${d.getDate()} <span style="font-size:11px;font-weight:500;color:var(--muted);">${months[d.getMonth()]}</span></div>
+      ${dayTodos.map(t => `<div class="cal-task" data-id="${t.id}" title="${t.text}">${t.text.length > 40 ? t.text.slice(0,40)+'…' : t.text}</div>`).join('')}
+      <div class="cal-task-add">+ add</div>
+    `;
+
+    col.addEventListener('click', e => {
+      const taskEl = e.target.closest('.cal-task');
+      if (taskEl) { unscheduleTask(taskEl.dataset.id); return; }
+      if (selectedTaskId) { scheduleTask(selectedTaskId, dateStr); }
+    });
+
+    grid.appendChild(col);
+  }
+
+  // Unscheduled tasks
+  const unscheduledTodos = todos.filter(t => !t.due_date);
+  unscheduled.innerHTML = unscheduledTodos.length
+    ? unscheduledTodos.map(t => `<div class="unsched-task${selectedTaskId === t.id ? ' selected' : ''}" data-id="${t.id}" title="${t.text}">${t.text.length > 30 ? t.text.slice(0,30)+'…' : t.text}</div>`).join('')
+    : '<span class="unsched-empty">All tasks scheduled ✓</span>';
+
+  unscheduled.querySelectorAll('.unsched-task').forEach(el => {
+    el.addEventListener('click', () => toggleSelectTask(el.dataset.id));
+  });
+}
+
+function toggleSelectTask(id) {
+  selectedTaskId = selectedTaskId === id ? null : id;
+  document.getElementById('select-hint').classList.toggle('show', !!selectedTaskId);
+  renderCalendar();
+}
+
+async function scheduleTask(id, dateStr) {
+  await sb.from('todos').update({ due_date: dateStr }).eq('id', id);
+  selectedTaskId = null;
+  document.getElementById('select-hint').classList.remove('show');
+  await loadCalendar();
+  toast('Scheduled ✓');
+}
+
+async function unscheduleTask(id) {
+  await sb.from('todos').update({ due_date: null }).eq('id', id);
+  await loadCalendar();
+  toast('Unscheduled');
+}
+
+// ── Plan ───────────────────────────────────────────────────
+async function loadCachedPlan() {
+  const token = session.access_token;
+  const res = await fetch('/api/apex-plan', { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) return;
+  const data = await res.json();
+  if (data.plan) renderPlan(data.plan, data.updated_at);
+}
+
+document.getElementById('btn-generate').addEventListener('click', async () => {
+  const btn = document.getElementById('btn-generate');
+  const icon = document.getElementById('gen-icon');
+  const label = document.getElementById('gen-label');
+  btn.disabled = true;
+  icon.innerHTML = '<div class="spinner"></div>';
+  label.textContent = 'Thinking…';
+
+  try {
+    const token = session.access_token;
+    const res = await fetch('/api/apex-plan', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await res.json();
+    if (data.plan) {
+      renderPlan(data.plan, data.updated_at);
+      toast('Plan generated ✓');
+    } else {
+      toast('Generation failed — try again');
+    }
+  } catch {
+    toast('Something went wrong');
+  } finally {
+    btn.disabled = false;
+    icon.textContent = '⚡';
+    label.textContent = 'Generate Plan';
+  }
+});
+
+function renderPlan(plan, updatedAt) {
+  document.getElementById('plan-empty').style.display = 'none';
+  const content = document.getElementById('plan-content');
+  content.style.display = 'block';
+
+  if (updatedAt) {
+    const d = new Date(updatedAt);
+    document.getElementById('plan-meta').textContent = `Updated ${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`;
+  }
+
+  const goalIcons = { on_track: '✅', stuck: '⚠️', no_steps: '❌' };
+
+  content.innerHTML = `
+    <div class="plan-section">
+      <div class="plan-label">Assessment</div>
+      <div class="plan-analysis">${plan.analysis || ''}</div>
+    </div>
+
+    <div class="plan-section">
+      <div class="plan-label">This Week's Focus</div>
+      <div class="focus-box">${plan.weekly_focus || ''}</div>
+    </div>
+
+    <div class="plan-section">
+      <div class="plan-label">Habits</div>
+      ${(plan.habits_keep || []).map(h => `<span class="habit-pill habit-keep">✓ ${h}</span>`).join('')}
+      ${(plan.habits_fix || []).map(h => `<div><span class="habit-pill habit-fix">⚡ ${h.name}</span><div class="habit-fix-note">→ ${h.suggestion}</div></div>`).join('')}
+      ${(plan.habits_drop || []).map(h => `<span class="habit-pill habit-drop">✕ ${h}</span>`).join('')}
+      ${(plan.habits_add || []).map(h => `<span class="habit-pill habit-add">+ ${h}</span>`).join('')}
+    </div>
+
+    <div class="plan-section">
+      <div class="plan-label">Goals</div>
+      ${(plan.goal_assessment || []).map(g => `
+        <div class="goal-row">
+          <div class="goal-row-top">
+            <span class="goal-status">${goalIcons[g.status] || '•'}</span>
+            <span class="goal-name">${g.goal}</span>
+          </div>
+          ${g.blocker ? `<div class="goal-blocker">Blocked: ${g.blocker}</div>` : ''}
+          ${g.next_move ? `<div class="goal-next">→ ${g.next_move}</div>` : ''}
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="plan-section">
+      <div class="plan-label">Daily Schedule</div>
+      <div class="schedule-grid">
+        ${plan.schedule ? Object.entries({morning:'Morning 6–9am', deep_work:'Deep Work 9–12pm', afternoon:'Afternoon 1–5pm', evening:'Evening 6–9pm'}).map(([k, label]) => `
+          <div class="schedule-block">
+            <div class="schedule-time">${label}</div>
+            <div class="schedule-activity">${plan.schedule[k] || '—'}</div>
+          </div>
+        `).join('') : ''}
+      </div>
+    </div>
+
+    <div class="plan-section">
+      <div class="plan-label">Self-Improvement</div>
+      <ul class="improvement-list">
+        ${(plan.self_improvement || []).map((a, i) => `
+          <li class="improvement-item">
+            <span class="improvement-num">${i+1}</span>
+            <span>${a}</span>
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+
+    ${(plan.suggested_tasks || []).length ? `
+    <div class="plan-section">
+      <div class="plan-label">Suggested Tasks</div>
+      <div class="suggested-tasks" id="suggested-tasks">
+        ${plan.suggested_tasks.map(t => `
+          <div class="suggested-task">
+            <span>${t}</span>
+            <button class="btn-add-task" data-text="${t.replace(/"/g, '&quot;')}">Add</button>
+          </div>
+        `).join('')}
+      </div>
+      <button class="btn-add-all" id="btn-add-all">Add all to todos</button>
+    </div>` : ''}
+  `;
+
+  // Wire up task add buttons
+  content.querySelectorAll('.btn-add-task').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const text = btn.dataset.text;
+      await sb.from('todos').insert({ user_id: session.user.id, text });
+      btn.textContent = '✓';
+      btn.disabled = true;
+      toast('Added to todos ✓');
+      await loadCalendar();
+    });
+  });
+
+  const addAll = document.getElementById('btn-add-all');
+  if (addAll) {
+    addAll.addEventListener('click', async () => {
+      const tasks = plan.suggested_tasks || [];
+      await Promise.all(tasks.map(t => sb.from('todos').insert({ user_id: session.user.id, text: t })));
+      content.querySelectorAll('.btn-add-task').forEach(b => { b.textContent = '✓'; b.disabled = true; });
+      toast(`Added ${tasks.length} tasks ✓`);
+      await loadCalendar();
+    });
+  }
+}
+
+// ── Context sync ───────────────────────────────────────────
+async function loadRecentSyncs() {
+  const { data } = await sb.from('brain').select('*').eq('source', 'claude_chat').order('created_at', { ascending: false }).limit(5);
+  const container = document.getElementById('recent-syncs');
+  if (!data?.length) { container.innerHTML = '<div style="font-size:12px;color:var(--muted);">No synced notes yet.</div>'; return; }
+  container.innerHTML = data.map(entry => {
+    const d = new Date(entry.created_at);
+    const preview = entry.content.length > 200 ? entry.content.slice(0, 200) + '…' : entry.content;
+    return `<div class="sync-entry">
+      <div class="sync-entry-meta">${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})} · ${entry.type}</div>
+      <div class="sync-entry-text">${preview}</div>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('btn-sync').addEventListener('click', async () => {
+  const input = document.getElementById('sync-input');
+  const content = input.value.trim();
+  if (!content) { toast('Paste something first'); return; }
+
+  const btn = document.getElementById('btn-sync');
+  const status = document.getElementById('sync-status');
+  btn.disabled = true;
+  status.textContent = 'Syncing…';
+
+  const { error } = await sb.from('brain').insert({
+    user_id: session.user.id,
+    source: 'claude_chat',
+    type: 'insight',
+    content,
+  });
+
+  btn.disabled = false;
+  if (error) {
+    status.textContent = 'Failed — try again';
+  } else {
+    input.value = '';
+    status.textContent = 'Synced ✓';
+    toast('Synced to Apex brain ✓');
+    await loadRecentSyncs();
+    setTimeout(() => { status.textContent = ''; }, 3000);
+  }
+});
+
+init();
+</script>
+</body>
+</html>

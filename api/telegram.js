@@ -2,6 +2,8 @@ const SB_URL      = process.env.SUPABASE_URL;
 const SB_KEY      = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const BOT_TOKEN   = process.env.TELEGRAM_BOT_TOKEN;
 const OWNER_EMAIL = process.env.COMPOUND_ACCOUNT_EMAIL || 'vsf4046@gmail.com';
+const APP_URL     = process.env.APP_URL || 'https://dailycompound.app';
+const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
 const TG          = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
 // Escape all MarkdownV2 special characters
@@ -74,6 +76,61 @@ async function getOwnerUserId() {
 
 async function getTodos(uid) {
   return sbFetch('todos', `?user_id=eq.${uid}&order=created_at.asc&limit=50`);
+}
+
+async function sendPlain(chatId, text) {
+  return tg('sendMessage', { chat_id: chatId, text, disable_web_page_preview: true });
+}
+
+async function askApex(userMessage, uid) {
+  if (!ANTHROPIC_KEY) return null;
+  const [todos, goals, habits, profiles] = await Promise.all([
+    sbFetch('todos', `?user_id=eq.${uid}&order=created_at.asc&limit=20`),
+    sbFetch('goals', `?user_id=eq.${uid}&select=id,text,goal_subtasks(text,done)&limit=10`),
+    sbFetch('habits', `?user_id=eq.${uid}&limit=10`),
+    sbFetch('profiles', `?id=eq.${uid}&select=active_context&limit=1`),
+  ]);
+  const system = `You are Apex, the AI Chief of Staff for Savrio — a 19-year-old solo founder building Compound (dailycompound.app) at $10/month.
+
+Current todos: ${todos.map(t => t.text).join(', ') || 'none'}
+Goals: ${goals.map(g => g.text).join(', ') || 'none'}
+Habits: ${habits.map(h => h.text).join(', ') || 'none'}
+Focus: ${profiles[0]?.active_context || 'not set'}
+
+Be direct and brief. Max 3 sentences unless depth is genuinely needed. Plain text only — no markdown, no asterisks, no special characters.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 400, system, messages: [{ role: 'user', content: userMessage }] }),
+    });
+    const data = await res.json();
+    return data.content?.find(b => b.type === 'text')?.text || null;
+  } catch { return null; }
+}
+
+function formatPlanForTelegram(plan) {
+  const goalIcons = { on_track: '✅', stuck: '⚠️', no_steps: '❌' };
+  const parts = [`🧠 *Apex Plan*`];
+  if (plan.weekly_focus) parts.push(`\n📍 *Focus this week:*\n${esc(plan.weekly_focus)}`);
+  if (plan.analysis) parts.push(`\n*Assessment:*\n${esc(plan.analysis)}`);
+  if (plan.goal_assessment?.length) {
+    const lines = plan.goal_assessment.map(g =>
+      `${goalIcons[g.status] || '•'} ${esc(g.goal)}\n   → ${esc(g.next_move || '')}`
+    );
+    parts.push(`\n🎯 *Goals:*\n${lines.join('\n')}`);
+  }
+  const drops = (plan.habits_drop || []).map(h => esc(h)).join(', ');
+  const adds  = (plan.habits_add  || []).map(h => esc(h)).join(', ');
+  if (drops) parts.push(`\n🗑 *Drop:* ${drops}`);
+  if (adds)  parts.push(`➕ *Add:* ${adds}`);
+  if (plan.self_improvement?.length) {
+    const actions = plan.self_improvement.map((a, i) => `${i + 1}\\. ${esc(a)}`).join('\n');
+    parts.push(`\n🔧 *Self\\-improvement:*\n${actions}`);
+  }
+  parts.push(`\n[View full plan on Apex →](${esc(APP_URL)}/apex)`);
+  return parts.join('\n');
 }
 
 async function sendTaskList(chatId, todos, prefix = '') {
@@ -268,6 +325,32 @@ async function processUpdate(update) {
     return;
   }
 
+  // ── /plan — generate self-improvement plan ───────────────────────────────
+  if (lower === '/plan') {
+    await send(chatId, `🧠 *Generating your Apex plan…*\n\n_This takes 15–20 seconds\\._`);
+    try {
+      const res = await fetch(`${APP_URL}/api/apex-plan`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${process.env.CRON_SECRET}` },
+      });
+      const data = await res.json();
+      if (data.plan) {
+        await send(chatId, formatPlanForTelegram(data.plan));
+      } else {
+        await send(chatId, `Couldn\'t generate plan\\. Error: ${esc(data.error || 'unknown')}\\. Try again\\.`);
+      }
+    } catch (e) {
+      await send(chatId, `Plan generation failed\\. Check Vercel logs\\.`);
+    }
+    return;
+  }
+
+  // ── Conversational Apex — any free-form text ──────────────────────────────
+  if (ANTHROPIC_KEY && !lower.startsWith('/')) {
+    const reply = await askApex(text, uid);
+    if (reply) { await sendPlain(chatId, reply); return; }
+  }
+
   // ── Fallback: help ────────────────────────────────────────────────────────
   await send(chatId,
     `Not sure what you mean\\. Here\'s what I understand:\n\n` +
@@ -276,10 +359,12 @@ async function processUpdate(update) {
     `*/newtask \\[task\\]* — add a todo\n` +
     `*done all* — clear everything\n` +
     `/habits — today\'s habits\n` +
+    `/plan — Apex self\\-improvement plan\n` +
     `/brain — your second brain\n` +
     `*note \\[text\\]* — add brain note\n` +
     `/focus \\[text\\] — update what you\'re building\n` +
-    `/debug — check bot status`
+    `/debug — check bot status\n` +
+    `_Or just talk to Apex freely_`
   );
 }
 
