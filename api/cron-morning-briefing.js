@@ -5,9 +5,13 @@ const SB_URL     = process.env.SUPABASE_URL;
 const SB_KEY     = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const APP_URL    = process.env.APP_URL || 'https://dailycompound.app';
 const SECRET     = process.env.CRON_SECRET;
-const OWNER      = 'savrio.xsi@gmail.com';
+const OWNER      = process.env.COMPOUND_ACCOUNT_EMAIL || 'vsf4046@gmail.com';
 const TG_TOKEN   = process.env.TELEGRAM_BOT_TOKEN;
 const TG_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+
+function esc(text) {
+  return String(text).replace(/[\\`_*[\]()~>#+\-=|{}.!]/g, '\\$&');
+}
 
 async function sendTelegram(text) {
   if (!TG_TOKEN || !TG_CHAT_ID) return;
@@ -20,6 +24,16 @@ async function sendTelegram(text) {
   } catch (_) {}
 }
 
+const QUOTES = [
+  'Ships don\'t sink because of the water around them. They sink from the water that gets in.',
+  'The way to get started is to quit talking and begin doing. — Walt Disney',
+  'Done is better than perfect. — Sheryl Sandberg',
+  'The secret of getting ahead is getting started. — Mark Twain',
+  'Success is not final, failure is not fatal: it is the courage to continue that counts. — Churchill',
+  'Move fast and ship things.',
+  'Build something 100 people love, not something 1 million people kind of like. — Paul Graham',
+];
+
 // Instagram/content task by day of week (UTC): 0=Sun 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri 6=Sat
 const IG_TASKS = [
   'Post the Sunday Scoreboard — same template, same day, every week. This is the spine of the account.',
@@ -30,6 +44,32 @@ const IG_TASKS = [
   'Script next week\'s content — scoreboard numbers, war story draft, or build reel concept.',
   'Review the week — what performed, what didn\'t. Double down on the top format. Plan Sunday\'s scoreboard numbers.',
 ];
+
+function buildStrategy({ todoCount, topHabit, topStreak, goalStep, dayOfWeek }) {
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const day = days[dayOfWeek];
+  const parts = [];
+
+  if (todoCount === 0) {
+    parts.push(`No tasks yet — start ${day} by locking in your 3 most impactful moves.`);
+  } else if (todoCount <= 3) {
+    parts.push(`${todoCount} task${todoCount > 1 ? 's' : ''} — a lean day. Finish before 2pm.`);
+  } else {
+    parts.push(`${todoCount} tasks. Work top-down. Block 2 focused hours before 11am.`);
+  }
+
+  if (topHabit && topStreak > 2) {
+    parts.push(`Don't break your ${topStreak}-day streak on "${topHabit}".`);
+  } else if (topHabit) {
+    parts.push(`Log "${topHabit}" before the day gets away from you.`);
+  }
+
+  if (goalStep) {
+    parts.push(`Key move: ${goalStep}`);
+  }
+
+  return parts.join(' ');
+}
 
 async function sbFetch(path, params = '') {
   const res = await fetch(`${SB_URL}/rest/v1/${path}${params}`, {
@@ -57,15 +97,29 @@ function calcStreak(loggedDates, today) {
   return streak;
 }
 
-function briefingHtml({ topHabit, topStreak, goalStep, igTask, appUrl }) {
+function briefingHtml({ todos, topHabit, topStreak, goalStep, allGoals, quote, strategy, igTask, appUrl }) {
+  const todoBlock = todos.length ? `
+    <p style="margin:0 0 6px 0;font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#71717a;">Today's tasks</p>
+    <ul style="margin:0 0 28px 0;padding:0 0 0 18px;">${todos.slice(0, 8).map(t => `<li style="font-size:14px;color:#18181b;line-height:1.8;">${t.text}</li>`).join('')}</ul>` : '';
+
+  const goalsBlock = allGoals.length ? `
+    <p style="margin:0 0 6px 0;font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#71717a;">Goals</p>
+    <ul style="margin:0 0 28px 0;padding:0 0 0 18px;">${allGoals.map(g => {
+      const next = (g.goal_subtasks || []).find(s => !s.done);
+      return `<li style="font-size:14px;color:#18181b;line-height:1.8;">${g.text}${next ? ` <span style="color:#71717a;">→ ${next.text}</span>` : ''}</li>`;
+    }).join('')}</ul>` : '';
+
+  const quoteBlock = quote ? `
+    <p style="margin:0 0 28px 0;font-size:14px;color:#52525b;font-style:italic;border-left:3px solid #7c3aed;padding-left:14px;line-height:1.7;">"${quote}"</p>` : '';
+
+  const strategyBlock = strategy ? `
+    <p style="margin:0 0 6px 0;font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#71717a;">Today's strategy</p>
+    <p style="margin:0 0 28px 0;font-size:14px;color:#18181b;line-height:1.7;">${strategy}</p>` : '';
+
   const habitBlock = topHabit ? `
-    <p style="margin:0 0 6px 0;font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#71717a;">Habit to protect today</p>
+    <p style="margin:0 0 6px 0;font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#71717a;">Habit to protect</p>
     <p style="margin:0 0 4px 0;font-size:15px;color:#18181b;line-height:1.6;font-weight:500;">${topHabit}</p>
     <p style="margin:0 0 28px 0;font-size:13px;color:#71717a;">${topStreak > 0 ? `${topStreak}-day streak. Keep it alive.` : 'Start your streak today.'}</p>` : '';
-
-  const goalBlock = goalStep ? `
-    <p style="margin:0 0 6px 0;font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#71717a;">One step from your goals</p>
-    <p style="margin:0 0 28px 0;font-size:15px;color:#18181b;line-height:1.6;">${goalStep}</p>` : '';
 
   const igBlock = igTask ? `
           <tr>
@@ -98,8 +152,11 @@ function briefingHtml({ topHabit, topStreak, goalStep, igTask, appUrl }) {
           <tr>
             <td>
               <p style="margin:0 0 28px 0;font-size:22px;font-weight:700;color:#18181b;letter-spacing:-0.03em;">Good morning.</p>
+              ${quoteBlock}
+              ${strategyBlock}
+              ${todoBlock}
+              ${goalsBlock}
               ${habitBlock}
-              ${goalBlock}
               <p style="margin:0 0 32px 0;">
                 <a href="${appUrl}" style="display:inline-block;background:#7c3aed;color:#ffffff;text-decoration:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;">Open Compound →</a>
               </p>
@@ -117,7 +174,7 @@ function briefingHtml({ topHabit, topStreak, goalStep, igTask, appUrl }) {
             <td style="padding:24px 0 0 0;border-top:1px solid #f0f0f0;">
               <p style="margin:0;font-size:11px;color:#d4d4d8;line-height:1.6;">
                 <a href="${appUrl}" style="color:#d4d4d8;text-decoration:none;">dailycompound.app</a>
-                &middot; Morning briefing &middot; Sent daily at 7 AM UTC
+                &middot; Morning briefing &middot; Sent daily at 5 AM UTC
               </p>
             </td>
           </tr>
@@ -142,16 +199,18 @@ module.exports = async function handler(req, res) {
   try {
     const today      = new Date().toISOString().split('T')[0];
     const dayOfWeek  = new Date().getUTCDay();
+    const quote      = QUOTES[dayOfWeek];
 
     const ninetyDaysAgo = new Date();
     ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
     const from = ninetyDaysAgo.toISOString().split('T')[0];
 
     // ── Bulk fetch all data upfront ──────────────────────────────
-    const [habits, logs, goals, profilesWithEmail] = await Promise.all([
+    const [habits, logs, goals, todos, profilesWithEmail] = await Promise.all([
       sbFetch('habits', '?select=id,user_id,text&limit=10000'),
       sbFetch('habit_logs', `?select=user_id,habit_id,logged_date&logged_date=gte.${from}&logged_date=lt.${today}&limit=50000`),
-      sbFetch('goals', '?select=id,user_id,goal_subtasks(text,done)&limit=10000'),
+      sbFetch('goals', '?select=id,user_id,text,goal_subtasks(text,done)&limit=10000'),
+      sbFetch('todos', '?select=id,user_id,text&order=created_at.asc&limit=10000'),
       sbFetch('profiles', '?select=id,email&morning_briefing=eq.true&email=not.is.null&limit=10000').catch(() => []),
     ]);
 
@@ -162,6 +221,7 @@ module.exports = async function handler(req, res) {
     const habitsByUser   = {};
     const logsByHabit    = {};
     const goalsByUser    = {};
+    const todosByUser    = {};
     const customEmailMap = Object.fromEntries((profilesWithEmail || []).map(p => [p.id, p.email]));
 
     for (const h of habits) {
@@ -172,6 +232,9 @@ module.exports = async function handler(req, res) {
     }
     for (const g of goals) {
       (goalsByUser[g.user_id] = goalsByUser[g.user_id] || []).push(g);
+    }
+    for (const t of todos) {
+      (todosByUser[t.user_id] = todosByUser[t.user_id] || []).push(t);
     }
 
     // ── Send emails ──────────────────────────────────────────────
@@ -186,14 +249,13 @@ module.exports = async function handler(req, res) {
           let email = customEmailMap[uid] || null;
 
           if (!email) {
-            // Only look up auth email for the owner — regular users must opt in via profiles.email
             const userRes = await fetch(`${SB_URL}/auth/v1/admin/users/${uid}`, {
               headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` },
             });
             if (!userRes.ok) return;
             const user = await userRes.json();
             if (!user?.email || user.email.endsWith('@focus.local')) return;
-            if (user.email !== OWNER) return; // non-opted-in user — skip
+            if (user.email !== OWNER) return;
             email = user.email;
           }
 
@@ -204,14 +266,28 @@ module.exports = async function handler(req, res) {
             if (streak > topStreak) { topStreak = streak; topHabit = h.text; }
           }
 
+          // All goals with their subtasks
+          const allGoals = (goalsByUser[uid] || []);
+
           // First incomplete goal subtask
           let goalStep = null;
-          for (const g of (goalsByUser[uid] || [])) {
+          for (const g of allGoals) {
             const step = (g.goal_subtasks || []).find(s => !s.done);
             if (step) { goalStep = step.text; break; }
           }
 
-          if (!topHabit && !goalStep) return;
+          // User todos
+          const userTodos = todosByUser[uid] || [];
+
+          const strategy = buildStrategy({
+            todoCount: userTodos.length,
+            topHabit,
+            topStreak,
+            goalStep,
+            dayOfWeek,
+          });
+
+          if (!topHabit && !goalStep && !userTodos.length) return;
 
           const igTask  = email === OWNER ? IG_TASKS[dayOfWeek] : null;
           const isOwner = email === OWNER;
@@ -220,19 +296,42 @@ module.exports = async function handler(req, res) {
             from:    'Savrio from Compound <savrio@dailycompound.app>',
             to:      email,
             subject: 'Good morning. Here\'s today.',
-            html:    briefingHtml({ topHabit, topStreak, goalStep, igTask, appUrl: APP_URL }),
+            html:    briefingHtml({ todos: userTodos, topHabit, topStreak, goalStep, allGoals, quote, strategy, igTask, appUrl: APP_URL }),
           });
 
           if (!error) sent++;
 
-          // Also send Telegram message for the owner
+          // Also send Telegram for the owner
           if (isOwner) {
-            const habitLine = topHabit
-              ? `🔥 *Habit to protect*\n${topHabit}${topStreak > 0 ? ` — ${topStreak}-day streak` : ''}`
-              : '';
-            const goalLine  = goalStep ? `📋 *One step from your goals*\n${goalStep}` : '';
-            const igLine    = igTask   ? `📸 *Today\'s Instagram task*\n${igTask}` : '';
-            const parts     = ['☀️ *Good morning\\. Here\'s today\\.*', habitLine, goalLine, igLine, `[Open Compound →](${APP_URL})`].filter(Boolean);
+            const todoLines = userTodos.length
+              ? userTodos.slice(0, 8).map((t, i) => `${i + 1}\\. ${esc(t.text)}`).join('\n')
+              : '_No tasks yet_';
+            const todoSection = `📋 *Tasks \\(${userTodos.length}\\):*\n${todoLines}`;
+
+            const goalLines = allGoals.length
+              ? allGoals.map(g => {
+                  const next = (g.goal_subtasks || []).find(s => !s.done);
+                  return `• ${esc(g.text)}${next ? ` → _${esc(next.text)}_` : ' ✅'}`;
+                }).join('\n')
+              : '_No goals set_';
+            const goalSection = `🎯 *Goals:*\n${goalLines}`;
+
+            const quoteSection = `💬 _"${esc(quote)}"_`;
+
+            const strategySection = `🧭 *Today\'s strategy:*\n${esc(strategy)}`;
+
+            const igSection = igTask ? `📸 *Instagram task:*\n${esc(igTask)}` : '';
+
+            const parts = [
+              `☀️ *Good morning\\. Here\'s today\\.*`,
+              todoSection,
+              goalSection,
+              quoteSection,
+              strategySection,
+              igSection,
+              `[Open Compound →](${esc(APP_URL)})`,
+            ].filter(Boolean);
+
             await sendTelegram(parts.join('\n\n'));
           }
         } catch (_) {}

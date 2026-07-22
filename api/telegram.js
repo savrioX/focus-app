@@ -1,7 +1,7 @@
 const SB_URL      = process.env.SUPABASE_URL;
 const SB_KEY      = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const BOT_TOKEN   = process.env.TELEGRAM_BOT_TOKEN;
-const OWNER_EMAIL = 'vsf4046@gmail.com';
+const OWNER_EMAIL = process.env.COMPOUND_ACCOUNT_EMAIL || 'vsf4046@gmail.com';
 const TG          = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
 // Escape all MarkdownV2 special characters
@@ -84,7 +84,7 @@ async function sendTaskList(chatId, todos, prefix = '') {
   }
   const list   = todos.map((t, i) => `${i + 1}\\. ${esc(t.text)}`).join('\n');
   const header = prefix ? `${esc(prefix)}\n\n` : '';
-  const footer  = `\n\n_Reply with a number to complete • "add \\[task\\]" to add • "done all" to clear_`;
+  const footer  = `\n\n_Reply with a number to complete • /newtask \\[task\\] to add • "done all" to clear_`;
   await send(chatId, `${header}*Your tasks:*\n\n${list}${footer}`);
 }
 
@@ -102,7 +102,7 @@ async function processUpdate(update) {
   if (baseCmd === '/start' || baseCmd === '/hello') {
     await tg('sendMessage', {
       chat_id: chatId,
-      text: `Compound OS bot is live.\n\nYour chat ID: ${chatId}\n\nAdd TELEGRAM_CHAT_ID = ${chatId} in Vercel env vars, then redeploy.\n\nCommands:\n/tasks — todo list (reply with a number to complete)\n/habits — today's habits\n/add [task] — add a todo\n/brain — your second brain\n/note [text] — add brain note\n/focus [text] — update what you're building\n/context — see current focus\n/debug — check bot status`,
+      text: `Compound OS bot is live.\n\nYour chat ID: ${chatId}\n\nAdd TELEGRAM_CHAT_ID = ${chatId} in Vercel env vars, then redeploy.\n\nCommands:\n/tasks — todo list (reply with a number to complete)\n/habits — today's habits\n/newtask [task] — add a todo\n/brain — your second brain\n/note [text] — add brain note\n/focus [text] — update what you're building\n/context — see current focus\n/debug — check bot status`,
     });
     return;
   }
@@ -180,8 +180,8 @@ async function processUpdate(update) {
     return;
   }
 
-  // ── /add [text] or "add [text]" ─────────────────────────────────────────
-  const addMatch = text.match(/^(?:\/add|add)\s+(.+)/i);
+  // ── /newtask [text] or "add [text]" ──────────────────────────────────────
+  const addMatch = text.match(/^(?:\/newtask|add)\s+(.+)/i);
   if (addMatch) {
     const taskText = addMatch[1].trim();
     await sbInsert('todos', { user_id: uid, text: taskText });
@@ -273,7 +273,7 @@ async function processUpdate(update) {
     `Not sure what you mean\\. Here\'s what I understand:\n\n` +
     `/tasks — see your todo list\n` +
     `*1* or *2, 3* — complete tasks by number\n` +
-    `*add \\[task\\]* — add a todo\n` +
+    `*/newtask \\[task\\]* — add a todo\n` +
     `*done all* — clear everything\n` +
     `/habits — today\'s habits\n` +
     `/brain — your second brain\n` +

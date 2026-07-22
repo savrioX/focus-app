@@ -53,7 +53,7 @@
     },
     {
       "path": "/api/cron-morning-briefing",
-      "schedule": "0 7 * * *"
+      "schedule": "0 5 * * *"
     }
   ]
 }

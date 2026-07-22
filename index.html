@@ -412,6 +412,9 @@
         <button class="size-btn" data-size="16px" style="font-size:16px;">Large</button>
       </div>
     </div>
+    <div class="settings-section" id="settings-signout-row" style="padding-top:16px;border-top:1px solid var(--border);">
+      <button id="btn-signout-modal" style="width:100%;background:none;border:1.5px solid var(--border);border-radius:10px;padding:10px;font-size:13px;color:var(--muted);cursor:pointer;font-family:inherit;">Sign out</button>
+    </div>
   </div>
 </div>
 
@@ -1891,6 +1894,7 @@ document.getElementById('btn-unlock-ai').addEventListener('click', () => {
 });
 document.getElementById('settings-close').addEventListener('click', () => document.getElementById('settings-modal').classList.remove('show'));
 document.getElementById('settings-modal').addEventListener('click', e => { if (e.target === document.getElementById('settings-modal')) document.getElementById('settings-modal').classList.remove('show'); });
+document.getElementById('btn-signout-modal').addEventListener('click', () => document.getElementById('btn-signout').click());
 
 // ── Stripe ────────────────────────────────────────────────
 async function startCheckout() {
