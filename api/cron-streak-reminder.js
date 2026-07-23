@@ -145,16 +145,20 @@ module.exports = async function handler(req, res) {
       logsByUser[log.user_id].push(log.logged_date);
     }
 
-    // Get profile usernames
-    const profileRows = await sbFetch('profiles', '?select=id,username&limit=10000');
+    // Get profiles — only users who opted in to email
+    const profileRows = await sbFetch('profiles', '?select=id,username,email_opt_in&limit=10000');
     const usernameById = Object.fromEntries(profileRows.map(p => [p.id, p.username]));
+    const optedIn = new Set(profileRows.filter(p => p.email_opt_in).map(p => p.id));
+
+    const sendList = needsReminder.filter(uid => optedIn.has(uid));
+    if (!sendList.length) return res.status(200).json({ sent: 0, message: 'No opted-in users need a reminder' });
 
     // Get emails via admin API
     let sent = 0;
     const CHUNK = 20;
 
-    for (let i = 0; i < needsReminder.length; i += CHUNK) {
-      const chunk = needsReminder.slice(i, i + CHUNK);
+    for (let i = 0; i < sendList.length; i += CHUNK) {
+      const chunk = sendList.slice(i, i + CHUNK);
 
       await Promise.all(chunk.map(async uid => {
         try {
@@ -182,7 +186,7 @@ module.exports = async function handler(req, res) {
       }));
     }
 
-    return res.status(200).json({ sent, total: needsReminder.length });
+    return res.status(200).json({ sent, total: sendList.length, skipped: needsReminder.length - sendList.length });
 
   } catch (err) {
     console.error('Streak reminder error:', err);

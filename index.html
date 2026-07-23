@@ -375,6 +375,30 @@
     .modal-loading.visible { display: flex; }
     .modal-loading-spin { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--ai); border-radius: 50%; animation: lspin 0.7s linear infinite; flex-shrink: 0; }
     .modal-loading-text { font-size: 13px; color: var(--muted); }
+
+    /* ── Guide panel ─────────────────────── */
+    #guide-panel { position: fixed; top: 0; right: 0; bottom: 0; width: 300px; background: var(--surface); border-left: 1px solid var(--border); box-shadow: -4px 0 24px rgba(0,0,0,0.1); z-index: 350; transform: translateX(100%); transition: transform 0.3s ease; overflow-y: auto; display: flex; flex-direction: column; }
+    #guide-panel.open { transform: translateX(0); }
+    .guide-head { padding: 18px 18px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--surface); z-index: 1; flex-shrink: 0; }
+    .guide-head h4 { font-size: 14px; font-weight: 700; letter-spacing: -0.02em; }
+    .guide-body { padding: 18px; flex: 1; }
+    .guide-section { margin-bottom: 20px; }
+    .guide-section-title { font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    .guide-item { font-size: 13px; line-height: 1.55; color: var(--text); margin-bottom: 7px; padding-left: 14px; position: relative; }
+    .guide-item::before { content: '→'; position: absolute; left: 0; color: var(--ai); font-size: 11px; top: 2px; }
+    .guide-divider { height: 1px; background: var(--border); margin: 14px 0; }
+
+    /* ── Email opt-in modal ──────────────── */
+    #optin-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 500; padding: 24px; }
+    #optin-modal.show { display: flex; }
+    .optin-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px; max-width: 380px; width: 100%; box-shadow: var(--shadow-md); }
+    .optin-card h3 { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+    .optin-card p { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 24px; }
+    .optin-btns { display: flex; flex-direction: column; gap: 10px; }
+    .optin-yes { background: var(--ai); color: #fff; border: none; border-radius: 10px; padding: 12px; font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; transition: opacity 0.15s; }
+    .optin-yes:hover { opacity: 0.88; }
+    .optin-no { background: none; border: 1.5px solid var(--border); border-radius: 10px; padding: 11px; font-size: 13px; color: var(--muted); font-family: inherit; cursor: pointer; transition: all 0.15s; }
+    .optin-no:hover { border-color: var(--muted); color: var(--text); }
   </style>
   <script defer src="/_vercel/insights/script.js"></script>
 </head>
@@ -390,6 +414,57 @@
 </div>
 
 <div id="toast"></div>
+
+<!-- Guide panel -->
+<div id="guide-panel">
+  <div class="guide-head">
+    <h4>How to use Compound</h4>
+    <button class="modal-close" id="guide-close" style="position:static;width:26px;height:26px;font-size:14px;">×</button>
+  </div>
+  <div class="guide-body">
+    <div class="guide-section">
+      <div class="guide-section-title">Getting started</div>
+      <div class="guide-item">Add your top 3 goals — things you're actually working toward this month or semester.</div>
+      <div class="guide-item">Add 2–5 daily habits. Small, specific, repeatable. "Read 10 pages" not "Read more."</div>
+      <div class="guide-item">Each morning, write 3 todos — the tasks that move the needle today.</div>
+    </div>
+    <div class="guide-divider"></div>
+    <div class="guide-section">
+      <div class="guide-section-title">Daily workflow</div>
+      <div class="guide-item">Check your morning briefing (Pro) to see Apex's plan for your day.</div>
+      <div class="guide-item">Log habits by ticking them off each day. Streaks build momentum.</div>
+      <div class="guide-item">Use the Focus Timer when you need to execute — no distractions.</div>
+      <div class="guide-item">Cross off todos as you finish. Empty list = great day.</div>
+    </div>
+    <div class="guide-divider"></div>
+    <div class="guide-section">
+      <div class="guide-section-title">AI features (Pro)</div>
+      <div class="guide-item"><strong>Apex Advisor</strong> — reads your actual data and tells you what's broken and what to do next.</div>
+      <div class="guide-item"><strong>Build habits &amp; tasks</strong> — Apex generates a tailored plan from your goals.</div>
+      <div class="guide-item"><strong>Weekly report</strong> — see which habits are actually tracking.</div>
+      <div class="guide-item"><strong>Plan my day</strong> — Apex writes your todo list from your active goals.</div>
+    </div>
+    <div class="guide-divider"></div>
+    <div class="guide-section">
+      <div class="guide-section-title">Tips</div>
+      <div class="guide-item">Set your "What I'm building" context at the top — it helps Apex give better advice.</div>
+      <div class="guide-item">Habits compound. Show up every day, even when it's inconvenient.</div>
+      <div class="guide-item">The system only works if you use it daily. 60 seconds is enough.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Email opt-in modal -->
+<div id="optin-modal">
+  <div class="optin-card">
+    <h3>One quick thing</h3>
+    <p>Can I send you a welcome email and a daily nudge when your habit streak is at risk? No newsletters. Just useful reminders from me personally.</p>
+    <div class="optin-btns">
+      <button class="optin-yes" id="optin-yes">Yes, send me reminders</button>
+      <button class="optin-no" id="optin-no">No thanks</button>
+    </div>
+  </div>
+</div>
 
 <!-- Settings modal (appearance only) -->
 <div id="settings-modal">
@@ -410,6 +485,16 @@
         <button class="size-btn" data-size="13px" style="font-size:12px;">Small</button>
         <button class="size-btn active" data-size="14px" style="font-size:14px;">Medium</button>
         <button class="size-btn" data-size="16px" style="font-size:16px;">Large</button>
+      </div>
+    </div>
+    <div class="settings-section">
+      <span class="settings-label">Notifications</span>
+      <div class="toggle-row">
+        <span style="font-size:13px;line-height:1.4;">Email reminders<br><span style="font-size:11px;color:var(--muted);">Streak nudges &amp; occasional updates</span></span>
+        <label class="toggle">
+          <input type="checkbox" id="email-optin-toggle">
+          <div class="toggle-track"></div>
+        </label>
       </div>
     </div>
     <div class="settings-section" id="settings-signout-row" style="padding-top:16px;border-top:1px solid var(--border);">
@@ -629,7 +714,13 @@
       <div class="field" id="email-wrap" style="display:none;">
         <label for="auth-email">Email <span style="font-weight:400;color:var(--muted);">(optional)</span></label>
         <input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email">
-        <p style="margin:4px 0 0;font-size:11px;color:var(--muted);line-height:1.5;">Get a daily morning briefing with your top habit and next goal step. No spam, unsubscribe anytime.</p>
+        <p style="margin:4px 0 0;font-size:11px;color:var(--muted);line-height:1.5;">Used to send streak reminders and occasional founder updates.</p>
+      </div>
+      <div id="email-optin-wrap" style="display:none;margin-top:4px;">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px;color:var(--muted);line-height:1.5;">
+          <input type="checkbox" id="auth-email-optin" style="margin-top:2px;accent-color:var(--ai);flex-shrink:0;">
+          <span>Email me habit reminders and updates (you can turn this off anytime)</span>
+        </label>
       </div>
       <button class="btn-primary" id="auth-btn">Create account</button>
       <div class="auth-err" id="auth-err"></div>
@@ -661,6 +752,8 @@
         <button class="btn-icon" id="btn-focus-timer">🎯 Focus</button>
         <a href="/apex" class="btn-icon" style="border-color:rgba(124,58,237,0.3);color:var(--ai);font-weight:600;text-decoration:none;">⚡ Apex</a>
         <button class="btn-icon" id="btn-unlock-ai" style="border-color:rgba(124,58,237,0.3);color:var(--ai);font-weight:600;">Get Pro</button>
+        <a href="/ledger" id="btn-ledger" class="btn-icon" style="display:none;text-decoration:none;" title="Life Audit">📋 Ledger</a>
+        <button class="btn-icon" id="btn-guide" title="How to use Compound">? Guide</button>
         <button class="btn-icon" id="btn-settings">⚙️ Settings</button>
         <button class="btn-icon" id="btn-signout">Sign out</button>
       </div>
@@ -883,6 +976,8 @@ function setLoading(on) {
 let currentUser = null;
 let isRegister  = sessionStorage.getItem('show_signin') !== '1';
 let pendingEmail = null;
+let pendingEmailOptIn = false;
+let emailOptIn = false;
 try { sessionStorage.removeItem('show_signin'); } catch(e) {}
 
 function syncAuthUI() {
@@ -894,6 +989,8 @@ function syncAuthUI() {
   document.getElementById('forgot-wrap').style.display     = isRegister ? 'none' : 'block';
   const emailWrap = document.getElementById('email-wrap');
   if (emailWrap) emailWrap.style.display = isRegister ? '' : 'none';
+  const optinWrap = document.getElementById('email-optin-wrap');
+  if (optinWrap) optinWrap.style.display = isRegister ? '' : 'none';
   const ageWrap = document.getElementById('age-check-wrap');
   if (ageWrap) ageWrap.style.display = isRegister ? 'flex' : 'none';
   const ageCheck = document.getElementById('age-check');
@@ -958,6 +1055,7 @@ async function doAuth() {
     else {
       const ev = (document.getElementById('auth-email')?.value || '').trim();
       if (ev && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ev)) pendingEmail = ev;
+      pendingEmailOptIn = !!(pendingEmail && document.getElementById('auth-email-optin')?.checked);
     }
   } else {
     const { error } = await sb.auth.signInWithPassword({ email: toEmail(username), password });
@@ -996,18 +1094,12 @@ sb.auth.onAuthStateChange((event, session) => {
     document.getElementById('user-label').textContent    = username;
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('app').style.display         = 'block';
-    // Send welcome email to brand-new Google OAuth signups (only provider with real emails)
+    // For brand-new Google OAuth signups, ask for email opt-in before sending anything
     if (event === 'SIGNED_IN' && !appStarted) {
       setTimeout(() => {
         const ageSecs = (Date.now() - new Date(currentUser.created_at).getTime()) / 1000;
         if (ageSecs < 90 && currentUser.app_metadata?.provider === 'google') {
-          const firstName = currentUser.user_metadata?.full_name?.split(' ')[0] ||
-                            currentUser.user_metadata?.name?.split(' ')[0] || null;
-          fetch('/api/email-welcome', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: currentUser.email, firstName })
-          }).catch(() => {});
+          showEmailOptIn();
         }
       }, 3000);
     }
@@ -1089,6 +1181,15 @@ async function initApp() {
   updateApexGreeting();
   checkMilestones();
   showMondayStats();
+  // Auto-open guide for new users who haven't seen it yet
+  try {
+    if (!localStorage.getItem('compound_guide_seen') && !localStorage.getItem('compound_guide_closed')) {
+      const ageSecs = currentUser?.created_at
+        ? (Date.now() - new Date(currentUser.created_at).getTime()) / 1000
+        : 9999;
+      if (ageSecs < 300) setTimeout(openGuide, 1500);
+    }
+  } catch(e) {}
 }
 
 // ── Dynamic Apex opening message ──────────────────────────
@@ -1158,21 +1259,27 @@ async function loadProfile() {
   if (!currentUser) return;
   try {
     const { data, error } = await sb.from('profiles')
-      .select('is_pro, stripe_customer_id, active_context')
+      .select('is_pro, stripe_customer_id, active_context, email_opt_in')
       .eq('id', currentUser.id)
       .single();
     if (data) {
       isPro            = !!data.is_pro || hasDevUnlock() || currentUser.email === 'vsf4046@gmail.com';
       stripeCustomerId = data.stripe_customer_id || null;
       activeContext    = data.active_context || '';
+      emailOptIn       = !!data.email_opt_in;
       renderContextCard();
+      const toggle = document.getElementById('email-optin-toggle');
+      if (toggle) toggle.checked = emailOptIn;
+      const ledgerBtn = document.getElementById('btn-ledger');
+      if (ledgerBtn && currentUser?.email === 'vsf4046@gmail.com') ledgerBtn.style.display = '';
     } else if (error && error.code === 'PGRST116') {
       // No profile row yet — create one now
-      await sb.from('profiles').insert({ id: currentUser.id, is_pro: false }).select().single();
+      await sb.from('profiles').insert({ id: currentUser.id, is_pro: false, email_opt_in: pendingEmailOptIn }).select().single();
       if (pendingEmail) {
-        try { await sb.from('profiles').update({ email: pendingEmail, morning_briefing: true }).eq('id', currentUser.id); } catch(e) {}
+        try { await sb.from('profiles').update({ email: pendingEmail, morning_briefing: pendingEmailOptIn }).eq('id', currentUser.id); } catch(e) {}
         pendingEmail = null;
       }
+      pendingEmailOptIn = false;
     }
   } catch(e) { /* profile unavailable — default false */ }
   updateAiVisibility();
@@ -1896,6 +2003,58 @@ document.getElementById('btn-unlock-ai').addEventListener('click', () => {
 document.getElementById('settings-close').addEventListener('click', () => document.getElementById('settings-modal').classList.remove('show'));
 document.getElementById('settings-modal').addEventListener('click', e => { if (e.target === document.getElementById('settings-modal')) document.getElementById('settings-modal').classList.remove('show'); });
 document.getElementById('btn-signout-modal').addEventListener('click', () => document.getElementById('btn-signout').click());
+
+// ── Email opt-in toggle in settings ──────────────────────
+document.getElementById('email-optin-toggle').addEventListener('change', async function() {
+  const val = this.checked;
+  emailOptIn = val;
+  if (!currentUser) return;
+  try {
+    await sb.from('profiles').update({ email_opt_in: val }).eq('id', currentUser.id);
+    toast(val ? 'Email reminders on' : 'Email reminders off');
+  } catch(e) { toast('Could not save preference'); }
+});
+
+// ── Guide panel ───────────────────────────────────────────
+function openGuide() {
+  document.getElementById('guide-panel').classList.add('open');
+  try { localStorage.setItem('compound_guide_seen', '1'); } catch(e) {}
+}
+function closeGuide() {
+  document.getElementById('guide-panel').classList.remove('open');
+  try { localStorage.setItem('compound_guide_closed', '1'); } catch(e) {}
+}
+document.getElementById('btn-guide').addEventListener('click', openGuide);
+document.getElementById('guide-close').addEventListener('click', closeGuide);
+
+// ── Email opt-in modal ────────────────────────────────────
+function showEmailOptIn() {
+  document.getElementById('optin-modal').classList.add('show');
+}
+function hideEmailOptIn() {
+  document.getElementById('optin-modal').classList.remove('show');
+}
+async function handleOptIn(optedIn) {
+  hideEmailOptIn();
+  if (!currentUser) return;
+  emailOptIn = optedIn;
+  const toggle = document.getElementById('email-optin-toggle');
+  if (toggle) toggle.checked = optedIn;
+  try {
+    await sb.from('profiles').update({ email_opt_in: optedIn }).eq('id', currentUser.id);
+  } catch(e) {}
+  if (optedIn) {
+    const firstName = currentUser.user_metadata?.full_name?.split(' ')[0] ||
+                      currentUser.user_metadata?.name?.split(' ')[0] || null;
+    fetch('/api/email-welcome', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: currentUser.email, firstName })
+    }).catch(() => {});
+  }
+}
+document.getElementById('optin-yes').addEventListener('click', () => handleOptIn(true));
+document.getElementById('optin-no').addEventListener('click', () => handleOptIn(false));
 
 // ── Stripe ────────────────────────────────────────────────
 async function startCheckout() {

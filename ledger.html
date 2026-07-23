@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Ledger — Compound</title>
+<link rel="icon" type="image/png" href="logo.PNG">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg: #15171B;
+    --surface: #1C1F24;
+    --surface-raised: #22262C;
+    --hairline: #2C3038;
+    --text: #ECEDEF;
+    --text-muted: #888E99;
+    --text-faint: #565B64;
+    --cut: #9B5140;
+    --cut-soft: rgba(155, 81, 64, 0.16);
+    --protect: #A08A5A;
+    --protect-soft: rgba(160, 138, 90, 0.16);
+    --grow: #5C7FA0;
+    --grow-soft: rgba(92, 127, 160, 0.16);
+    --ahead: #7C9A6E;
+    --onpace: #C4A35A;
+    --behind: #B3654A;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; padding: 40px 24px 80px; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+  .page { max-width: 880px; margin: 0 auto; }
+
+  /* Auth gate */
+  #auth-gate { display: flex; align-items: center; justify-content: center; min-height: 80vh; flex-direction: column; gap: 16px; text-align: center; }
+  #auth-gate p { color: var(--text-muted); font-size: 14px; }
+  .gate-btn { background: #7c3aed; color: #fff; border: none; border-radius: 10px; padding: 12px 28px; font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; }
+  .gate-btn:hover { opacity: 0.88; }
+
+  /* Nav */
+  .nav-back { display: inline-flex; align-items: center; gap: 6px; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 12px; text-decoration: none; letter-spacing: 0.04em; margin-bottom: 32px; transition: color .15s; }
+  .nav-back:hover { color: var(--text); }
+
+  /* Header */
+  .masthead { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px; gap: 20px; flex-wrap: wrap; }
+  .masthead-title { font-family: 'Fraunces', serif; font-weight: 500; font-size: 40px; letter-spacing: -0.01em; line-height: 1; }
+  .masthead-sub { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text-muted); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 8px; }
+  .week-nav { display: flex; align-items: center; gap: 14px; font-family: 'IBM Plex Mono', monospace; }
+  .week-nav button { background: var(--surface-raised); border: 1px solid var(--hairline); color: var(--text); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; transition: border-color .15s; }
+  .week-nav button:hover { border-color: var(--text-muted); }
+  .week-nav button:focus-visible { outline: 2px solid var(--grow); outline-offset: 2px; }
+  .week-label { font-size: 13px; color: var(--text-muted); min-width: 148px; text-align: center; }
+  hr.divider { border: none; border-top: 1px solid var(--hairline); margin: 24px 0 28px; }
+
+  /* Momentum */
+  .momentum { display: flex; align-items: baseline; justify-content: space-between; background: var(--surface); border: 1px solid var(--hairline); border-radius: 14px; padding: 20px 24px; margin-bottom: 32px; }
+  .momentum-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+  .momentum-value { font-family: 'Fraunces', serif; font-weight: 500; font-size: 34px; }
+  .momentum-detail { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text-muted); text-align: right; }
+
+  /* Sections */
+  .section { margin-bottom: 30px; }
+  .section-tab { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .tab-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .section-title { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
+  .section-count { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-faint); }
+
+  .ledger { background: var(--surface); border: 1px solid var(--hairline); border-radius: 14px; overflow: hidden; }
+  .ledger-head { display: grid; grid-template-columns: 1fr repeat(7, 34px) 64px; gap: 4px; padding: 12px 18px; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: var(--text-faint); letter-spacing: 0.04em; text-transform: uppercase; }
+  .ledger-head span { text-align: center; }
+  .ledger-head span:first-child { text-align: left; }
+  .ledger-head span:last-child { text-align: right; }
+
+  .habit-row { display: grid; grid-template-columns: 1fr repeat(7, 34px) 64px; gap: 4px; align-items: center; padding: 13px 18px; border-top: 1px solid var(--hairline); }
+  .habit-name { font-size: 14px; font-weight: 500; }
+  .habit-target { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-faint); margin-top: 2px; }
+
+  .check { width: 24px; height: 24px; margin: 0 auto; border-radius: 6px; border: 1px solid var(--hairline); background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: background .12s, border-color .12s, transform .08s; }
+  .check:hover { border-color: var(--text-muted); }
+  .check:active { transform: scale(0.92); }
+  .check:focus-visible { outline: 2px solid var(--grow); outline-offset: 2px; }
+  .check.today { border-color: var(--text-muted); }
+  .check svg { width: 13px; height: 13px; opacity: 0; transition: opacity .1s; }
+  .check.checked svg { opacity: 1; }
+  .check.checked.cut { background: var(--cut-soft); border-color: var(--cut); }
+  .check.checked.cut svg { stroke: var(--cut); }
+  .check.checked.protect { background: var(--protect-soft); border-color: var(--protect); }
+  .check.checked.protect svg { stroke: var(--protect); }
+  .check.checked.grow { background: var(--grow-soft); border-color: var(--grow); }
+  .check.checked.grow svg { stroke: var(--grow); }
+
+  .score { font-family: 'IBM Plex Mono', monospace; font-size: 13px; text-align: right; font-weight: 500; }
+  .score.ahead { color: var(--ahead); }
+  .score.onpace { color: var(--onpace); }
+  .score.behind { color: var(--behind); }
+
+  footer { margin-top: 28px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-faint); text-align: center; line-height: 1.6; }
+
+  @media (max-width: 640px) {
+    .ledger-head, .habit-row { grid-template-columns: 1fr repeat(7, 26px) 48px; padding-left: 12px; padding-right: 12px; }
+    .check { width: 20px; height: 20px; }
+    .masthead-title { font-size: 30px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div id="auth-gate" style="display:none;">
+  <div style="font-size: 32px; margin-bottom: 4px;">🔒</div>
+  <p>Sign in to access your Ledger.</p>
+  <a href="/" class="gate-btn">Go to Compound</a>
+</div>
+
+<div class="page" id="app" style="display:none;">
+  <a href="/" class="nav-back">← Back to Compound</a>
+
+  <div class="masthead">
+    <div>
+      <div class="masthead-title">The Ledger</div>
+      <div class="masthead-sub">Cut what costs you · protect what compounds</div>
+    </div>
+    <div class="week-nav">
+      <button id="prevWeek" aria-label="Previous week">←</button>
+      <div class="week-label" id="weekLabel"></div>
+      <button id="nextWeek" aria-label="Next week">→</button>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="momentum">
+    <div>
+      <div class="momentum-label">Weekly momentum</div>
+      <div class="momentum-value" id="momentumValue">—</div>
+    </div>
+    <div class="momentum-detail" id="momentumDetail">loading…</div>
+  </div>
+
+  <div id="sections"></div>
+
+  <footer id="footerNote"></footer>
+</div>
+
+<script>
+(function(){
+  const SUPABASE_URL  = 'https://diwwapnpnffubepdvrxg.supabase.co';
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRpd3dhcG5wbmZmdWJlcGR2cnhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MDU1OTgsImV4cCI6MjA5NDI4MTU5OH0.UFCnZe_a0LhOifMph-61zP3dHniF95jiiHtGpw3z45w';
+  const OWNER_EMAIL   = 'vsf4046@gmail.com';
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  const DAY_LABELS = ['M','T','W','T','F','S','S'];
+  const CATEGORIES = [
+    { key:'cut', title:'Cut', color:'var(--cut)', cls:'cut',
+      habits: [
+        { id:'porn',   name:'Porn',         target:7, note:'avoided' },
+        { id:'weed',   name:'Weed',         target:7, note:'avoided' },
+        { id:'social', name:'Social media', target:7, note:'stayed limited' },
+      ]},
+    { key:'protect', title:'Protect', color:'var(--protect)', cls:'protect',
+      habits: [
+        { id:'lifting',       name:'Lifting',         target:3, note:'3x / wk' },
+        { id:'selfcare',      name:'Self-care',       target:7, note:'daily' },
+        { id:'meditation',    name:'Meditation',      target:6, note:'near-daily' },
+        { id:'entrepreneurship', name:'Entrepreneurship', target:6, note:'near-daily' },
+      ]},
+    { key:'grow', title:'Grow', color:'var(--grow)', cls:'grow',
+      habits: [
+        { id:'cardio',  name:'Cardio',  target:3, note:'3x / wk, up from 2' },
+        { id:'reading', name:'Reading', target:7, note:'daily, up from a few' },
+      ]},
+  ];
+  const ALL_HABITS = CATEGORIES.flatMap(c => c.habits.map(h => ({...h, cat:c.cls})));
+
+  function mondayOf(d){
+    const date = new Date(d);
+    const day = date.getDay();
+    const diff = (day === 0 ? -6 : 1) - day;
+    date.setDate(date.getDate() + diff);
+    date.setHours(0,0,0,0);
+    return date;
+  }
+  function fmt(d){ return d.toISOString().slice(0,10); }
+  function addDays(d, n){ const nd = new Date(d); nd.setDate(nd.getDate()+n); return nd; }
+  function weekKey(monday){ return 'ledger-week:' + fmt(monday); }
+
+  let currentMonday = mondayOf(new Date());
+  const todayStr = fmt(new Date());
+  let weekData = {};
+
+  const sectionsEl    = document.getElementById('sections');
+  const weekLabelEl   = document.getElementById('weekLabel');
+  const momentumValue = document.getElementById('momentumValue');
+  const momentumDetail= document.getElementById('momentumDetail');
+  const footerNote    = document.getElementById('footerNote');
+
+  function checkIcon(){
+    return '<svg viewBox="0 0 16 16" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5L6.2 12 13 4"/></svg>';
+  }
+
+  function render(){
+    const sunday = addDays(currentMonday, 6);
+    const opts = { month:'short', day:'numeric' };
+    weekLabelEl.textContent = currentMonday.toLocaleDateString('en-US', opts) + ' – ' + sunday.toLocaleDateString('en-US', opts);
+
+    sectionsEl.innerHTML = '';
+    let totalPct = 0;
+
+    CATEGORIES.forEach(cat => {
+      const section = document.createElement('div');
+      section.className = 'section';
+
+      const tab = document.createElement('div');
+      tab.className = 'section-tab';
+      tab.innerHTML = `<span class="tab-dot" style="background:${cat.color}"></span>
+        <span class="section-title">${cat.title}</span>
+        <span class="section-count">${cat.habits.length} habit${cat.habits.length>1?'s':''}</span>`;
+      section.appendChild(tab);
+
+      const ledger = document.createElement('div');
+      ledger.className = 'ledger';
+
+      const head = document.createElement('div');
+      head.className = 'ledger-head';
+      head.innerHTML = '<span></span>' + DAY_LABELS.map(d=>`<span>${d}</span>`).join('') + '<span>score</span>';
+      ledger.appendChild(head);
+
+      cat.habits.forEach(h => {
+        const row = document.createElement('div');
+        row.className = 'habit-row';
+
+        const nameCell = document.createElement('div');
+        nameCell.innerHTML = `<div class="habit-name">${h.name}</div><div class="habit-target">${h.note}</div>`;
+        row.appendChild(nameCell);
+
+        if (!weekData[h.id] || weekData[h.id].length !== 7){
+          weekData[h.id] = [false,false,false,false,false,false,false];
+        }
+        const checks = weekData[h.id];
+
+        for (let i=0; i<7; i++){
+          const dayDate = fmt(addDays(currentMonday, i));
+          const btn = document.createElement('button');
+          btn.className = 'check ' + cat.cls + (checks[i] ? ' checked' : '') + (dayDate === todayStr ? ' today' : '');
+          btn.innerHTML = checkIcon();
+          btn.setAttribute('aria-label', h.name + ' — ' + dayDate + (checks[i] ? ' completed' : ''));
+          btn.addEventListener('click', () => toggle(h.id, i));
+          row.appendChild(btn);
+        }
+
+        const count = checks.filter(Boolean).length;
+        const pct = Math.round((count / h.target) * 100);
+        totalPct += Math.min(pct, 100);
+        const status = pct >= 100 ? 'ahead' : pct >= 50 ? 'onpace' : 'behind';
+        const scoreCell = document.createElement('div');
+        scoreCell.className = 'score ' + status;
+        scoreCell.textContent = count + '/' + h.target;
+        row.appendChild(scoreCell);
+
+        ledger.appendChild(row);
+      });
+
+      section.appendChild(ledger);
+      sectionsEl.appendChild(section);
+    });
+
+    const avgPct = Math.round(totalPct / ALL_HABITS.length);
+    momentumValue.textContent = avgPct + '%';
+    momentumValue.style.color = avgPct >= 100 ? 'var(--ahead)' : avgPct >= 50 ? 'var(--onpace)' : 'var(--behind)';
+    const isCurrentWeek = fmt(mondayOf(new Date())) === fmt(currentMonday);
+    momentumDetail.textContent = isCurrentWeek ? 'this week, live' : 'archived week';
+    footerNote.textContent = 'Tap a box to log the day · scores compare checked days against weekly target';
+  }
+
+  function loadWeek(){
+    const key = weekKey(currentMonday);
+    try {
+      const raw = localStorage.getItem(key);
+      weekData = raw ? JSON.parse(raw) : {};
+    } catch(e) { weekData = {}; }
+    render();
+  }
+
+  function saveWeek(){
+    const key = weekKey(currentMonday);
+    try { localStorage.setItem(key, JSON.stringify(weekData)); } catch(e) {}
+  }
+
+  function toggle(habitId, dayIndex){
+    if (!weekData[habitId] || weekData[habitId].length !== 7){
+      weekData[habitId] = [false,false,false,false,false,false,false];
+    }
+    weekData[habitId][dayIndex] = !weekData[habitId][dayIndex];
+    render();
+    saveWeek();
+  }
+
+  document.getElementById('prevWeek').addEventListener('click', () => { currentMonday = addDays(currentMonday,-7); loadWeek(); });
+  document.getElementById('nextWeek').addEventListener('click', () => { currentMonday = addDays(currentMonday,7); loadWeek(); });
+
+  // Auth gate — only Savrio's account
+  async function init(){
+    const { data: { session } } = await sb.auth.getSession();
+    const user = session?.user;
+    if (!user || user.email !== OWNER_EMAIL) {
+      document.getElementById('auth-gate').style.display = 'flex';
+      return;
+    }
+    document.getElementById('app').style.display = 'block';
+    loadWeek();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>

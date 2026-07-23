@@ -107,6 +107,15 @@ create policy "users can insert feedback" on feedback
 -- morning_briefing: user opted in to daily morning briefing email
 -- ─────────────────────────────────────────────────────────────────────────
 
+-- ── Migration: email opt-in ───────────────────────────────────────────────
+-- Run this once in Supabase Dashboard → SQL Editor
+--
+-- alter table profiles add column if not exists email_opt_in boolean default false;
+--
+-- email_opt_in: user explicitly opted in to receive emails (welcome + streak reminders)
+-- Default false — no emails sent without consent.
+-- ─────────────────────────────────────────────────────────────────────────
+
 -- ── Apex migrations — run in Supabase SQL Editor ───────────────────────────
 -- alter table todos add column if not exists due_date date;
 -- alter table profiles add column if not exists apex_plan jsonb;
