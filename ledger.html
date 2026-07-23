@@ -66,14 +66,15 @@
   .section-count { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-faint); }
 
   .ledger { background: var(--surface); border: 1px solid var(--hairline); border-radius: 14px; overflow: hidden; }
-  .ledger-head { display: grid; grid-template-columns: 1fr repeat(7, 34px) 64px; gap: 4px; padding: 12px 18px; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: var(--text-faint); letter-spacing: 0.04em; text-transform: uppercase; }
+  .ledger-head { display: grid; grid-template-columns: 1fr repeat(7, 34px) 64px; gap: 4px; padding: 12px 18px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 0.04em; text-transform: uppercase; }
   .ledger-head span { text-align: center; }
   .ledger-head span:first-child { text-align: left; }
   .ledger-head span:last-child { text-align: right; }
 
-  .habit-row { display: grid; grid-template-columns: 1fr repeat(7, 34px) 64px; gap: 4px; align-items: center; padding: 13px 18px; border-top: 1px solid var(--hairline); }
+  .habit-row { display: grid; grid-template-columns: 1fr repeat(7, 34px) 64px; gap: 4px; align-items: center; padding: 13px 18px; border-top: 1px solid var(--hairline); transition: background .12s; }
+  .habit-row:hover { background: var(--surface-raised); }
   .habit-name { font-size: 14px; font-weight: 500; }
-  .habit-target { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-faint); margin-top: 2px; }
+  .habit-target { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
   .check { width: 24px; height: 24px; margin: 0 auto; border-radius: 6px; border: 1px solid var(--hairline); background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: background .12s, border-color .12s, transform .08s; }
   .check:hover { border-color: var(--text-muted); }
@@ -94,7 +95,7 @@
   .score.onpace { color: var(--onpace); }
   .score.behind { color: var(--behind); }
 
-  footer { margin-top: 28px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-faint); text-align: center; line-height: 1.6; }
+  footer { margin-top: 28px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-muted); text-align: center; line-height: 1.6; }
 
   @media (max-width: 640px) {
     .ledger-head, .habit-row { grid-template-columns: 1fr repeat(7, 26px) 48px; padding-left: 12px; padding-right: 12px; }
