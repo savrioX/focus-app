@@ -11,7 +11,8 @@ module.exports = async function handler(req, res) {
   try {
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
-      payment_method_types: ['card'],
+      // No payment_method_types — let Stripe show dynamic payment methods
+      // (Link, wallets, etc.) for higher mobile conversion.
       line_items: [{ price: process.env.STRIPE_PRICE_ID, quantity: 1 }],
       success_url: `${process.env.APP_URL || 'https://dailycompound.app'}?pro=success`,
       cancel_url:  `${process.env.APP_URL || 'https://dailycompound.app'}?pro=cancel`,

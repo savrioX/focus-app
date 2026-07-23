@@ -45,7 +45,7 @@
 
     /* ── Auth ────────────────────────────── */
     /* ── Landing / Auth ─────────────────────── */
-    #auth-screen { display: flex; min-height: 100vh; background: var(--bg); }
+    #auth-screen { display: flex; min-height: 100vh; height: 100vh; background: var(--bg); overflow: hidden; }
     .land-left { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 60px 56px; background: #09090b; color: #fafafa; min-height: 100vh; }
     .land-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 52px; }
     .land-logo img { width: 32px; height: 32px; border-radius: 8px; }
@@ -64,8 +64,8 @@
     .land-links { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 40px; }
     .land-links a { font-size: 12px; color: rgba(255,255,255,0.35); text-decoration: none; transition: color 0.15s; }
     .land-links a:hover { color: rgba(255,255,255,0.8); }
-    .land-right { width: 420px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 40px 40px 40px 0; }
-    .auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 36px; width: 100%; max-width: 380px; box-shadow: var(--shadow-md); }
+    .land-right { width: 420px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 40px 40px 40px 0; overflow-y: auto; }
+    .auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 24px 32px; width: 100%; max-width: 380px; box-shadow: var(--shadow-md); }
     .auth-logo-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
     .auth-card h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
     .auth-card > p { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
@@ -660,7 +660,7 @@
       <span>Compound</span>
     </div>
 
-    <div class="land-quote" style="margin-bottom:28px;">
+    <div class="land-quote" style="margin-bottom:10px;">
       <p>"I was juggling ten apps to manage my goals, habits, and todos — and none of them talked to each other. I built Compound for myself. It's the system I use every day to run my startup."</p>
       <cite>&#8212; Savrio, founder &middot; <a href="https://www.instagram.com/thestartupjournal1/" target="_blank" rel="noopener">building in public @thestartupjournal1</a></cite>
     </div>
