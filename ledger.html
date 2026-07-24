@@ -150,27 +150,13 @@
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
   const DAY_LABELS = ['M','T','W','T','F','S','S'];
-  const CATEGORIES = [
-    { key:'cut', title:'Cut', color:'var(--cut)', cls:'cut',
-      habits: [
-        { id:'porn',   name:'Porn',         target:7, note:'avoided' },
-        { id:'weed',   name:'Weed',         target:7, note:'avoided' },
-        { id:'social', name:'Social media', target:7, note:'stayed limited' },
-      ]},
-    { key:'protect', title:'Protect', color:'var(--protect)', cls:'protect',
-      habits: [
-        { id:'lifting',       name:'Lifting',         target:3, note:'3x / wk' },
-        { id:'selfcare',      name:'Self-care',       target:7, note:'daily' },
-        { id:'meditation',    name:'Meditation',      target:6, note:'near-daily' },
-        { id:'entrepreneurship', name:'Entrepreneurship', target:6, note:'near-daily' },
-      ]},
-    { key:'grow', title:'Grow', color:'var(--grow)', cls:'grow',
-      habits: [
-        { id:'cardio',  name:'Cardio',  target:3, note:'3x / wk, up from 2' },
-        { id:'reading', name:'Reading', target:7, note:'daily, up from a few' },
-      ]},
-  ];
-  const ALL_HABITS = CATEGORIES.flatMap(c => c.habits.map(h => ({...h, cat:c.cls})));
+  // Keywords that mark a habit as something to "cut" (avoid = success)
+  const CUT_WORDS = ['porn','weed','alcohol','gaming','smoke','vap','junk food','soda','drug','social media before','phone before','doomscroll'];
+
+  function isCut(text) {
+    const t = text.toLowerCase();
+    return CUT_WORDS.some(k => t.includes(k));
+  }
 
   function mondayOf(d){
     const date = new Date(d);
@@ -182,14 +168,13 @@
   }
   function fmt(d){ return d.toISOString().slice(0,10); }
   function addDays(d, n){ const nd = new Date(d); nd.setDate(nd.getDate()+n); return nd; }
-  function weekKey(monday){ return fmt(monday); }
+  function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-  let currentUser = null;
+  let currentUser  = null;
   let currentMonday = mondayOf(new Date());
-  const todayStr = fmt(new Date());
-  let weekData = {};
-  let allLedgerData = {};
-  let saveTimer = null;
+  const todayStr   = fmt(new Date());
+  let userHabits   = [];   // [{id, text, created_at}]
+  let weekLogs     = {};   // habitId → Set of dateStrings
 
   const sectionsEl    = document.getElementById('sections');
   const weekLabelEl   = document.getElementById('weekLabel');
@@ -205,11 +190,32 @@
     const sunday = addDays(currentMonday, 6);
     const opts = { month:'short', day:'numeric' };
     weekLabelEl.textContent = currentMonday.toLocaleDateString('en-US', opts) + ' – ' + sunday.toLocaleDateString('en-US', opts);
-
     sectionsEl.innerHTML = '';
-    let totalPct = 0;
 
-    CATEGORIES.forEach(cat => {
+    if (!userHabits.length) {
+      sectionsEl.innerHTML = `<div style="text-align:center;padding:48px 20px;">
+        <div style="font-size:32px;margin-bottom:12px;">🌱</div>
+        <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px;">No habits yet</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px;line-height:1.6;">Add habits in Compound first — they'll show up here automatically.</div>
+        <a href="/" style="display:inline-block;background:#5C7FA0;color:#fff;border-radius:10px;padding:10px 22px;font-size:14px;font-weight:600;text-decoration:none;">← Go to Compound</a>
+      </div>`;
+      momentumValue.textContent = '—';
+      momentumDetail.textContent = '';
+      return;
+    }
+
+    // Sort: cut habits first, then build, alphabetical within each
+    const cutHabits  = userHabits.filter(h =>  isCut(h.text));
+    const buildHabits = userHabits.filter(h => !isCut(h.text));
+
+    const groups = [];
+    if (cutHabits.length)  groups.push({ title:'Cut',   color:'var(--cut)',  cls:'cut',  habits:cutHabits  });
+    if (buildHabits.length) groups.push({ title:'Build', color:'var(--grow)', cls:'grow', habits:buildHabits });
+
+    let totalScore = 0;
+    let habitCount = 0;
+
+    groups.forEach(cat => {
       const section = document.createElement('div');
       section.className = 'section';
 
@@ -225,7 +231,7 @@
 
       const head = document.createElement('div');
       head.className = 'ledger-head';
-      head.innerHTML = '<span></span>' + DAY_LABELS.map(d=>`<span>${d}</span>`).join('') + '<span>score</span>';
+      head.innerHTML = '<span></span>' + DAY_LABELS.map(d=>`<span>${d}</span>`).join('') + '<span>week</span>';
       ledger.appendChild(head);
 
       cat.habits.forEach(h => {
@@ -233,31 +239,30 @@
         row.className = 'habit-row';
 
         const nameCell = document.createElement('div');
-        nameCell.innerHTML = `<div class="habit-name">${h.name}</div><div class="habit-target">${h.note}</div>`;
+        nameCell.innerHTML = `<div class="habit-name">${esc(h.text)}</div>`;
         row.appendChild(nameCell);
 
-        if (!weekData[h.id] || weekData[h.id].length !== 7){
-          weekData[h.id] = [false,false,false,false,false,false,false];
-        }
-        const checks = weekData[h.id];
-
-        for (let i=0; i<7; i++){
+        let count = 0;
+        for (let i = 0; i < 7; i++){
           const dayDate = fmt(addDays(currentMonday, i));
+          const checked = !!(weekLogs[h.id]?.has(dayDate));
+          if (checked) count++;
           const btn = document.createElement('button');
-          btn.className = 'check ' + cat.cls + (checks[i] ? ' checked' : '') + (dayDate === todayStr ? ' today' : '');
+          btn.className = 'check ' + cat.cls + (checked ? ' checked' : '') + (dayDate === todayStr ? ' today' : '');
           btn.innerHTML = checkIcon();
-          btn.setAttribute('aria-label', h.name + ' — ' + dayDate + (checks[i] ? ' completed' : ''));
-          btn.addEventListener('click', () => toggle(h.id, i));
+          btn.setAttribute('aria-label', h.text + ' — ' + dayDate);
+          btn.addEventListener('click', () => toggleLog(h.id, dayDate));
           row.appendChild(btn);
         }
 
-        const count = checks.filter(Boolean).length;
-        const pct = Math.round((count / h.target) * 100);
-        totalPct += Math.min(pct, 100);
-        const status = pct >= 100 ? 'ahead' : pct >= 50 ? 'onpace' : 'behind';
+        const target = 7;
+        const pct = Math.round((count / target) * 100);
+        totalScore += Math.min(pct, 100);
+        habitCount++;
+        const status = pct >= 100 ? 'ahead' : pct >= 57 ? 'onpace' : 'behind';
         const scoreCell = document.createElement('div');
         scoreCell.className = 'score ' + status;
-        scoreCell.textContent = count + '/' + h.target;
+        scoreCell.textContent = count + '/7';
         row.appendChild(scoreCell);
 
         ledger.appendChild(row);
@@ -267,56 +272,55 @@
       sectionsEl.appendChild(section);
     });
 
-    const avgPct = Math.round(totalPct / ALL_HABITS.length);
+    const avgPct = habitCount ? Math.round(totalScore / habitCount) : 0;
     momentumValue.textContent = avgPct + '%';
-    momentumValue.style.color = avgPct >= 100 ? 'var(--ahead)' : avgPct >= 50 ? 'var(--onpace)' : 'var(--behind)';
+    momentumValue.style.color = avgPct >= 80 ? 'var(--ahead)' : avgPct >= 50 ? 'var(--onpace)' : 'var(--behind)';
     const isCurrentWeek = fmt(mondayOf(new Date())) === fmt(currentMonday);
-    momentumDetail.textContent = isCurrentWeek ? 'this week, live' : 'archived week';
-    footerNote.textContent = 'Tap a box to log the day · scores compare checked days against weekly target';
+    momentumDetail.textContent = isCurrentWeek ? 'this week · live' : 'archived week';
+    footerNote.textContent = 'Tap a day to log it · syncs with your Compound habits tracker · check a Cut habit = you avoided it that day';
   }
 
-  function loadWeek(){
-    const key = weekKey(currentMonday);
-    weekData = allLedgerData[key] ? JSON.parse(JSON.stringify(allLedgerData[key])) : {};
-    render();
-  }
-
-  function saveWeek(){
-    const key = weekKey(currentMonday);
-    allLedgerData[key] = JSON.parse(JSON.stringify(weekData));
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(saveToSupabase, 1200);
-  }
-
-  async function loadFromSupabase(){
-    if (!currentUser) return;
+  async function loadWeek(){
+    const monday = fmt(currentMonday);
+    const sunday = fmt(addDays(currentMonday, 6));
     try {
-      const { data, error } = await sb.from('profiles')
-        .select('ledger_data')
-        .eq('id', currentUser.id)
-        .single();
-      if (!error && data?.ledger_data && typeof data.ledger_data === 'object') {
-        allLedgerData = data.ledger_data;
+      const { data, error } = await sb.from('habit_logs')
+        .select('habit_id, logged_date')
+        .eq('user_id', currentUser.id)
+        .gte('logged_date', monday)
+        .lte('logged_date', sunday);
+      weekLogs = {};
+      if (!error && data) {
+        for (const log of data) {
+          if (!weekLogs[log.habit_id]) weekLogs[log.habit_id] = new Set();
+          weekLogs[log.habit_id].add(log.logged_date);
+        }
       }
     } catch(e) {}
-  }
-
-  async function saveToSupabase(){
-    if (!currentUser) return;
-    try {
-      await sb.from('profiles')
-        .update({ ledger_data: allLedgerData })
-        .eq('id', currentUser.id);
-    } catch(e) {}
-  }
-
-  function toggle(habitId, dayIndex){
-    if (!weekData[habitId] || weekData[habitId].length !== 7){
-      weekData[habitId] = [false,false,false,false,false,false,false];
-    }
-    weekData[habitId][dayIndex] = !weekData[habitId][dayIndex];
     render();
-    saveWeek();
+  }
+
+  async function toggleLog(habitId, dateStr){
+    const already = !!(weekLogs[habitId]?.has(dateStr));
+    // Optimistic update
+    if (!weekLogs[habitId]) weekLogs[habitId] = new Set();
+    if (already) weekLogs[habitId].delete(dateStr);
+    else weekLogs[habitId].add(dateStr);
+    render();
+    try {
+      if (already) {
+        await sb.from('habit_logs').delete()
+          .eq('habit_id', habitId).eq('user_id', currentUser.id).eq('logged_date', dateStr);
+      } else {
+        await sb.from('habit_logs')
+          .insert({ habit_id: habitId, user_id: currentUser.id, logged_date: dateStr });
+      }
+    } catch(e) {
+      // Revert on error
+      if (already) weekLogs[habitId].add(dateStr);
+      else weekLogs[habitId].delete(dateStr);
+      render();
+    }
   }
 
   document.getElementById('prevWeek').addEventListener('click', () => { currentMonday = addDays(currentMonday,-7); loadWeek(); });
@@ -331,8 +335,15 @@
     }
     currentUser = user;
     document.getElementById('app').style.display = 'block';
-    await loadFromSupabase();
-    loadWeek();
+
+    // Load user's real habits
+    const { data, error } = await sb.from('habits')
+      .select('id, text, created_at')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: true });
+    if (!error && data) userHabits = data;
+
+    await loadWeek();
   }
 
   init();
