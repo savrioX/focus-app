@@ -24,8 +24,8 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --bg: #f5f5f3; --surface: #ffffff; --border: #ebebea;
-      --text: #18181b; --muted: #71717a; --accent: #18181b;
+      --bg: #f5f5f3; --surface: #ffffff; --surface2: #efefed; --border: #ebebea;
+      --text: #18181b; --muted: #71717a; --sub: #52525b; --accent: #18181b;
       --faded: #d4d4d8; --red: #dc2626; --orange: #ea580c;
       --ai: #7c3aed; --ai-soft: rgba(124,58,237,0.08);
       --ai-border: rgba(124,58,237,0.18);
@@ -34,8 +34,8 @@
       --fs: 14px;
     }
     body.dark {
-      --bg: #09090b; --surface: #18181b; --border: #27272a;
-      --text: #fafafa; --muted: #71717a; --accent: #fafafa;
+      --bg: #09090b; --surface: #18181b; --surface2: #1e1e22; --border: #27272a;
+      --text: #fafafa; --muted: #71717a; --sub: #a1a1aa; --accent: #fafafa;
       --faded: #3f3f46; --red: #f87171; --orange: #fb923c;
       --ai-soft: rgba(167,139,250,0.1); --ai-border: rgba(167,139,250,0.2);
       --shadow-sm: 0 1px 3px rgba(0,0,0,0.3); --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
@@ -1075,10 +1075,10 @@
 
     <!-- Archetype reveal -->
     <div class="ob-step" id="ob-step-reveal">
-      <div class="ob-reveal-badge">Your failure pattern identified</div>
+      <div class="ob-reveal-badge">We found your pattern</div>
       <div class="ob-reveal-name" id="ob-reveal-name"></div>
       <div class="ob-reveal-angle" id="ob-reveal-angle"></div>
-      <button class="ob-next" onclick="obShowPlan()" style="width:100%">See your 30-day plan →</button>
+      <button class="ob-next" onclick="obShowPlan()" style="width:100%">Build my plan →</button>
     </div>
 
     <!-- Plan preview -->
