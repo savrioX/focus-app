@@ -713,11 +713,6 @@
       <span>Compound</span>
     </div>
 
-    <div class="land-quote" style="margin-bottom:10px;">
-      <p>"I was juggling ten apps to manage my goals, habits, and todos — and none of them talked to each other. I built Compound for myself. It's the system I use every day to run my startup."</p>
-      <cite>&#8212; Savrio, founder &middot; <a href="https://www.instagram.com/thestartupjournal1/" target="_blank" rel="noopener">building in public @thestartupjournal1</a></cite>
-    </div>
-
     <div class="land-headline">Not a wellness app.<br>A <em>builder's system.</em></div>
     <p class="land-sub">Goals, habits, and daily execution — plus an AI advisor that reads your actual data and tells you exactly where you're losing momentum.</p>
 
@@ -729,9 +724,14 @@
       <div class="land-feat"><div class="land-feat-icon">⏱</div> Focus timer — no distractions, just execution</div>
     </div>
 
-    <div style="margin-top:20px;">
+    <div class="land-quote" style="margin-top:28px;margin-bottom:20px;">
+      <p>"I was juggling ten apps to manage my goals, habits, and todos — and none of them talked to each other. I built Compound for myself. It's the system I use every day to run my startup."</p>
+      <cite>&#8212; Savrio, founder &middot; <a href="https://www.instagram.com/thestartupjournal1/" target="_blank" rel="noopener">building in public @thestartupjournal1</a></cite>
+    </div>
+
+    <div style="margin-top:4px;">
       <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(124,58,237,0.12);border:1px solid rgba(124,58,237,0.25);border-radius:99px;padding:6px 14px;width:fit-content;">
-        <span style="font-size:13px;color:rgba(255,255,255,0.85);font-weight:600;">Live · built in public · real users</span>
+        <span id="land-day-badge" style="font-size:13px;color:rgba(255,255,255,0.85);font-weight:600;">Live · built in public · real users</span>
       </div>
     </div>
 
@@ -1245,6 +1245,14 @@ document.getElementById('pass-toggle').addEventListener('click', () => {
   const p = document.getElementById('auth-pass');
   p.type = p.type === 'password' ? 'text' : 'password';
 });
+
+// Day-of-build badge — starts May 1 2026
+(function() {
+  const el = document.getElementById('land-day-badge');
+  if (!el) return;
+  const day = Math.floor((Date.now() - new Date('2026-05-01').getTime()) / 86400000) + 1;
+  el.textContent = `Day ${day} of building in public · real users`;
+})();
 
 document.getElementById('google-btn').addEventListener('click', async () => {
   const btn = document.getElementById('google-btn');
