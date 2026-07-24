@@ -180,7 +180,7 @@
     date.setDate(date.getDate()+(day===0?-6:1)-day);
     date.setHours(0,0,0,0); return date;
   }
-  function fmt(d){ return d.toISOString().slice(0,10); }
+  function fmt(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
   function addDays(d, n){ const nd = new Date(d); nd.setDate(nd.getDate()+n); return nd; }
   function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
@@ -246,7 +246,23 @@
         row.className = 'habit-row';
 
         const nameCell = document.createElement('div');
-        nameCell.innerHTML = `<div class="habit-name">${esc(h.text)}</div><div style="font-size:10px;color:var(--text-faint);margin-top:2px;">target: ${h.target||7}/wk</div>`;
+        if (isLegacy) {
+          const tgt = h.target || 7;
+          const targetEl = document.createElement('div');
+          targetEl.style.cssText = 'font-size:10px;color:var(--text-faint);margin-top:3px;display:flex;align-items:center;gap:4px;';
+          targetEl.innerHTML = `target: <input type="number" min="1" max="7" value="${tgt}" style="width:28px;background:var(--surface-raised);border:1px solid var(--hairline);border-radius:4px;color:var(--text);font-size:10px;text-align:center;padding:1px 2px;font-family:inherit;" aria-label="Target for ${esc(h.text)}">/wk`;
+          targetEl.querySelector('input').addEventListener('change', e => {
+            const v = Math.max(1, Math.min(7, parseInt(e.target.value)||7));
+            e.target.value = v;
+            h.target = v;
+            saveTargets();
+            render();
+          });
+          nameCell.innerHTML = `<div class="habit-name">${esc(h.text)}</div>`;
+          nameCell.appendChild(targetEl);
+        } else {
+          nameCell.innerHTML = `<div class="habit-name">${esc(h.text)}</div><div style="font-size:10px;color:var(--text-faint);margin-top:2px;">target: ${h.target||7}/wk</div>`;
+        }
         row.appendChild(nameCell);
 
         let count = 0;
@@ -309,6 +325,21 @@
     }
   }
 
+  // ── Legacy target persistence ───────────────────────────────────────────
+  function saveTargets(){
+    const targets = {};
+    for (const g of LEGACY_GROUPS) for (const h of g.habits) targets[h.id] = h.target;
+    try { localStorage.setItem('ledger-targets', JSON.stringify(targets)); } catch(e) {}
+  }
+  function loadTargets(){
+    try {
+      const raw = localStorage.getItem('ledger-targets');
+      if (!raw) return;
+      const targets = JSON.parse(raw);
+      for (const g of LEGACY_GROUPS) for (const h of g.habits) if (targets[h.id]) h.target = targets[h.id];
+    } catch(e) {}
+  }
+
   // ── Legacy localStorage persistence ────────────────────────────────────
   function legacyKey(){ return 'ledger-week:' + fmt(currentMonday); }
   function loadLegacyWeek(){
@@ -364,6 +395,7 @@
     if (user.email === OWNER_EMAIL) {
       // Owner (Savrio): use hardcoded life-audit habits + localStorage
       isLegacy = true;
+      loadTargets();         // restore any custom targets from localStorage
       groups   = LEGACY_GROUPS;
     } else {
       // Everyone else: load from Compound habits table, auto-categorize

@@ -267,8 +267,8 @@
     #focus-mode-label { font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ai); min-width: 44px; text-align: center; }
 
     /* ── Sparklines ──────────────────────── */
-    .sparkline { display: flex; gap: 3px; margin-top: 5px; align-items: flex-end; height: 18px; }
-    .spark-dot { width: 9px; border-radius: 2px; flex-shrink: 0; }
+    .sparkline { display: flex; gap: 3px; margin-top: 6px; align-items: center; height: 12px; }
+    .spark-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
     /* ── Report/briefing modals ──────────── */
     #brief-modal, #report-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 400; padding: 24px; }
@@ -784,8 +784,11 @@
   <!-- Active context / brain card -->
   <div class="context-card" id="context-card">
     <div class="context-label">⚡ What I'm building <span>tap to edit · syncs to Telegram</span></div>
-    <div class="context-body empty" id="context-body">Set your current focus — Claude and your Telegram bot will always know what you're working on.</div>
+    <div class="context-body empty" id="context-body">What are you working on right now? Tap to write it in one sentence — Apex will use it to give you better advice.</div>
   </div>
+
+  <!-- Daily stats strip -->
+  <div id="stats-strip" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 16px;margin-bottom:16px;display:none;align-items:center;gap:0;flex-wrap:wrap;"></div>
 
   <div class="grid">
 
@@ -1447,7 +1450,25 @@ async function loadData() {
   }
 }
 
-function renderAll() { renderTodos(); renderGoals(); renderHabits(); updateOnboardingChecklist(); }
+function renderAll() { renderTodos(); renderGoals(); renderHabits(); updateOnboardingChecklist(); updateStatsStrip(); }
+
+function updateStatsStrip() {
+  const el = document.getElementById('stats-strip');
+  if (!el) return;
+  const totalH = habits.length;
+  if (!totalH) { el.style.display = 'none'; return; }
+  const doneH = habits.filter(h => (h.habit_logs||[]).some(l => l.logged_date === today())).length;
+  const topStreak = habits.length ? Math.max(...habits.map(h => calcStreak(h))) : 0;
+  const activeGoals = goals.filter(g => goalPct(g) < 100).length;
+  const todosLeft = todos.length;
+  const pct = Math.round((doneH/totalH)*100);
+  const ringColor = pct === 100 ? '#22c55e' : pct >= 60 ? 'var(--accent)' : 'var(--orange)';
+  const r = 9, circ = 2 * Math.PI * r;
+  const ring = `<svg width="26" height="26" style="flex-shrink:0;"><circle cx="13" cy="13" r="${r}" fill="none" stroke="var(--border)" stroke-width="2.5"/><circle cx="13" cy="13" r="${r}" fill="none" stroke="${ringColor}" stroke-width="2.5" stroke-dasharray="${circ}" stroke-dashoffset="${circ*(1-pct/100)}" stroke-linecap="round" transform="rotate(-90 13 13)" style="transition:stroke-dashoffset 0.5s;"/></svg>`;
+  const stat = (icon, val, label) => `<div style="display:flex;align-items:center;gap:5px;padding:0 14px;border-right:1px solid var(--border);"><span style="font-size:14px;">${icon}</span><div><div style="font-size:13px;font-weight:700;color:var(--text);line-height:1;">${val}</div><div style="font-size:10px;color:var(--muted);line-height:1.3;">${label}</div></div></div>`;
+  el.style.display = 'flex';
+  el.innerHTML = `<div style="display:flex;align-items:center;gap:6px;padding-right:14px;border-right:1px solid var(--border);">${ring}<div><div style="font-size:13px;font-weight:700;color:${ringColor};line-height:1;">${doneH}/${totalH}</div><div style="font-size:10px;color:var(--muted);line-height:1.3;">habits today</div></div></div>${topStreak>=2?stat('🔥',topStreak,'day streak'):''}${activeGoals>0?stat('🎯',activeGoals,'active goal'+(activeGoals>1?'s':'')):''}${todosLeft>0?stat('✅',todosLeft,'task'+(todosLeft>1?'s':'')+' left'):''}${pct===100?`<div style="margin-left:auto;padding-left:14px;font-size:12px;font-weight:600;color:#22c55e;">🎉 All done today</div>`:''}`;
+}
 
 // Silent background refresh — no loading screen, just updates data
 async function silentRefresh() {
@@ -1623,9 +1644,10 @@ function sparklineHtml(h) {
     const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     days.push(logs.has(key));
   }
-  return `<div class="sparkline">${days.map(on =>
-    `<div class="spark-dot" style="height:${on?16:6}px;background:${on?'var(--accent)':'var(--border)'};"></div>`
-  ).join('')}</div>`;
+  return `<div class="sparkline" title="Last 7 days">${days.map((on, i) => {
+    const isToday = i === 6;
+    return `<div class="spark-dot" style="background:${on?'var(--accent)':'var(--border)'};${isToday?'outline:2px solid var(--accent);outline-offset:1px;':''}"></div>`;
+  }).join('')}</div>`;
 }
 
 function shareStreak(habitName, streak) {
