@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pricing — Compound</title>
-  <meta name="description" content="Compound is free to start. Upgrade to Pro at $8/month (billed $96/year) — AI coach, weekly reports, and daily briefings for student entrepreneurs.">
+  <meta name="description" content="Compound is free to start. Upgrade to Pro at $10/month — AI coach, weekly reports, and daily briefings for student entrepreneurs.">
   <meta property="og:title" content="Pricing — Compound">
   <meta property="og:description" content="Free to start. Pro at $8/month. Build the person you want to become.">
   <meta property="og:url" content="https://dailycompound.app/pricing">
@@ -60,10 +60,18 @@
   <div class="wrap">
     <a href="/" class="back">&larr; Compound</a>
     <div class="hero">
-      <h1>Simple pricing.<br>No surprises.</h1>
-      <p>Free to start. Upgrade when you're ready to go deeper.</p>
+      <h1>Free forever.<br>$10/month when you're serious.</h1>
+      <p>Start building today. Upgrade when you want the full system.</p>
     </div>
-    <p class="billing-note">⚡ Pro is launching soon — join the waitlist inside the app</p>
+    <p class="billing-note" id="pricing-day-note">⚡ Pro drops soon — join the waitlist inside the app</p>
+    <script>
+      (function() {
+        const el = document.getElementById('pricing-day-note');
+        if (!el) return;
+        const day = Math.floor((Date.now() - new Date('2026-05-01').getTime()) / 86400000) + 1;
+        el.textContent = `⚡ Day ${day} of building — Pro drops very soon. Waitlist is open.`;
+      })();
+    </script>
     <div class="cards">
       <!-- FREE -->
       <div class="card">
@@ -109,7 +117,7 @@
       <h2>Common questions</h2>
       <div class="faq-item">
         <div class="faq-q">When does Pro launch?</div>
-        <div class="faq-a">Very soon. Join the waitlist inside the app (click any Pro feature) — you'll be emailed the moment it goes live. Follow <a href="https://www.instagram.com/thestartupjournal1/" target="_blank" rel="noopener">@thestartupjournal1</a> for the live drop.</div>
+        <div class="faq-a">Very soon — the build is live and Stripe is wired up. Join the waitlist inside the app (click any Pro feature) and you'll get an email the moment it opens. Follow <a href="https://www.instagram.com/thestartupjournal1/" target="_blank" rel="noopener">@thestartupjournal1</a> to watch it happen in real time.</div>
       </div>
       <div class="faq-item">
         <div class="faq-q">Monthly or annual — what's the difference?</div>
