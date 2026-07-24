@@ -147,7 +147,6 @@
 (function(){
   const SUPABASE_URL  = 'https://diwwapnpnffubepdvrxg.supabase.co';
   const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRpd3dhcG5wbmZmdWJlcGR2cnhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MDU1OTgsImV4cCI6MjA5NDI4MTU5OH0.UFCnZe_a0LhOifMph-61zP3dHniF95jiiHtGpw3z45w';
-  const OWNER_EMAIL   = 'vsf4046@gmail.com';
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
   const DAY_LABELS = ['M','T','W','T','F','S','S'];
@@ -326,7 +325,7 @@
   async function init(){
     const { data: { session } } = await sb.auth.getSession();
     const user = session?.user;
-    if (!user || user.email !== OWNER_EMAIL) {
+    if (!user) {
       document.getElementById('auth-gate').style.display = 'flex';
       return;
     }

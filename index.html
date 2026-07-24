@@ -186,6 +186,17 @@
     .btn-add-sub:hover { background: var(--border); }
     .empty { font-size: 13px; color: var(--muted); padding: 8px 6px; }
 
+    /* ── Onboarding modal ────────────────── */
+    #onboarding-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); z-index:600; align-items:center; justify-content:center; padding:20px; }
+    .ob-card { background:var(--surface); border:1px solid var(--border); border-radius:24px; padding:36px 32px; width:100%; max-width:540px; max-height:calc(100dvh - 40px); overflow-y:auto; box-shadow:0 24px 80px rgba(0,0,0,0.4); }
+    .ob-section-label { font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:10px; }
+    .ob-pills { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+    .ob-pill { border:1.5px solid var(--border); background:var(--bg); color:var(--text); border-radius:99px; padding:7px 15px; font-size:13px; font-family:inherit; cursor:pointer; transition:all 0.15s; }
+    .ob-pill:hover { border-color:var(--ai); color:var(--ai); }
+    .ob-pill.ob-selected { background:var(--ai-soft); border-color:var(--ai); color:var(--ai); font-weight:600; }
+    .ob-pill.ob-cut:hover, .ob-pill.ob-cut.ob-selected { border-color:var(--red); color:var(--red); background:rgba(220,38,38,0.08); }
+    @media (max-width:520px) { .ob-card { padding:24px 20px; } }
+
     /* ── Loading ─────────────────────────── */
     #load-overlay { display: flex; position: fixed; inset: 0; background: #09090b; align-items: center; justify-content: center; z-index: 100; flex-direction: column; gap: 18px; transition: opacity 0.4s ease; }
     #load-overlay.hidden { opacity: 0; pointer-events: none; }
@@ -683,7 +694,6 @@
     </div>
 
     <div class="land-links">
-      <a href="/pricing">Pricing</a>
       <a href="https://www.instagram.com/thestartupjournal1/" target="_blank" rel="noopener">Instagram</a>
       <a href="/terms.html">Terms</a>
       <a href="/privacy.html">Privacy</a>
@@ -753,7 +763,7 @@
         <button class="btn-icon" id="btn-focus-timer">🎯 Focus</button>
         <a href="/apex" class="btn-icon" style="border-color:rgba(124,58,237,0.3);color:var(--ai);font-weight:600;text-decoration:none;">⚡ Apex</a>
         <button class="btn-icon" id="btn-unlock-ai" style="background:var(--ai);border-color:var(--ai);color:#fff;font-weight:700;">Get Pro</button>
-        <a href="/ledger" id="btn-ledger" class="btn-icon" style="display:none;text-decoration:none;" title="Life Audit">📋 Ledger</a>
+        <a href="/ledger" id="btn-ledger" class="btn-icon" style="display:none;text-decoration:none;border-color:rgba(34,197,94,0.3);color:#22c55e;" title="Your weekly life audit">📋 Life Audit</a>
         <button class="btn-icon" id="btn-guide" title="How to use Compound">? Guide</button>
         <button class="btn-icon" id="btn-settings">⚙️ Settings</button>
         <button class="btn-icon" id="btn-signout">Sign out</button>
@@ -777,7 +787,7 @@
         <div class="card-title">To-do</div>
         <span class="count" id="todo-count"></span>
       </div>
-      <p class="card-desc">Your daily execution list. Every morning, write what must get done — then do it. One checked box beats ten plans.</p>
+      <p class="card-desc">Write what needs to happen today. Check things off as you do them. Keep it short — 3 to 5 things max.</p>
       <div class="ai-pills">
         <button class="btn-ai" id="morning-brief-btn">☀️ Morning briefing</button>
         <button class="btn-ai" id="plan-day-btn">✨ Plan my day</button>
@@ -796,7 +806,7 @@
         <div class="card-title">Goals</div>
         <span class="count" id="goals-count"></span>
       </div>
-      <p class="card-desc">Set the outcomes you're building toward this semester. Break each one into small steps — progress compounds faster than you think.</p>
+      <p class="card-desc">What do you want to achieve? Add your goals here and break them into steps. Apex can help you figure out exactly what to do next.</p>
       <div class="ai-pills">
         <button class="btn-ai" id="ai-build-plan-btn">✨ Build habits &amp; tasks</button>
       </div>
@@ -814,7 +824,7 @@
         <div class="card-title">Habits</div>
         <span class="count" id="habits-count"></span>
       </div>
-      <p class="card-desc">The systems you build now will run your future company. Check in daily — streaks show you who you're becoming, not just what you did.</p>
+      <p class="card-desc">Things you want to do every single day. Check them off to keep your streak alive. Small actions done daily beat big efforts done sometimes.</p>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
         <button class="btn-icon" id="packs-btn" style="font-size:12px;">📦 Starter packs</button>
         <div class="ai-pills" style="margin-bottom:0;">
@@ -860,6 +870,37 @@
     <textarea id="feedback-text" placeholder="What's on your mind…"></textarea>
     <button class="btn-primary" id="feedback-send" style="margin-top:12px;">Send →</button>
     <div id="feedback-status" style="font-size:12px;color:var(--muted);text-align:center;margin-top:8px;min-height:16px;"></div>
+  </div>
+</div>
+
+<!-- Onboarding setup modal -->
+<div id="onboarding-modal">
+  <div class="ob-card">
+    <div style="text-align:center;margin-bottom:28px;">
+      <img src="logo.PNG" style="width:52px;height:52px;border-radius:14px;margin-bottom:16px;display:block;margin-left:auto;margin-right:auto;">
+      <div style="font-size:22px;font-weight:800;letter-spacing:-0.03em;margin-bottom:8px;">Build your system in 60 seconds</div>
+      <div style="font-size:14px;color:var(--muted);line-height:1.6;">Pick what you want to work on. Compound tracks it all and helps you stay consistent.</div>
+    </div>
+
+    <div class="ob-section-label" style="color:var(--red);">✂️ What do you want to cut out?</div>
+    <div class="ob-pills" id="ob-cut-pills"></div>
+
+    <div class="ob-section-label" style="color:#22c55e;">🛡️ What do you want to build?</div>
+    <div class="ob-pills" id="ob-grow-pills"></div>
+
+    <div class="ob-section-label" style="color:var(--ai);margin-top:4px;">🎯 What's your biggest goal right now?</div>
+    <input type="text" id="ob-goal" placeholder="e.g. Get my first 100 users" autocomplete="off"
+      style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;font-size:14px;font-family:inherit;background:var(--bg);color:var(--text);outline:none;transition:border-color 0.15s,box-shadow 0.15s;margin-bottom:24px;"
+      onfocus="this.style.borderColor='var(--ai)';this.style.boxShadow='0 0 0 3px var(--ai-soft)'"
+      onblur="this.style.borderColor='var(--border)';this.style.boxShadow=''">
+
+    <button id="ob-done-btn" onclick="completeOnboarding()"
+      style="width:100%;background:var(--ai);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:-0.01em;margin-bottom:12px;transition:opacity 0.15s;">
+      Build my system →
+    </button>
+    <button onclick="skipOnboarding()" style="width:100%;background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;font-family:inherit;padding:8px;">
+      Skip for now
+    </button>
   </div>
 </div>
 
@@ -1181,6 +1222,9 @@ async function initApp() {
   updateDayBadge();
   handleProRedirect();
   updateApexGreeting();
+  if (!localStorage.getItem('compound_onboarded') && habits.length === 0 && goals.length === 0) {
+    setTimeout(showOnboarding, 900);
+  }
   checkMilestones();
   showMondayStats();
   // Auto-open guide for new users who haven't seen it yet
@@ -1273,7 +1317,7 @@ async function loadProfile() {
       const toggle = document.getElementById('email-optin-toggle');
       if (toggle) toggle.checked = emailOptIn;
       const ledgerBtn = document.getElementById('btn-ledger');
-      if (ledgerBtn && currentUser?.email === 'vsf4046@gmail.com') ledgerBtn.style.display = '';
+      if (ledgerBtn) ledgerBtn.style.display = '';
     } else if (error && error.code === 'PGRST116') {
       // No profile row yet — create one now
       await sb.from('profiles').insert({ id: currentUser.id, is_pro: false, email_opt_in: pendingEmailOptIn }).select().single();
@@ -1295,7 +1339,7 @@ function renderContextCard() {
     el.textContent = activeContext;
   } else {
     el.className = 'context-body empty';
-    el.textContent = 'Set your current focus — Claude and your Telegram bot will always know what you\'re working on.';
+    el.textContent = 'What are you working on right now? Tap to write it — Apex will use this to give you better advice.';
   }
 }
 
@@ -1611,7 +1655,13 @@ function renderHabits() {
       <span style="font-size:18px;">⏰</span><span><strong>Your streak resets at midnight</strong> — ${remaining} habit${remaining>1?'s':''} left today.</span></div>`;
   }
 
-  list.innerHTML = bannerHtml + habits.map(h => {
+  const sortedHabits = [...habits].sort((a, b) => {
+    const aChecked = (a.habit_logs||[]).some(l => l.logged_date === today());
+    const bChecked = (b.habit_logs||[]).some(l => l.logged_date === today());
+    if (aChecked !== bChecked) return aChecked ? 1 : -1;
+    return calcStreak(b) - calcStreak(a);
+  });
+  list.innerHTML = bannerHtml + sortedHabits.map(h => {
     const checked = (h.habit_logs||[]).some(l => l.logged_date === today());
     const s = calcStreak(h);
     const shareBtn = s >= 3 ? `<button onclick="shareStreak(${esc(JSON.stringify(h.text))},${s})" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--muted);padding:2px 6px;border-radius:6px;margin-left:4px;" title="Share streak">↗</button>` : '';
@@ -1881,6 +1931,46 @@ document.querySelectorAll('.size-btn').forEach(btn => {
 applyPrefs();
 
 const openSettings  = () => document.getElementById('settings-modal').classList.add('show');
+
+// ── Onboarding ────────────────────────────────────────────
+const OB_CUT   = ['Porn','Alcohol','Weed','Social media before noon','Junk food','Gaming','Vaping'];
+const OB_GROW  = ['Exercise','Deep work 2h','Read 20 pages','Meditation','Journaling','Cold shower','Early wake (6am)','No phone first hour','Weekly review'];
+
+function showOnboarding() {
+  const modal = document.getElementById('onboarding-modal');
+  if (!modal) return;
+  document.getElementById('ob-cut-pills').innerHTML  = OB_CUT.map(t  => `<button class="ob-pill ob-cut"  onclick="this.classList.toggle('ob-selected')">${t}</button>`).join('');
+  document.getElementById('ob-grow-pills').innerHTML = OB_GROW.map(t => `<button class="ob-pill ob-grow" onclick="this.classList.toggle('ob-selected')">${t}</button>`).join('');
+  modal.style.display = 'flex';
+}
+
+function skipOnboarding() {
+  try { localStorage.setItem('compound_onboarded','1'); } catch(e) {}
+  document.getElementById('onboarding-modal').style.display = 'none';
+}
+
+async function completeOnboarding() {
+  const btn = document.getElementById('ob-done-btn');
+  btn.disabled = true; btn.textContent = 'Building your system…';
+  const selected = [...document.querySelectorAll('#onboarding-modal .ob-pill.ob-selected')].map(b => b.textContent);
+  const goal     = (document.getElementById('ob-goal')?.value || '').trim();
+  for (const text of selected) {
+    try {
+      const { data, error } = await sb.from('habits').insert({ text, user_id: currentUser.id }).select().single();
+      if (!error && data) habits.push({ ...data, habit_logs: [] });
+    } catch(e) {}
+  }
+  if (goal) {
+    try {
+      const { data, error } = await sb.from('goals').insert({ text: goal, user_id: currentUser.id }).select().single();
+      if (!error && data) goals.push({ ...data, goal_subtasks: [] });
+    } catch(e) {}
+  }
+  saveCache(); renderAll();
+  try { localStorage.setItem('compound_onboarded','1'); } catch(e) {}
+  document.getElementById('onboarding-modal').style.display = 'none';
+  if (selected.length || goal) setTimeout(() => toast(`System built — ${selected.length} habit${selected.length!==1?'s':''} tracking.`), 400);
+}
 
 function updateStreakBadge() {
   const badge = document.getElementById('streak-badge');
