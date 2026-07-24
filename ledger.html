@@ -276,21 +276,26 @@
     footerNote.textContent = 'Tap a box to log · syncs with your Compound habit tracker · Cut = avoided it that day';
   }
 
-  // ── Toggle (unified) ───────────────────────────────────────────────────
+  // ── Toggle ─────────────────────────────────────────────────────────────
   async function toggle(hId, dateStr){
     const was = !!(weekLogs[hId]?.has(dateStr));
     if (!weekLogs[hId]) weekLogs[hId] = new Set();
     if (was) weekLogs[hId].delete(dateStr); else weekLogs[hId].add(dateStr);
     render();
     try {
+      let err;
       if (was) {
-        await sb.from('habit_logs').delete()
-          .eq('habit_id', hId).eq('user_id', currentUser.id).eq('logged_date', dateStr);
+        ({ error: err } = await sb.from('habit_logs').delete()
+          .eq('habit_id', hId).eq('user_id', currentUser.id).eq('logged_date', dateStr));
       } else {
-        await sb.from('habit_logs')
-          .insert({ habit_id: hId, user_id: currentUser.id, logged_date: dateStr });
+        ({ error: err } = await sb.from('habit_logs')
+          .upsert({ habit_id: hId, user_id: currentUser.id, logged_date: dateStr },
+                  { onConflict: 'habit_id,logged_date', ignoreDuplicates: true }));
       }
+      if (err) throw err;
     } catch(e) {
+      console.error('Ledger save error:', e?.message || e);
+      footerNote.textContent = 'Save failed: ' + (e?.message || 'unknown error — check browser console');
       if (was) weekLogs[hId].add(dateStr); else weekLogs[hId].delete(dateStr);
       render();
     }
