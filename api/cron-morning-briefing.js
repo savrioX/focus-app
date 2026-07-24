@@ -6,23 +6,6 @@ const SB_KEY     = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const APP_URL    = process.env.APP_URL || 'https://dailycompound.app';
 const SECRET     = process.env.CRON_SECRET;
 const OWNER      = process.env.COMPOUND_ACCOUNT_EMAIL || 'vsf4046@gmail.com';
-const TG_TOKEN   = process.env.TELEGRAM_BOT_TOKEN;
-const TG_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-
-function esc(text) {
-  return String(text).replace(/[\\`_*[\]()~>#+\-=|{}.!]/g, '\\$&');
-}
-
-async function sendTelegram(text) {
-  if (!TG_TOKEN || !TG_CHAT_ID) return;
-  try {
-    await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: TG_CHAT_ID, text, parse_mode: 'MarkdownV2', disable_web_page_preview: true }),
-    });
-  } catch (_) {}
-}
 
 const QUOTES = [
   'Ships don\'t sink because of the water around them. They sink from the water that gets in.',
@@ -290,7 +273,6 @@ module.exports = async function handler(req, res) {
           if (!topHabit && !goalStep && !userTodos.length) return;
 
           const igTask  = email === OWNER ? IG_TASKS[dayOfWeek] : null;
-          const isOwner = email === OWNER;
 
           const { error } = await resend.emails.send({
             from:    'Savrio from Compound <savrio@dailycompound.app>',
@@ -300,40 +282,6 @@ module.exports = async function handler(req, res) {
           });
 
           if (!error) sent++;
-
-          // Also send Telegram for the owner
-          if (isOwner) {
-            const todoLines = userTodos.length
-              ? userTodos.slice(0, 8).map((t, i) => `${i + 1}\\. ${esc(t.text)}`).join('\n')
-              : '_No tasks yet_';
-            const todoSection = `📋 *Tasks \\(${userTodos.length}\\):*\n${todoLines}`;
-
-            const goalLines = allGoals.length
-              ? allGoals.map(g => {
-                  const next = (g.goal_subtasks || []).find(s => !s.done);
-                  return `• ${esc(g.text)}${next ? ` → _${esc(next.text)}_` : ' ✅'}`;
-                }).join('\n')
-              : '_No goals set_';
-            const goalSection = `🎯 *Goals:*\n${goalLines}`;
-
-            const quoteSection = `💬 _"${esc(quote)}"_`;
-
-            const strategySection = `🧭 *Today\'s strategy:*\n${esc(strategy)}`;
-
-            const igSection = igTask ? `📸 *Instagram task:*\n${esc(igTask)}` : '';
-
-            const parts = [
-              `☀️ *Good morning\\. Here\'s today\\.*`,
-              todoSection,
-              goalSection,
-              quoteSection,
-              strategySection,
-              igSection,
-              `[Open Compound →](${esc(APP_URL)})`,
-            ].filter(Boolean);
-
-            await sendTelegram(parts.join('\n\n'));
-          }
         } catch (_) {}
       }));
     }

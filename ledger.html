@@ -266,6 +266,33 @@
       });
 
       section.appendChild(ledger);
+
+      const addRow = document.createElement('div');
+      addRow.style.cssText = 'padding:10px 18px 18px;';
+      const addBtn = document.createElement('button');
+      addBtn.textContent = '+ Add habit to ' + cat.title;
+      addBtn.style.cssText = 'background:none;border:1px dashed var(--hairline);border-radius:8px;padding:7px 14px;font-size:12px;color:var(--text-muted);cursor:pointer;font-family:inherit;width:100%;text-align:left;letter-spacing:0.02em;transition:border-color .15s,color .15s;';
+      addBtn.addEventListener('mouseover', () => { addBtn.style.borderColor='var(--text-muted)'; addBtn.style.color='var(--text)'; });
+      addBtn.addEventListener('mouseout', () => { addBtn.style.borderColor='var(--hairline)'; addBtn.style.color='var(--text-muted)'; });
+      const addForm = document.createElement('div');
+      addForm.style.cssText = 'display:none;gap:8px;align-items:center;';
+      const addInput = document.createElement('input');
+      addInput.type = 'text';
+      addInput.placeholder = 'Habit name…';
+      addInput.style.cssText = 'flex:1;background:var(--surface-raised);border:1px solid var(--hairline);border-radius:8px;padding:7px 12px;font-size:13px;color:var(--text);font-family:inherit;outline:none;min-width:0;';
+      const addSubmit = document.createElement('button');
+      addSubmit.textContent = 'Add';
+      addSubmit.style.cssText = 'background:' + cat.color + ';border:none;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap;opacity:0.9;';
+      const addCancel = document.createElement('button');
+      addCancel.textContent = '✕';
+      addCancel.style.cssText = 'background:none;border:1px solid var(--hairline);border-radius:8px;padding:7px 10px;font-size:13px;color:var(--text-muted);cursor:pointer;font-family:inherit;';
+      addForm.appendChild(addInput); addForm.appendChild(addSubmit); addForm.appendChild(addCancel);
+      addBtn.addEventListener('click', () => { addBtn.style.display='none'; addForm.style.display='flex'; addInput.focus(); });
+      addCancel.addEventListener('click', () => { addBtn.style.display=''; addForm.style.display='none'; addInput.value=''; });
+      addSubmit.addEventListener('click', () => addHabit(addInput.value.trim(), cat.cls));
+      addInput.addEventListener('keydown', e => { if(e.key==='Enter') addHabit(addInput.value.trim(), cat.cls); if(e.key==='Escape') addCancel.click(); });
+      addRow.appendChild(addBtn); addRow.appendChild(addForm);
+      section.appendChild(addRow);
       sectionsEl.appendChild(section);
     });
 
@@ -298,6 +325,33 @@
       footerNote.textContent = 'Save failed: ' + (e?.message || 'unknown error — check browser console');
       if (was) weekLogs[hId].add(dateStr); else weekLogs[hId].delete(dateStr);
       render();
+    }
+  }
+
+  // ── Add habit ──────────────────────────────────────────────────────────
+  async function addHabit(text, targetCls){
+    if (!text) return;
+    footerNote.textContent = 'Adding…';
+    try {
+      const { data, error } = await sb.from('habits')
+        .insert({ user_id: currentUser.id, text })
+        .select('id, text, created_at')
+        .single();
+      if (error) throw error;
+      const newHabit = { ...data, target: 7 };
+      if (isCut(data.text)) {
+        const g = groups.find(g => g.cls === 'cut');
+        if (g) g.habits.push(newHabit);
+        else groups.unshift({ title:'Cut', color:'var(--cut)', cls:'cut', habits:[newHabit] });
+      } else {
+        const g = groups.find(g => g.cls === 'grow');
+        if (g) g.habits.push(newHabit);
+        else groups.push({ title:'Build', color:'var(--grow)', cls:'grow', habits:[newHabit] });
+      }
+      footerNote.textContent = 'Tap a box to log · syncs with your Compound habit tracker · Cut = avoided it that day';
+      render();
+    } catch(e) {
+      footerNote.textContent = 'Could not add habit: ' + (e?.message || 'unknown error');
     }
   }
 
