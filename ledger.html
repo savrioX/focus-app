@@ -147,40 +147,55 @@
 (function(){
   const SUPABASE_URL  = 'https://diwwapnpnffubepdvrxg.supabase.co';
   const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRpd3dhcG5wbmZmdWJlcGR2cnhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MDU1OTgsImV4cCI6MjA5NDI4MTU5OH0.UFCnZe_a0LhOifMph-61zP3dHniF95jiiHtGpw3z45w';
+  const OWNER_EMAIL   = 'vsf4046@gmail.com';
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
   const DAY_LABELS = ['M','T','W','T','F','S','S'];
-  // Keywords that mark a habit as something to "cut" (avoid = success)
-  const CUT_WORDS = ['porn','weed','alcohol','gaming','smoke','vap','junk food','soda','drug','social media before','phone before','doomscroll'];
 
-  function isCut(text) {
-    const t = text.toLowerCase();
-    return CUT_WORDS.some(k => t.includes(k));
-  }
+  // ── Owner (Savrio) hardcoded life-audit habits ──────────────────────────
+  const LEGACY_GROUPS = [
+    { title:'Cut', color:'var(--cut)', cls:'cut', habits:[
+      { id:'porn',   text:'Porn',         target:7 },
+      { id:'weed',   text:'Weed',         target:7 },
+      { id:'social', text:'Social media', target:7 },
+    ]},
+    { title:'Protect', color:'var(--protect)', cls:'protect', habits:[
+      { id:'lifting',          text:'Lifting',          target:3 },
+      { id:'selfcare',         text:'Self-care',        target:7 },
+      { id:'meditation',       text:'Meditation',       target:6 },
+      { id:'entrepreneurship', text:'Entrepreneurship', target:6 },
+    ]},
+    { title:'Grow', color:'var(--grow)', cls:'grow', habits:[
+      { id:'cardio',  text:'Cardio',  target:3 },
+      { id:'reading', text:'Reading', target:7 },
+    ]},
+  ];
+
+  // ── Cut-keyword detection for other users ──────────────────────────────
+  const CUT_WORDS = ['porn','weed','alcohol','gaming','smoke','vap','junk food','soda','drug','social media before','phone before','doomscroll','no social'];
+  function isCut(text){ const t=text.toLowerCase(); return CUT_WORDS.some(k=>t.includes(k)); }
 
   function mondayOf(d){
-    const date = new Date(d);
-    const day = date.getDay();
-    const diff = (day === 0 ? -6 : 1) - day;
-    date.setDate(date.getDate() + diff);
-    date.setHours(0,0,0,0);
-    return date;
+    const date = new Date(d); const day = date.getDay();
+    date.setDate(date.getDate()+(day===0?-6:1)-day);
+    date.setHours(0,0,0,0); return date;
   }
   function fmt(d){ return d.toISOString().slice(0,10); }
   function addDays(d, n){ const nd = new Date(d); nd.setDate(nd.getDate()+n); return nd; }
   function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-  let currentUser  = null;
+  let currentUser   = null;
+  let isLegacy      = false;  // true for owner: use hardcoded habits + localStorage
   let currentMonday = mondayOf(new Date());
-  const todayStr   = fmt(new Date());
-  let userHabits   = [];   // [{id, text, created_at}]
-  let weekLogs     = {};   // habitId → Set of dateStrings
+  const todayStr    = fmt(new Date());
+  let groups        = [];     // [{title,color,cls,habits:[{id,text,target}]}]
+  let weekLogs      = {};     // id → Set<dateStr>
 
-  const sectionsEl    = document.getElementById('sections');
-  const weekLabelEl   = document.getElementById('weekLabel');
-  const momentumValue = document.getElementById('momentumValue');
-  const momentumDetail= document.getElementById('momentumDetail');
-  const footerNote    = document.getElementById('footerNote');
+  const sectionsEl     = document.getElementById('sections');
+  const weekLabelEl    = document.getElementById('weekLabel');
+  const momentumValue  = document.getElementById('momentumValue');
+  const momentumDetail = document.getElementById('momentumDetail');
+  const footerNote     = document.getElementById('footerNote');
 
   function checkIcon(){
     return '<svg viewBox="0 0 16 16" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5L6.2 12 13 4"/></svg>';
@@ -192,25 +207,17 @@
     weekLabelEl.textContent = currentMonday.toLocaleDateString('en-US', opts) + ' – ' + sunday.toLocaleDateString('en-US', opts);
     sectionsEl.innerHTML = '';
 
-    if (!userHabits.length) {
+    if (!groups.length) {
       sectionsEl.innerHTML = `<div style="text-align:center;padding:48px 20px;">
         <div style="font-size:32px;margin-bottom:12px;">🌱</div>
         <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px;">No habits yet</div>
-        <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px;line-height:1.6;">Add habits in Compound first — they'll show up here automatically.</div>
-        <a href="/" style="display:inline-block;background:#5C7FA0;color:#fff;border-radius:10px;padding:10px 22px;font-size:14px;font-weight:600;text-decoration:none;">← Go to Compound</a>
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px;line-height:1.6;">Go through the setup in Compound to pick your habits — they'll appear here automatically.</div>
+        <a href="/" style="display:inline-block;background:#5C7FA0;color:#fff;border-radius:10px;padding:10px 22px;font-size:14px;font-weight:600;text-decoration:none;">← Back to Compound</a>
       </div>`;
       momentumValue.textContent = '—';
       momentumDetail.textContent = '';
       return;
     }
-
-    // Sort: cut habits first, then build, alphabetical within each
-    const cutHabits  = userHabits.filter(h =>  isCut(h.text));
-    const buildHabits = userHabits.filter(h => !isCut(h.text));
-
-    const groups = [];
-    if (cutHabits.length)  groups.push({ title:'Cut',   color:'var(--cut)',  cls:'cut',  habits:cutHabits  });
-    if (buildHabits.length) groups.push({ title:'Build', color:'var(--grow)', cls:'grow', habits:buildHabits });
 
     let totalScore = 0;
     let habitCount = 0;
@@ -231,7 +238,7 @@
 
       const head = document.createElement('div');
       head.className = 'ledger-head';
-      head.innerHTML = '<span></span>' + DAY_LABELS.map(d=>`<span>${d}</span>`).join('') + '<span>week</span>';
+      head.innerHTML = '<span></span>' + DAY_LABELS.map(d=>`<span>${d}</span>`).join('') + '<span>score</span>';
       ledger.appendChild(head);
 
       cat.habits.forEach(h => {
@@ -239,7 +246,7 @@
         row.className = 'habit-row';
 
         const nameCell = document.createElement('div');
-        nameCell.innerHTML = `<div class="habit-name">${esc(h.text)}</div>`;
+        nameCell.innerHTML = `<div class="habit-name">${esc(h.text)}</div><div style="font-size:10px;color:var(--text-faint);margin-top:2px;">target: ${h.target||7}/wk</div>`;
         row.appendChild(nameCell);
 
         let count = 0;
@@ -251,18 +258,18 @@
           btn.className = 'check ' + cat.cls + (checked ? ' checked' : '') + (dayDate === todayStr ? ' today' : '');
           btn.innerHTML = checkIcon();
           btn.setAttribute('aria-label', h.text + ' — ' + dayDate);
-          btn.addEventListener('click', () => toggleLog(h.id, dayDate));
+          btn.addEventListener('click', () => toggle(h.id, dayDate));
           row.appendChild(btn);
         }
 
-        const target = 7;
+        const target = h.target || 7;
         const pct = Math.round((count / target) * 100);
         totalScore += Math.min(pct, 100);
         habitCount++;
         const status = pct >= 100 ? 'ahead' : pct >= 57 ? 'onpace' : 'behind';
         const scoreCell = document.createElement('div');
         scoreCell.className = 'score ' + status;
-        scoreCell.textContent = count + '/7';
+        scoreCell.textContent = count + '/' + target;
         row.appendChild(scoreCell);
 
         ledger.appendChild(row);
@@ -275,14 +282,57 @@
     const avgPct = habitCount ? Math.round(totalScore / habitCount) : 0;
     momentumValue.textContent = avgPct + '%';
     momentumValue.style.color = avgPct >= 80 ? 'var(--ahead)' : avgPct >= 50 ? 'var(--onpace)' : 'var(--behind)';
-    const isCurrentWeek = fmt(mondayOf(new Date())) === fmt(currentMonday);
-    momentumDetail.textContent = isCurrentWeek ? 'this week · live' : 'archived week';
-    footerNote.textContent = 'Tap a day to log it · syncs with your Compound habits tracker · check a Cut habit = you avoided it that day';
+    momentumDetail.textContent = fmt(mondayOf(new Date())) === fmt(currentMonday) ? 'this week · live' : 'archived week';
+    footerNote.textContent = isLegacy
+      ? 'Tap a box to log · Cut = you successfully avoided it that day · stored locally'
+      : 'Tap a box to log · syncs with your Compound habit tracker · Cut = avoided it that day';
   }
 
+  // ── Toggle (unified) ───────────────────────────────────────────────────
+  async function toggle(hId, dateStr){
+    const was = !!(weekLogs[hId]?.has(dateStr));
+    if (!weekLogs[hId]) weekLogs[hId] = new Set();
+    if (was) weekLogs[hId].delete(dateStr); else weekLogs[hId].add(dateStr);
+    render();
+    if (isLegacy) { saveLegacyWeek(); return; }
+    try {
+      if (was) {
+        await sb.from('habit_logs').delete()
+          .eq('habit_id', hId).eq('user_id', currentUser.id).eq('logged_date', dateStr);
+      } else {
+        await sb.from('habit_logs')
+          .insert({ habit_id: hId, user_id: currentUser.id, logged_date: dateStr });
+      }
+    } catch(e) {
+      if (was) weekLogs[hId].add(dateStr); else weekLogs[hId].delete(dateStr);
+      render();
+    }
+  }
+
+  // ── Legacy localStorage persistence ────────────────────────────────────
+  function legacyKey(){ return 'ledger-week:' + fmt(currentMonday); }
+  function loadLegacyWeek(){
+    try {
+      const raw = localStorage.getItem(legacyKey());
+      const data = raw ? JSON.parse(raw) : {};
+      weekLogs = {};
+      for (const [hId, checks] of Object.entries(data)){
+        weekLogs[hId] = new Set();
+        for (let i = 0; i < 7; i++) if (checks[i]) weekLogs[hId].add(fmt(addDays(currentMonday, i)));
+      }
+    } catch(e){ weekLogs = {}; }
+  }
+  function saveLegacyWeek(){
+    const data = {};
+    for (const [hId, s] of Object.entries(weekLogs))
+      data[hId] = Array.from({length:7}, (_, i) => s.has(fmt(addDays(currentMonday, i))));
+    try { localStorage.setItem(legacyKey(), JSON.stringify(data)); } catch(e) {}
+  }
+
+  // ── Week loader ─────────────────────────────────────────────────────────
   async function loadWeek(){
-    const monday = fmt(currentMonday);
-    const sunday = fmt(addDays(currentMonday, 6));
+    if (isLegacy){ loadLegacyWeek(); render(); return; }
+    const monday = fmt(currentMonday), sunday = fmt(addDays(currentMonday, 6));
     try {
       const { data, error } = await sb.from('habit_logs')
         .select('habit_id, logged_date')
@@ -290,37 +340,12 @@
         .gte('logged_date', monday)
         .lte('logged_date', sunday);
       weekLogs = {};
-      if (!error && data) {
-        for (const log of data) {
-          if (!weekLogs[log.habit_id]) weekLogs[log.habit_id] = new Set();
-          weekLogs[log.habit_id].add(log.logged_date);
-        }
+      if (!error && data) for (const log of data){
+        if (!weekLogs[log.habit_id]) weekLogs[log.habit_id] = new Set();
+        weekLogs[log.habit_id].add(log.logged_date);
       }
-    } catch(e) {}
+    } catch(e){ weekLogs = {}; }
     render();
-  }
-
-  async function toggleLog(habitId, dateStr){
-    const already = !!(weekLogs[habitId]?.has(dateStr));
-    // Optimistic update
-    if (!weekLogs[habitId]) weekLogs[habitId] = new Set();
-    if (already) weekLogs[habitId].delete(dateStr);
-    else weekLogs[habitId].add(dateStr);
-    render();
-    try {
-      if (already) {
-        await sb.from('habit_logs').delete()
-          .eq('habit_id', habitId).eq('user_id', currentUser.id).eq('logged_date', dateStr);
-      } else {
-        await sb.from('habit_logs')
-          .insert({ habit_id: habitId, user_id: currentUser.id, logged_date: dateStr });
-      }
-    } catch(e) {
-      // Revert on error
-      if (already) weekLogs[habitId].add(dateStr);
-      else weekLogs[habitId].delete(dateStr);
-      render();
-    }
   }
 
   document.getElementById('prevWeek').addEventListener('click', () => { currentMonday = addDays(currentMonday,-7); loadWeek(); });
@@ -336,12 +361,23 @@
     currentUser = user;
     document.getElementById('app').style.display = 'block';
 
-    // Load user's real habits
-    const { data, error } = await sb.from('habits')
-      .select('id, text, created_at')
-      .eq('user_id', currentUser.id)
-      .order('created_at', { ascending: true });
-    if (!error && data) userHabits = data;
+    if (user.email === OWNER_EMAIL) {
+      // Owner (Savrio): use hardcoded life-audit habits + localStorage
+      isLegacy = true;
+      groups   = LEGACY_GROUPS;
+    } else {
+      // Everyone else: load from Compound habits table, auto-categorize
+      const { data, error } = await sb.from('habits')
+        .select('id, text, created_at')
+        .eq('user_id', currentUser.id)
+        .order('created_at', { ascending: true });
+      const habits = (!error && data) ? data : [];
+      const cutH  = habits.filter(h =>  isCut(h.text)).map(h => ({...h, target:7}));
+      const buildH = habits.filter(h => !isCut(h.text)).map(h => ({...h, target:7}));
+      groups = [];
+      if (cutH.length)   groups.push({ title:'Cut',   color:'var(--cut)',  cls:'cut',  habits:cutH  });
+      if (buildH.length) groups.push({ title:'Build', color:'var(--grow)', cls:'grow', habits:buildH });
+    }
 
     await loadWeek();
   }

@@ -508,6 +508,14 @@
         </label>
       </div>
     </div>
+    <div class="settings-section" style="padding-top:16px;border-top:1px solid var(--border);">
+      <span class="settings-label">Quick links</span>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+        <a href="/ledger" style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);text-decoration:none;padding:9px 12px;border:1px solid var(--border);border-radius:10px;transition:background 0.15s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background=''">📋 Life Audit <span style="margin-left:auto;color:var(--muted);font-size:12px;">weekly view →</span></a>
+        <button onclick="document.getElementById('settings-modal').classList.remove('show');openGuide();" style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);background:none;border:1px solid var(--border);border-radius:10px;padding:9px 12px;cursor:pointer;font-family:inherit;width:100%;text-align:left;transition:background 0.15s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background=''">? User guide <span style="margin-left:auto;color:var(--muted);font-size:12px;">how to use Compound →</span></button>
+        <button id="btn-redo-setup" onclick="document.getElementById('settings-modal').classList.remove('show');setTimeout(showOnboarding,200);" style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);background:none;border:1px solid var(--border);border-radius:10px;padding:9px 12px;cursor:pointer;font-family:inherit;width:100%;text-align:left;transition:background 0.15s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background=''">🔧 Redo setup <span style="margin-left:auto;color:var(--muted);font-size:12px;">pick habits again →</span></button>
+      </div>
+    </div>
     <div class="settings-section" id="settings-signout-row" style="padding-top:16px;border-top:1px solid var(--border);">
       <button id="btn-signout-modal" style="width:100%;background:none;border:1.5px solid var(--border);border-radius:10px;padding:10px;font-size:13px;color:var(--muted);cursor:pointer;font-family:inherit;">Sign out</button>
     </div>
