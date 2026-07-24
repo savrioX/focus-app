@@ -151,8 +151,10 @@
 
   const DAY_LABELS = ['M','T','W','T','F','S','S'];
 
-  const CUT_WORDS = ['porn','weed','alcohol','gaming','smoke','vap','junk food','soda','drug','social media','phone before','doomscroll','no social'];
-  function isCut(text){ const t=text.toLowerCase(); return CUT_WORDS.some(k=>t.includes(k)); }
+  const CUT_WORDS     = ['porn','weed','alcohol','gaming','smoke','vap','junk food','soda','drug','social media','phone before','doomscroll','no social'];
+  const PROTECT_WORDS = ['sleep','water','meditat','journal','gratitude','stretch','walk','vitamin','sunlight','cold shower','breathe','reading','read','study','pray'];
+  function isCut(text)     { const t=text.toLowerCase(); return CUT_WORDS.some(k=>t.includes(k)); }
+  function isProtect(text) { const t=text.toLowerCase(); return PROTECT_WORDS.some(k=>t.includes(k)); }
 
   function mondayOf(d){
     const date = new Date(d); const day = date.getDay();
@@ -186,14 +188,42 @@
     sectionsEl.innerHTML = '';
 
     if (!groups.length) {
-      sectionsEl.innerHTML = `<div style="text-align:center;padding:48px 20px;">
-        <div style="font-size:32px;margin-bottom:12px;">🌱</div>
-        <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px;">No habits yet</div>
-        <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px;line-height:1.6;">Go through the setup in Compound to pick your habits — they'll appear here automatically.</div>
-        <a href="/" style="display:inline-block;background:#5C7FA0;color:#fff;border-radius:10px;padding:10px 22px;font-size:14px;font-weight:600;text-decoration:none;">← Back to Compound</a>
-      </div>`;
       momentumValue.textContent = '—';
       momentumDetail.textContent = '';
+      sectionsEl.innerHTML = '';
+
+      const emptyWrap = document.createElement('div');
+      emptyWrap.style.cssText = 'text-align:center;padding:32px 20px 16px;';
+      emptyWrap.innerHTML = `<div style="font-size:32px;margin-bottom:12px;">🌱</div>
+        <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px;">No habits yet</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6;">Add your habits below — they'll sync with the main app.</div>`;
+      sectionsEl.appendChild(emptyWrap);
+
+      [
+        { title:'Cut',      color:'var(--cut)',     cls:'cut'     },
+        { title:'Maintain', color:'var(--protect)', cls:'protect' },
+        { title:'Build',    color:'var(--grow)',    cls:'grow'    },
+      ].forEach(cat => {
+        const card = document.createElement('div');
+        card.style.cssText = 'background:var(--surface);border:1px solid var(--hairline);border-radius:14px;padding:16px 18px;margin-bottom:16px;text-align:left;';
+        card.innerHTML = `<div style="font-family:\'IBM Plex Mono\',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px;">
+          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${cat.color};margin-right:8px;"></span>${cat.title}</div>`;
+        const form = document.createElement('div');
+        form.style.cssText = 'display:flex;gap:8px;align-items:center;';
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.placeholder = `Add ${cat.title.toLowerCase()} habit…`;
+        inp.style.cssText = 'flex:1;background:var(--surface-raised);border:1px solid var(--hairline);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);font-family:inherit;outline:none;min-width:0;';
+        const btn = document.createElement('button');
+        btn.textContent = 'Add';
+        btn.style.cssText = `background:${cat.color};border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap;opacity:0.9;`;
+        const doAdd = () => addHabit(inp.value.trim(), cat.cls);
+        btn.addEventListener('click', doAdd);
+        inp.addEventListener('keydown', e => { if(e.key==='Enter') doAdd(); });
+        form.appendChild(inp); form.appendChild(btn);
+        card.appendChild(form);
+        sectionsEl.appendChild(card);
+      });
       return;
     }
 
@@ -339,10 +369,18 @@
         .single();
       if (error) throw error;
       const newHabit = { ...data, target: 7 };
-      if (isCut(data.text)) {
+      const cls = isCut(data.text) ? 'cut' : isProtect(data.text) ? 'protect' : (targetCls || 'grow');
+      if (cls === 'cut') {
         const g = groups.find(g => g.cls === 'cut');
         if (g) g.habits.push(newHabit);
         else groups.unshift({ title:'Cut', color:'var(--cut)', cls:'cut', habits:[newHabit] });
+      } else if (cls === 'protect') {
+        const g = groups.find(g => g.cls === 'protect');
+        if (g) g.habits.push(newHabit);
+        else {
+          const ci = groups.findIndex(g => g.cls === 'cut');
+          groups.splice(ci >= 0 ? ci + 1 : 0, 0, { title:'Maintain', color:'var(--protect)', cls:'protect', habits:[newHabit] });
+        }
       } else {
         const g = groups.find(g => g.cls === 'grow');
         if (g) g.habits.push(newHabit);
@@ -406,11 +444,13 @@
       .eq('user_id', currentUser.id)
       .order('created_at', { ascending: true });
     const habits = (!error && data) ? data : [];
-    const cutH   = habits.filter(h =>  isCut(h.text)).map(h => ({...h, target:7}));
-    const buildH = habits.filter(h => !isCut(h.text)).map(h => ({...h, target:7}));
+    const cutH     = habits.filter(h =>  isCut(h.text)).map(h => ({...h, target:7}));
+    const maintH   = habits.filter(h => !isCut(h.text) && isProtect(h.text)).map(h => ({...h, target:7}));
+    const buildH   = habits.filter(h => !isCut(h.text) && !isProtect(h.text)).map(h => ({...h, target:7}));
     groups = [];
-    if (cutH.length)   groups.push({ title:'Cut',   color:'var(--cut)',  cls:'cut',  habits:cutH  });
-    if (buildH.length) groups.push({ title:'Build', color:'var(--grow)', cls:'grow', habits:buildH });
+    if (cutH.length)   groups.push({ title:'Cut',      color:'var(--cut)',     cls:'cut',     habits:cutH   });
+    if (maintH.length) groups.push({ title:'Maintain', color:'var(--protect)', cls:'protect', habits:maintH });
+    if (buildH.length) groups.push({ title:'Build',    color:'var(--grow)',    cls:'grow',    habits:buildH });
 
     applyTargets();
     await loadWeek();
