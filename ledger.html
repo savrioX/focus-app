@@ -3,11 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Ledger — Compound</title>
+<title>The Ledger</title>
 <link rel="icon" type="image/png" href="logo.PNG">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --bg: #15171B;
@@ -17,72 +16,224 @@
     --text: #ECEDEF;
     --text-muted: #888E99;
     --text-faint: #565B64;
+
     --cut: #9B5140;
     --cut-soft: rgba(155, 81, 64, 0.16);
     --protect: #A08A5A;
     --protect-soft: rgba(160, 138, 90, 0.16);
     --grow: #5C7FA0;
     --grow-soft: rgba(92, 127, 160, 0.16);
+
     --ahead: #7C9A6E;
     --onpace: #C4A35A;
     --behind: #B3654A;
   }
+
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; padding: 40px 24px 80px; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    padding: 40px 24px 80px;
+    min-height: 100vh;
+  }
+
   .page { max-width: 880px; margin: 0 auto; }
 
-  /* Auth gate */
-  #auth-gate { display: flex; align-items: center; justify-content: center; min-height: 80vh; flex-direction: column; gap: 16px; text-align: center; }
-  #auth-gate p { color: var(--text-muted); font-size: 14px; }
-  .gate-btn { background: #7c3aed; color: #fff; border: none; border-radius: 10px; padding: 12px 28px; font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; }
-  .gate-btn:hover { opacity: 0.88; }
-
-  /* Nav */
-  .nav-back { display: inline-flex; align-items: center; gap: 6px; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 12px; text-decoration: none; letter-spacing: 0.04em; margin-bottom: 32px; transition: color .15s; }
-  .nav-back:hover { color: var(--text); }
-
   /* Header */
-  .masthead { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px; gap: 20px; flex-wrap: wrap; }
-  .masthead-title { font-family: 'Fraunces', serif; font-weight: 500; font-size: 40px; letter-spacing: -0.01em; line-height: 1; }
-  .masthead-sub { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text-muted); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 8px; }
-  .week-nav { display: flex; align-items: center; gap: 14px; font-family: 'IBM Plex Mono', monospace; }
-  .week-nav button { background: var(--surface-raised); border: 1px solid var(--hairline); color: var(--text); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; transition: border-color .15s; }
+  .masthead {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 8px;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .masthead-title {
+    font-family: 'Fraunces', serif;
+    font-optical-sizing: auto;
+    font-weight: 500;
+    font-size: 40px;
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+
+  .masthead-sub {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+
+  .week-nav {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .week-nav button {
+    background: var(--surface-raised);
+    border: 1px solid var(--hairline);
+    color: var(--text);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color .15s;
+  }
   .week-nav button:hover { border-color: var(--text-muted); }
   .week-nav button:focus-visible { outline: 2px solid var(--grow); outline-offset: 2px; }
-  .week-label { font-size: 13px; color: var(--text-muted); min-width: 148px; text-align: center; }
-  hr.divider { border: none; border-top: 1px solid var(--hairline); margin: 24px 0 28px; }
 
-  /* Momentum */
-  .momentum { display: flex; align-items: baseline; justify-content: space-between; background: var(--surface); border: 1px solid var(--hairline); border-radius: 14px; padding: 20px 24px; margin-bottom: 32px; }
-  .momentum-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
-  .momentum-value { font-family: 'Fraunces', serif; font-weight: 500; font-size: 34px; }
-  .momentum-detail { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text-muted); text-align: right; }
+  .week-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    min-width: 148px;
+    text-align: center;
+  }
+
+  hr.divider {
+    border: none;
+    border-top: 1px solid var(--hairline);
+    margin: 24px 0 28px;
+  }
+
+  /* Momentum summary strip */
+  .momentum {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 32px;
+  }
+
+  .momentum-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .momentum-value {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 34px;
+  }
+
+  .momentum-detail {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: right;
+  }
 
   /* Sections */
   .section { margin-bottom: 30px; }
-  .section-tab { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-  .tab-dot { width: 8px; height: 8px; border-radius: 50%; }
-  .section-title { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
-  .section-count { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-faint); }
 
-  .ledger { background: var(--surface); border: 1px solid var(--hairline); border-radius: 14px; overflow: hidden; }
-  .ledger-head { display: grid; grid-template-columns: 1fr repeat(7, 34px) 64px; gap: 4px; padding: 12px 18px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 0.04em; text-transform: uppercase; }
+  .section-tab {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .tab-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  .section-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .section-count {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-faint);
+  }
+
+  .ledger {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .ledger-head {
+    display: grid;
+    grid-template-columns: 1fr repeat(7, 34px) 64px;
+    gap: 4px;
+    padding: 12px 18px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    color: var(--text-faint);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
   .ledger-head span { text-align: center; }
   .ledger-head span:first-child { text-align: left; }
   .ledger-head span:last-child { text-align: right; }
 
-  .habit-row { display: grid; grid-template-columns: 1fr repeat(7, 34px) 64px; gap: 4px; align-items: center; padding: 13px 18px; border-top: 1px solid var(--hairline); transition: background .12s; }
-  .habit-row:hover { background: var(--surface-raised); }
-  .habit-name { font-size: 14px; font-weight: 500; }
-  .habit-target { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .habit-row {
+    display: grid;
+    grid-template-columns: 1fr repeat(7, 34px) 64px;
+    gap: 4px;
+    align-items: center;
+    padding: 13px 18px;
+    border-top: 1px solid var(--hairline);
+  }
 
-  .check { width: 24px; height: 24px; margin: 0 auto; border-radius: 6px; border: 1px solid var(--hairline); background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: background .12s, border-color .12s, transform .08s; }
+  .habit-name {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .habit-target {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-faint);
+    margin-top: 2px;
+  }
+
+  .check {
+    width: 24px;
+    height: 24px;
+    margin: 0 auto;
+    border-radius: 6px;
+    border: 1px solid var(--hairline);
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: background .12s, border-color .12s, transform .08s;
+  }
   .check:hover { border-color: var(--text-muted); }
   .check:active { transform: scale(0.92); }
   .check:focus-visible { outline: 2px solid var(--grow); outline-offset: 2px; }
+
   .check.today { border-color: var(--text-muted); }
+
   .check svg { width: 13px; height: 13px; opacity: 0; transition: opacity .1s; }
   .check.checked svg { opacity: 1; }
+
   .check.checked.cut { background: var(--cut-soft); border-color: var(--cut); }
   .check.checked.cut svg { stroke: var(--cut); }
   .check.checked.protect { background: var(--protect-soft); border-color: var(--protect); }
@@ -90,31 +241,38 @@
   .check.checked.grow { background: var(--grow-soft); border-color: var(--grow); }
   .check.checked.grow svg { stroke: var(--grow); }
 
-  .score { font-family: 'IBM Plex Mono', monospace; font-size: 13px; text-align: right; font-weight: 500; }
+  .score {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    text-align: right;
+    font-weight: 500;
+  }
   .score.ahead { color: var(--ahead); }
   .score.onpace { color: var(--onpace); }
   .score.behind { color: var(--behind); }
 
-  footer { margin-top: 28px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-muted); text-align: center; line-height: 1.6; }
+  footer {
+    margin-top: 28px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-faint);
+    text-align: center;
+    line-height: 1.6;
+  }
 
   @media (max-width: 640px) {
     .ledger-head, .habit-row { grid-template-columns: 1fr repeat(7, 26px) 48px; padding-left: 12px; padding-right: 12px; }
     .check { width: 20px; height: 20px; }
     .masthead-title { font-size: 30px; }
   }
-  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
 </style>
 </head>
 <body>
-
-<div id="auth-gate" style="display:none;">
-  <div style="font-size: 32px; margin-bottom: 4px;">🔒</div>
-  <p>Sign in to access your Ledger.</p>
-  <a href="/" class="gate-btn">Go to Compound</a>
-</div>
-
-<div class="page" id="app" style="display:none;">
-  <a href="/" class="nav-back">← Back to Compound</a>
+<div class="page">
 
   <div class="masthead">
     <div>
@@ -141,41 +299,64 @@
   <div id="sections"></div>
 
   <footer id="footerNote"></footer>
+
 </div>
 
 <script>
 (function(){
-  const SUPABASE_URL  = 'https://diwwapnpnffubepdvrxg.supabase.co';
-  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRpd3dhcG5wbmZmdWJlcGR2cnhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MDU1OTgsImV4cCI6MjA5NDI4MTU5OH0.UFCnZe_a0LhOifMph-61zP3dHniF95jiiHtGpw3z45w';
-  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-
   const DAY_LABELS = ['M','T','W','T','F','S','S'];
-
-  const CUT_WORDS     = ['porn','weed','alcohol','gaming','smoke','vap','junk food','soda','drug','social media','phone before','doomscroll','no social'];
-  const PROTECT_WORDS = ['sleep','water','meditat','journal','gratitude','stretch','walk','vitamin','sunlight','cold shower','breathe','reading','read','study','pray'];
-  function isCut(text)     { const t=text.toLowerCase(); return CUT_WORDS.some(k=>t.includes(k)); }
-  function isProtect(text) { const t=text.toLowerCase(); return PROTECT_WORDS.some(k=>t.includes(k)); }
+  const CATEGORIES = [
+    { key:'cut', title:'Cut', color:'var(--cut)', class:'cut',
+      habits: [
+        { id:'porn',   name:'Porn',         target:7, note:'avoided' },
+        { id:'weed',   name:'Weed',         target:7, note:'avoided' },
+        { id:'social', name:'Social media', target:7, note:'stayed limited' },
+      ]},
+    { key:'protect', title:'Protect', color:'var(--protect)', class:'protect',
+      habits: [
+        { id:'lifting',          name:'Lifting',          target:3, note:'3x / wk' },
+        { id:'selfcare',         name:'Self-care',        target:7, note:'daily' },
+        { id:'meditation',       name:'Meditation',       target:6, note:'near-daily' },
+        { id:'entrepreneurship', name:'Entrepreneurship', target:6, note:'near-daily' },
+        { id:'stretching',       name:'Stretching',       target:7, note:'daily' },
+      ]},
+    { key:'grow', title:'Grow', color:'var(--grow)', class:'grow',
+      habits: [
+        { id:'cardio',  name:'Cardio',  target:3, note:'3x / wk, up from 2' },
+        { id:'reading', name:'Reading', target:7, note:'daily, up from a few' },
+      ]},
+  ];
+  const ALL_HABITS = CATEGORIES.flatMap(c => c.habits.map(h => ({...h, cat:c.class})));
 
   function mondayOf(d){
-    const date = new Date(d); const day = date.getDay();
-    date.setDate(date.getDate()+(day===0?-6:1)-day);
-    date.setHours(0,0,0,0); return date;
+    const date = new Date(d);
+    const day = date.getDay();
+    const diff = (day === 0 ? -6 : 1) - day;
+    date.setDate(date.getDate() + diff);
+    date.setHours(0,0,0,0);
+    return date;
   }
-  function fmt(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
-  function addDays(d, n){ const nd = new Date(d); nd.setDate(nd.getDate()+n); return nd; }
-  function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function fmt(d){
+    return d.toISOString().slice(0,10);
+  }
+  function addDays(d, n){
+    const nd = new Date(d);
+    nd.setDate(nd.getDate() + n);
+    return nd;
+  }
+  function weekKey(monday){
+    return 'ledger-week:' + fmt(monday);
+  }
 
-  let currentUser   = null;
   let currentMonday = mondayOf(new Date());
-  const todayStr    = fmt(new Date());
-  let groups        = [];     // [{title,color,cls,habits:[{id,text,target}]}]
-  let weekLogs      = {};     // id → Set<dateStr>
+  const todayStr = fmt(new Date());
+  let weekData = {};
 
-  const sectionsEl     = document.getElementById('sections');
-  const weekLabelEl    = document.getElementById('weekLabel');
-  const momentumValue  = document.getElementById('momentumValue');
-  const momentumDetail = document.getElementById('momentumDetail');
-  const footerNote     = document.getElementById('footerNote');
+  const sectionsEl      = document.getElementById('sections');
+  const weekLabelEl     = document.getElementById('weekLabel');
+  const momentumValueEl = document.getElementById('momentumValue');
+  const momentumDetailEl = document.getElementById('momentumDetail');
+  const footerNote      = document.getElementById('footerNote');
 
   function checkIcon(){
     return '<svg viewBox="0 0 16 16" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5L6.2 12 13 4"/></svg>';
@@ -185,52 +366,11 @@
     const sunday = addDays(currentMonday, 6);
     const opts = { month:'short', day:'numeric' };
     weekLabelEl.textContent = currentMonday.toLocaleDateString('en-US', opts) + ' – ' + sunday.toLocaleDateString('en-US', opts);
+
     sectionsEl.innerHTML = '';
+    let totalPct = 0;
 
-    if (!groups.length) {
-      momentumValue.textContent = '—';
-      momentumDetail.textContent = '';
-      sectionsEl.innerHTML = '';
-
-      const emptyWrap = document.createElement('div');
-      emptyWrap.style.cssText = 'text-align:center;padding:32px 20px 16px;';
-      emptyWrap.innerHTML = `<div style="font-size:32px;margin-bottom:12px;">🌱</div>
-        <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px;">No habits yet</div>
-        <div style="font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6;">Add your habits below — they'll sync with the main app.</div>`;
-      sectionsEl.appendChild(emptyWrap);
-
-      [
-        { title:'Cut',      color:'var(--cut)',     cls:'cut'     },
-        { title:'Maintain', color:'var(--protect)', cls:'protect' },
-        { title:'Build',    color:'var(--grow)',    cls:'grow'    },
-      ].forEach(cat => {
-        const card = document.createElement('div');
-        card.style.cssText = 'background:var(--surface);border:1px solid var(--hairline);border-radius:14px;padding:16px 18px;margin-bottom:16px;text-align:left;';
-        card.innerHTML = `<div style="font-family:\'IBM Plex Mono\',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px;">
-          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${cat.color};margin-right:8px;"></span>${cat.title}</div>`;
-        const form = document.createElement('div');
-        form.style.cssText = 'display:flex;gap:8px;align-items:center;';
-        const inp = document.createElement('input');
-        inp.type = 'text';
-        inp.placeholder = `Add ${cat.title.toLowerCase()} habit…`;
-        inp.style.cssText = 'flex:1;background:var(--surface-raised);border:1px solid var(--hairline);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);font-family:inherit;outline:none;min-width:0;';
-        const btn = document.createElement('button');
-        btn.textContent = 'Add';
-        btn.style.cssText = `background:${cat.color};border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap;opacity:0.9;`;
-        const doAdd = () => addHabit(inp.value.trim(), cat.cls);
-        btn.addEventListener('click', doAdd);
-        inp.addEventListener('keydown', e => { if(e.key==='Enter') doAdd(); });
-        form.appendChild(inp); form.appendChild(btn);
-        card.appendChild(form);
-        sectionsEl.appendChild(card);
-      });
-      return;
-    }
-
-    let totalScore = 0;
-    let habitCount = 0;
-
-    groups.forEach(cat => {
+    CATEGORIES.forEach(cat => {
       const section = document.createElement('div');
       section.className = 'section';
 
@@ -254,209 +394,86 @@
         row.className = 'habit-row';
 
         const nameCell = document.createElement('div');
-        const tgt = h.target || 7;
-        const targetEl = document.createElement('div');
-        targetEl.style.cssText = 'font-size:10px;color:var(--text-faint);margin-top:3px;display:flex;align-items:center;gap:4px;';
-        targetEl.innerHTML = `target: <input type="number" min="1" max="7" value="${tgt}" style="width:28px;background:var(--surface-raised);border:1px solid var(--hairline);border-radius:4px;color:var(--text);font-size:10px;text-align:center;padding:1px 2px;font-family:inherit;" aria-label="Target for ${esc(h.text)}">/wk`;
-        targetEl.querySelector('input').addEventListener('change', e => {
-          const v = Math.max(1, Math.min(7, parseInt(e.target.value)||7));
-          e.target.value = v;
-          h.target = v;
-          saveTargets();
-          render();
-        });
-        nameCell.innerHTML = `<div class="habit-name">${esc(h.text)}</div>`;
-        nameCell.appendChild(targetEl);
+        nameCell.innerHTML = `<div class="habit-name">${h.name}</div><div class="habit-target">${h.note}</div>`;
         row.appendChild(nameCell);
 
-        let count = 0;
+        const checks = (weekData[h.id] && weekData[h.id].length === 7) ? weekData[h.id] : [false,false,false,false,false,false,false];
+        weekData[h.id] = checks;
+
         for (let i = 0; i < 7; i++){
           const dayDate = fmt(addDays(currentMonday, i));
-          const checked = !!(weekLogs[h.id]?.has(dayDate));
-          if (checked) count++;
           const btn = document.createElement('button');
-          btn.className = 'check ' + cat.cls + (checked ? ' checked' : '') + (dayDate === todayStr ? ' today' : '');
+          btn.className = 'check ' + cat.class + (checks[i] ? ' checked' : '') + (dayDate === todayStr ? ' today' : '');
           btn.innerHTML = checkIcon();
-          btn.setAttribute('aria-label', h.text + ' — ' + dayDate);
-          btn.addEventListener('click', () => toggle(h.id, dayDate));
+          btn.setAttribute('aria-label', h.name + ' — ' + dayDate + (checks[i] ? ' completed' : ' not completed'));
+          btn.addEventListener('click', () => toggle(h.id, i));
           row.appendChild(btn);
         }
 
-        const target = h.target || 7;
-        const pct = Math.round((count / target) * 100);
-        totalScore += Math.min(pct, 100);
-        habitCount++;
-        const status = pct >= 100 ? 'ahead' : pct >= 57 ? 'onpace' : 'behind';
+        const count = checks.filter(Boolean).length;
+        const pct = Math.round((count / h.target) * 100);
+        totalPct += Math.min(pct, 100);
+        const status = pct >= 100 ? 'ahead' : pct >= 50 ? 'onpace' : 'behind';
         const scoreCell = document.createElement('div');
         scoreCell.className = 'score ' + status;
-        scoreCell.textContent = count + '/' + target;
+        scoreCell.textContent = count + '/' + h.target;
         row.appendChild(scoreCell);
 
         ledger.appendChild(row);
       });
 
       section.appendChild(ledger);
-
-      const addRow = document.createElement('div');
-      addRow.style.cssText = 'padding:10px 18px 18px;';
-      const addBtn = document.createElement('button');
-      addBtn.textContent = '+ Add habit to ' + cat.title;
-      addBtn.style.cssText = 'background:none;border:1px dashed var(--hairline);border-radius:8px;padding:7px 14px;font-size:12px;color:var(--text-muted);cursor:pointer;font-family:inherit;width:100%;text-align:left;letter-spacing:0.02em;transition:border-color .15s,color .15s;';
-      addBtn.addEventListener('mouseover', () => { addBtn.style.borderColor='var(--text-muted)'; addBtn.style.color='var(--text)'; });
-      addBtn.addEventListener('mouseout', () => { addBtn.style.borderColor='var(--hairline)'; addBtn.style.color='var(--text-muted)'; });
-      const addForm = document.createElement('div');
-      addForm.style.cssText = 'display:none;gap:8px;align-items:center;';
-      const addInput = document.createElement('input');
-      addInput.type = 'text';
-      addInput.placeholder = 'Habit name…';
-      addInput.style.cssText = 'flex:1;background:var(--surface-raised);border:1px solid var(--hairline);border-radius:8px;padding:7px 12px;font-size:13px;color:var(--text);font-family:inherit;outline:none;min-width:0;';
-      const addSubmit = document.createElement('button');
-      addSubmit.textContent = 'Add';
-      addSubmit.style.cssText = 'background:' + cat.color + ';border:none;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap;opacity:0.9;';
-      const addCancel = document.createElement('button');
-      addCancel.textContent = '✕';
-      addCancel.style.cssText = 'background:none;border:1px solid var(--hairline);border-radius:8px;padding:7px 10px;font-size:13px;color:var(--text-muted);cursor:pointer;font-family:inherit;';
-      addForm.appendChild(addInput); addForm.appendChild(addSubmit); addForm.appendChild(addCancel);
-      addBtn.addEventListener('click', () => { addBtn.style.display='none'; addForm.style.display='flex'; addInput.focus(); });
-      addCancel.addEventListener('click', () => { addBtn.style.display=''; addForm.style.display='none'; addInput.value=''; });
-      addSubmit.addEventListener('click', () => addHabit(addInput.value.trim(), cat.cls));
-      addInput.addEventListener('keydown', e => { if(e.key==='Enter') addHabit(addInput.value.trim(), cat.cls); if(e.key==='Escape') addCancel.click(); });
-      addRow.appendChild(addBtn); addRow.appendChild(addForm);
-      section.appendChild(addRow);
       sectionsEl.appendChild(section);
     });
 
-    const avgPct = habitCount ? Math.round(totalScore / habitCount) : 0;
-    momentumValue.textContent = avgPct + '%';
-    momentumValue.style.color = avgPct >= 80 ? 'var(--ahead)' : avgPct >= 50 ? 'var(--onpace)' : 'var(--behind)';
-    momentumDetail.textContent = fmt(mondayOf(new Date())) === fmt(currentMonday) ? 'this week · live' : 'archived week';
-    footerNote.textContent = 'Tap a box to log · syncs with your Compound habit tracker · Cut = avoided it that day';
+    const avgPct = Math.round(totalPct / ALL_HABITS.length);
+    momentumValueEl.textContent = avgPct + '%';
+    momentumValueEl.style.color = avgPct >= 100 ? 'var(--ahead)' : avgPct >= 50 ? 'var(--onpace)' : 'var(--behind)';
+    const isCurrentWeek = fmt(mondayOf(new Date())) === fmt(currentMonday);
+    momentumDetailEl.textContent = isCurrentWeek ? 'this week, live' : 'archived week';
+
+    footerNote.textContent = 'Tap a box to log the day · scores compare checked days against weekly target';
   }
 
-  // ── Toggle ─────────────────────────────────────────────────────────────
-  async function toggle(hId, dateStr){
-    const was = !!(weekLogs[hId]?.has(dateStr));
-    if (!weekLogs[hId]) weekLogs[hId] = new Set();
-    if (was) weekLogs[hId].delete(dateStr); else weekLogs[hId].add(dateStr);
-    render();
-    try {
-      let err;
-      if (was) {
-        ({ error: err } = await sb.from('habit_logs').delete()
-          .eq('habit_id', hId).eq('user_id', currentUser.id).eq('logged_date', dateStr));
-      } else {
-        ({ error: err } = await sb.from('habit_logs')
-          .upsert({ habit_id: hId, user_id: currentUser.id, logged_date: dateStr },
-                  { onConflict: 'habit_id,logged_date', ignoreDuplicates: true }));
-      }
-      if (err) throw err;
-    } catch(e) {
-      console.error('Ledger save error:', e?.message || e);
-      footerNote.textContent = 'Save failed: ' + (e?.message || 'unknown error — check browser console');
-      if (was) weekLogs[hId].add(dateStr); else weekLogs[hId].delete(dateStr);
-      render();
-    }
-  }
-
-  // ── Add habit ──────────────────────────────────────────────────────────
-  async function addHabit(text, targetCls){
-    if (!text) return;
-    footerNote.textContent = 'Adding…';
-    try {
-      const { data, error } = await sb.from('habits')
-        .insert({ user_id: currentUser.id, text })
-        .select('id, text, created_at')
-        .single();
-      if (error) throw error;
-      const newHabit = { ...data, target: 7 };
-      const cls = isCut(data.text) ? 'cut' : isProtect(data.text) ? 'protect' : (targetCls || 'grow');
-      if (cls === 'cut') {
-        const g = groups.find(g => g.cls === 'cut');
-        if (g) g.habits.push(newHabit);
-        else groups.unshift({ title:'Cut', color:'var(--cut)', cls:'cut', habits:[newHabit] });
-      } else if (cls === 'protect') {
-        const g = groups.find(g => g.cls === 'protect');
-        if (g) g.habits.push(newHabit);
-        else {
-          const ci = groups.findIndex(g => g.cls === 'cut');
-          groups.splice(ci >= 0 ? ci + 1 : 0, 0, { title:'Maintain', color:'var(--protect)', cls:'protect', habits:[newHabit] });
-        }
-      } else {
-        const g = groups.find(g => g.cls === 'grow');
-        if (g) g.habits.push(newHabit);
-        else groups.push({ title:'Build', color:'var(--grow)', cls:'grow', habits:[newHabit] });
-      }
-      footerNote.textContent = 'Tap a box to log · syncs with your Compound habit tracker · Cut = avoided it that day';
-      render();
-    } catch(e) {
-      footerNote.textContent = 'Could not add habit: ' + (e?.message || 'unknown error');
-    }
-  }
-
-  // ── Target persistence (localStorage, keyed by habit UUID) ────────────
-  function saveTargets(){
-    const targets = {};
-    for (const g of groups) for (const h of g.habits) targets[h.id] = h.target;
-    try { localStorage.setItem('ledger-targets-v2', JSON.stringify(targets)); } catch(e) {}
-  }
-  function applyTargets(){
-    try {
-      const raw = localStorage.getItem('ledger-targets-v2');
-      if (!raw) return;
-      const targets = JSON.parse(raw);
-      for (const g of groups) for (const h of g.habits) if (targets[h.id]) h.target = targets[h.id];
-    } catch(e) {}
-  }
-
-  // ── Week loader ─────────────────────────────────────────────────────────
   async function loadWeek(){
-    const monday = fmt(currentMonday), sunday = fmt(addDays(currentMonday, 6));
+    const key = weekKey(currentMonday);
     try {
-      const { data, error } = await sb.from('habit_logs')
-        .select('habit_id, logged_date')
-        .eq('user_id', currentUser.id)
-        .gte('logged_date', monday)
-        .lte('logged_date', sunday);
-      weekLogs = {};
-      if (!error && data) for (const log of data){
-        if (!weekLogs[log.habit_id]) weekLogs[log.habit_id] = new Set();
-        weekLogs[log.habit_id].add(log.logged_date);
-      }
-    } catch(e){ weekLogs = {}; }
+      const result = await window.storage.get(key, false);
+      weekData = result && result.value ? JSON.parse(result.value) : {};
+    } catch(e) {
+      weekData = {};
+    }
     render();
   }
 
-  document.getElementById('prevWeek').addEventListener('click', () => { currentMonday = addDays(currentMonday,-7); loadWeek(); });
-  document.getElementById('nextWeek').addEventListener('click', () => { currentMonday = addDays(currentMonday,7); loadWeek(); });
-
-  async function init(){
-    const { data: { session } } = await sb.auth.getSession();
-    const user = session?.user;
-    if (!user) {
-      document.getElementById('auth-gate').style.display = 'flex';
-      return;
+  async function saveWeek(){
+    const key = weekKey(currentMonday);
+    try {
+      await window.storage.set(key, JSON.stringify(weekData), false);
+    } catch(e) {
+      console.error('Storage error', e);
     }
-    currentUser = user;
-    document.getElementById('app').style.display = 'block';
-
-    const { data, error } = await sb.from('habits')
-      .select('id, text, created_at')
-      .eq('user_id', currentUser.id)
-      .order('created_at', { ascending: true });
-    const habits = (!error && data) ? data : [];
-    const cutH     = habits.filter(h =>  isCut(h.text)).map(h => ({...h, target:7}));
-    const maintH   = habits.filter(h => !isCut(h.text) && isProtect(h.text)).map(h => ({...h, target:7}));
-    const buildH   = habits.filter(h => !isCut(h.text) && !isProtect(h.text)).map(h => ({...h, target:7}));
-    groups = [];
-    if (cutH.length)   groups.push({ title:'Cut',      color:'var(--cut)',     cls:'cut',     habits:cutH   });
-    if (maintH.length) groups.push({ title:'Maintain', color:'var(--protect)', cls:'protect', habits:maintH });
-    if (buildH.length) groups.push({ title:'Build',    color:'var(--grow)',    cls:'grow',    habits:buildH });
-
-    applyTargets();
-    await loadWeek();
   }
 
-  init();
+  function toggle(habitId, dayIndex){
+    if (!weekData[habitId] || weekData[habitId].length !== 7){
+      weekData[habitId] = [false,false,false,false,false,false,false];
+    }
+    weekData[habitId][dayIndex] = !weekData[habitId][dayIndex];
+    render();
+    saveWeek();
+  }
+
+  document.getElementById('prevWeek').addEventListener('click', () => {
+    currentMonday = addDays(currentMonday, -7);
+    loadWeek();
+  });
+  document.getElementById('nextWeek').addEventListener('click', () => {
+    currentMonday = addDays(currentMonday, 7);
+    loadWeek();
+  });
+
+  loadWeek();
 })();
 </script>
 </body>
