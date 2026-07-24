@@ -111,13 +111,13 @@
     .btn-icon:hover { color: var(--text); border-color: var(--muted); background: var(--surface); }
 
     /* ── Active context card ─────────────── */
-    .context-card { background: linear-gradient(135deg,rgba(124,58,237,0.09),rgba(167,105,255,0.04)); border: 1px solid rgba(124,58,237,0.22); border-radius: 16px; padding: 18px 22px; margin-bottom: 24px; cursor: text; transition: border-color 0.2s; }
-    .context-card:hover { border-color: rgba(124,58,237,0.45); }
+    .context-card { background: linear-gradient(135deg,rgba(124,58,237,0.22),rgba(167,105,255,0.10)), #0e0b18; border: 1px solid rgba(124,58,237,0.35); border-radius: 16px; padding: 18px 22px; margin-bottom: 24px; cursor: text; transition: border-color 0.2s; }
+    .context-card:hover { border-color: rgba(124,58,237,0.6); }
     .context-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #a769ff; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
-    .context-label span { font-size: 11px; font-weight: 400; letter-spacing: 0; text-transform: none; color: rgba(255,255,255,0.25); }
-    .context-body { font-size: 14px; color: rgba(255,255,255,0.8); line-height: 1.65; white-space: pre-wrap; word-break: break-word; }
-    .context-body.empty { color: rgba(255,255,255,0.28); font-style: italic; }
-    .context-card textarea { width: 100%; background: none; border: none; outline: none; font-family: inherit; font-size: 14px; color: rgba(255,255,255,0.85); line-height: 1.65; resize: none; min-height: 64px; }
+    .context-label span { font-size: 11px; font-weight: 400; letter-spacing: 0; text-transform: none; color: rgba(255,255,255,0.35); }
+    .context-body { font-size: 14px; color: rgba(255,255,255,0.85); line-height: 1.65; white-space: pre-wrap; word-break: break-word; }
+    .context-body.empty { color: rgba(255,255,255,0.35); font-style: italic; }
+    .context-card textarea { width: 100%; background: none; border: none; outline: none; font-family: inherit; font-size: 14px; color: rgba(255,255,255,0.9); line-height: 1.65; resize: none; min-height: 64px; caret-color: #a769ff; }
 
     /* ── Grid ────────────────────────────── */
     .grid-wrap { padding: 32px 24px 120px; max-width: 1000px; margin: 0 auto; }
