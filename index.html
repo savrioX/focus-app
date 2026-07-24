@@ -153,12 +153,15 @@
     @keyframes checkPulse { 0%{transform:scale(1)} 50%{transform:scale(1.28)} 100%{transform:scale(1)} }
     .check.on { background: var(--accent); border-color: var(--accent); animation: checkPulse 0.18s ease-out; }
     .check.on::after { content: ''; width: 9px; height: 5px; border-left: 2px solid var(--bg); border-bottom: 2px solid var(--bg); transform: rotate(-45deg) translateY(-1px); display: block; }
+    @keyframes floatUp { 0%{opacity:1;transform:translateY(0) scale(1)} 100%{opacity:0;transform:translateY(-28px) scale(0.8)} }
+    .float-plus { position:absolute; pointer-events:none; font-size:11px; font-weight:700; color:var(--accent); z-index:99; animation:floatUp 0.7s ease-out forwards; }
     .item-body { flex: 1; min-width: 0; }
     .item-label { font-size: 14px; line-height: 1.45; }
     .item-label.done { color: var(--faded); text-decoration: line-through; }
     .item-del { opacity: 0; background: none; border: none; cursor: pointer; color: var(--faded); font-size: 16px; line-height: 1; padding: 2px 5px; border-radius: 5px; flex-shrink: 0; margin-top: 2px; transition: opacity 0.1s, color 0.1s; }
     .item:hover .item-del { opacity: 1; }
     .item-del:hover { color: var(--red); }
+    @media (hover: none) { .item-del { opacity: 0.35; } }
 
     /* ── Habit streak ────────────────────── */
     .streak { font-size: 11px; color: var(--muted); margin-top: 2px; }
@@ -321,6 +324,10 @@
     #chat-send:hover { opacity: 0.75; }
     #chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
 
+    /* ── Sticky habits pill (mobile) ──────────── */
+    #habits-pill { display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--accent); color:var(--bg); font-size:13px; font-weight:700; padding:11px 22px; border-radius:99px; box-shadow:0 4px 20px rgba(0,0,0,0.35); cursor:pointer; border:none; font-family:inherit; white-space:nowrap; z-index:200; transition:opacity 0.2s; }
+    #habits-pill:hover { opacity:0.85; }
+
     /* ── Mobile fixes ────────────────────────── */
     @media (max-width: 620px) {
       .app-header-inner { height: auto; min-height: 52px; padding: 6px 14px; gap: 6px; flex-wrap: nowrap; }
@@ -425,6 +432,7 @@
 </div>
 
 <div id="toast"></div>
+<button id="habits-pill" onclick="document.getElementById('habits-list')?.scrollIntoView({behavior:'smooth',block:'start'})"></button>
 
 <!-- Guide panel -->
 <div id="guide-panel">
@@ -1664,6 +1672,17 @@ function renderHabits() {
   const doneToday = habits.filter(h => (h.habit_logs||[]).some(l => l.logged_date === today())).length;
   document.getElementById('habits-count').textContent = habits.length ? `${doneToday}/${habits.length} today` : '';
   updateStreakBadge();
+  // Sticky mobile pill
+  const pill = document.getElementById('habits-pill');
+  if (pill && habits.length > 0) {
+    const remaining = habits.length - doneToday;
+    if (remaining > 0 && window.innerWidth <= 620) {
+      pill.textContent = `🔥 ${remaining} habit${remaining>1?'s':''} to log today`;
+      pill.style.display = 'block';
+    } else {
+      pill.style.display = 'none';
+    }
+  }
   if (!habits.length) {
     const hChips = ['1hr deep work','Morning journaling','Exercise','Read 20 pages','No social media before noon'];
     list.innerHTML = `<div style="padding:14px 6px;">
@@ -1850,6 +1869,17 @@ document.addEventListener('click', async e => {
           if (error) throw error;
         } catch(e) { h.habit_logs.push({ logged_date: today() }); saveCache(); renderHabits(); toast('Could not update.'); }
       } else {
+        // Micro-delight: float "+1" up from the checkbox
+        const checkEl = el;
+        if (checkEl) {
+          const rect = checkEl.getBoundingClientRect();
+          const fp = document.createElement('span');
+          fp.className = 'float-plus';
+          fp.textContent = '+1';
+          fp.style.cssText = `left:${rect.left + rect.width/2 - 8}px;top:${rect.top + window.scrollY - 4}px;`;
+          document.body.appendChild(fp);
+          fp.addEventListener('animationend', () => fp.remove());
+        }
         const tempLog = { logged_date: today() };
         h.habit_logs.push(tempLog);
         saveCache(); renderHabits();
@@ -1860,7 +1890,8 @@ document.addEventListener('click', async e => {
           if (i !== -1) h.habit_logs[i] = data;
           saveCache();
           const newStreak = calcStreak(h);
-          if (newStreak === 7) { toast('🔥 7-day streak! Your habits are compounding. See your full weekly report? ⚡'); setTimeout(openProModal, 2500); }
+          if (newStreak === 3) toast(`🔥 3-day streak on "${h.text.slice(0,28)}" — the habit is forming.`);
+          else if (newStreak === 7) { toast('🔥 7-day streak! Your habits are compounding. See your full weekly report? ⚡'); setTimeout(openProModal, 2500); }
           else if (newStreak === 30) { toast('🏆 30-day streak! A full month — you\'ve built a real habit. Level up with Pro. ⚡'); setTimeout(openProModal, 3000); }
           else if (newStreak === 100) toast('💎 100-day streak! Legendary consistency.');
         } catch(e) { h.habit_logs = h.habit_logs.filter(l => l !== tempLog); saveCache(); renderHabits(); toast('Could not update.'); }
@@ -2020,12 +2051,20 @@ function updateDayBadge() {
 }
 
 const openProModal = () => {
-  if (currentUser?.created_at) {
-    const days = Math.floor((Date.now() - new Date(currentUser.created_at).getTime()) / 86400000);
-    const p = document.getElementById('pro-tagline');
-    if (p) p.textContent = days >= 3
-      ? `You've been building for ${days} days. Pro unlocks the AI layer — so you can see exactly what's compounding and what's falling behind.`
-      : `You're using Compound the right way. Pro unlocks the AI layer — so your system actually tells you what's working and what to do next.`;
+  const p = document.getElementById('pro-tagline');
+  if (p) {
+    const days = currentUser?.created_at ? Math.floor((Date.now() - new Date(currentUser.created_at).getTime()) / 86400000) : 0;
+    const topStreak = habits.length ? Math.max(...habits.map(h => calcStreak(h))) : 0;
+    const topStreakHabit = topStreak > 0 ? habits.find(h => calcStreak(h) === topStreak) : null;
+    if (topStreak >= 5 && topStreakHabit) {
+      p.textContent = `You're on a ${topStreak}-day streak with "${topStreakHabit.text.slice(0,30)}". Pro shows you which habits are actually moving your goals — and which ones to drop.`;
+    } else if (days >= 7) {
+      p.textContent = `${days} days in. Pro unlocks Apex — the AI layer that reads your goals, habits, and history, then tells you exactly what to do next.`;
+    } else if (days >= 3) {
+      p.textContent = `You've been building for ${days} days. Pro unlocks the AI layer — so you can see exactly what's compounding and what's falling behind.`;
+    } else {
+      p.textContent = `You're using Compound the right way. Pro unlocks the AI layer — so your system actually tells you what's working and what to do next.`;
+    }
   }
   document.getElementById('pro-modal').classList.add('show');
 };
