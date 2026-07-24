@@ -805,7 +805,7 @@
         <button class="btn-icon" id="btn-focus-timer">🎯 Focus</button>
         <a href="/apex" class="btn-icon" style="border-color:rgba(124,58,237,0.3);color:var(--ai);font-weight:600;text-decoration:none;">⚡ Apex</a>
         <button class="btn-icon" id="btn-unlock-ai" style="background:var(--ai);border-color:var(--ai);color:#fff;font-weight:700;">Get Pro</button>
-        <a href="/ledger" id="btn-ledger" class="btn-icon" style="display:none;text-decoration:none;border-color:rgba(34,197,94,0.3);color:#22c55e;" title="Your weekly life audit">📋 Life Audit</a>
+        <a href="/ledger" id="btn-ledger" class="btn-icon" style="text-decoration:none;border-color:rgba(34,197,94,0.3);color:#22c55e;" title="Your weekly life audit">📋 Ledger</a>
         <button class="btn-icon" id="btn-guide" title="How to use Compound">? Guide</button>
         <button class="btn-icon" id="btn-settings">⚙️ Settings</button>
         <button class="btn-icon" id="btn-signout">Sign out</button>
@@ -1510,8 +1510,6 @@ async function loadProfile() {
       renderContextCard();
       const toggle = document.getElementById('email-optin-toggle');
       if (toggle) toggle.checked = emailOptIn;
-      const ledgerBtn = document.getElementById('btn-ledger');
-      if (ledgerBtn) ledgerBtn.style.display = '';
     } else if (error && error.code === 'PGRST116') {
       // No profile row yet — create one now
       await sb.from('profiles').insert({ id: currentUser.id, is_pro: false, email_opt_in: pendingEmailOptIn }).select().single();
