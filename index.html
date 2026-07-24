@@ -508,7 +508,7 @@
   <div class="modal-card" style="max-width:400px;">
     <button class="modal-close" id="pro-modal-close">×</button>
     <div style="font-size:22px;margin-bottom:6px;">⚡ This is Pro territory.</div>
-    <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px;">You're using Compound the right way. Pro unlocks the AI layer — so your system actually tells you what's working and what to do next.</p>
+    <p id="pro-tagline" style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px;">You're using Compound the right way. Pro unlocks the AI layer — so your system actually tells you what's working and what to do next.</p>
 
     <div style="background:var(--ai-soft);border:2px solid var(--ai);border-radius:14px;padding:16px;text-align:center;margin-bottom:20px;">
       <div style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--ai);margin-bottom:4px;">Pro — Monthly</div>
@@ -749,6 +749,7 @@
       </div>
       <div class="header-right">
         <div class="user-badge"><span id="user-label"></span><span id="sync-dot" title="Synced"></span></div>
+        <span id="streak-badge" style="display:none;font-size:12px;font-weight:700;color:var(--orange);background:rgba(234,88,12,0.1);border:1px solid rgba(234,88,12,0.25);border-radius:99px;padding:3px 10px;white-space:nowrap;"></span>
         <button class="btn-icon" id="btn-focus-timer">🎯 Focus</button>
         <a href="/apex" class="btn-icon" style="border-color:rgba(124,58,237,0.3);color:var(--ai);font-weight:600;text-decoration:none;">⚡ Apex</a>
         <button class="btn-icon" id="btn-unlock-ai" style="background:var(--ai);border-color:var(--ai);color:#fff;font-weight:700;">Get Pro</button>
@@ -1177,6 +1178,7 @@ async function initApp() {
   updateAiVisibility(); // show AI buttons immediately if dev code already in localStorage
   await loadData();
   await Promise.all([loadSettings(), loadProfile()]);
+  updateDayBadge();
   handleProRedirect();
   updateApexGreeting();
   checkMilestones();
@@ -1587,6 +1589,7 @@ function renderHabits() {
   const list = document.getElementById('habits-list');
   const doneToday = habits.filter(h => (h.habit_logs||[]).some(l => l.logged_date === today())).length;
   document.getElementById('habits-count').textContent = habits.length ? `${doneToday}/${habits.length} today` : '';
+  updateStreakBadge();
   if (!habits.length) {
     const hChips = ['1hr deep work','Morning journaling','Exercise','Read 20 pages','No social media before noon'];
     list.innerHTML = `<div style="padding:14px 6px;">
@@ -1611,14 +1614,14 @@ function renderHabits() {
   list.innerHTML = bannerHtml + habits.map(h => {
     const checked = (h.habit_logs||[]).some(l => l.logged_date === today());
     const s = calcStreak(h);
-    const shareBtn = s >= 7 ? `<button onclick="shareStreak(${esc(JSON.stringify(h.text))},${s})" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--muted);padding:2px 6px;border-radius:6px;margin-left:4px;" title="Share streak">↗</button>` : '';
+    const shareBtn = s >= 3 ? `<button onclick="shareStreak(${esc(JSON.stringify(h.text))},${s})" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--muted);padding:2px 6px;border-radius:6px;margin-left:4px;" title="Share streak">↗</button>` : '';
     return `
       <div class="item">
         <div class="check ${checked?'on':''}" data-action="check-habit" data-id="${h.id}" data-checked="${checked}"></div>
         <div class="item-body">
           <div class="item-label ${checked?'done':''}">${esc(h.text)}</div>
           ${sparklineHtml(h)}
-          ${s>0?`<div class="streak ${s>=3?'hot':''}">🔥 ${s} day streak${shareBtn}${s>=7&&!isPro?'<button onclick="openProModal()" style="display:inline-flex;align-items:center;gap:3px;background:var(--ai-soft);border:1px solid var(--ai-border);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--ai);cursor:pointer;font-family:inherit;font-weight:600;margin-left:6px;min-height:26px;line-height:1;">⚡ Pro</button>':''}</div>`:''}
+          ${s>0?`<div class="streak ${s>=3?'hot':''}">🔥 ${s} day streak${shareBtn}${s>=5&&!isPro?'<button onclick="openProModal()" style="display:inline-flex;align-items:center;gap:3px;background:var(--ai-soft);border:1px solid var(--ai-border);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--ai);cursor:pointer;font-family:inherit;font-weight:600;margin-left:6px;min-height:26px;line-height:1;">⚡ Pro</button>':''}</div>`:''}
         </div>
         <button class="item-del" data-action="del-habit" data-id="${h.id}">×</button>
       </div>`;
@@ -1878,7 +1881,32 @@ document.querySelectorAll('.size-btn').forEach(btn => {
 applyPrefs();
 
 const openSettings  = () => document.getElementById('settings-modal').classList.add('show');
+
+function updateStreakBadge() {
+  const badge = document.getElementById('streak-badge');
+  if (!badge) return;
+  const top = habits.length ? Math.max(...habits.map(h => calcStreak(h))) : 0;
+  if (top >= 2) { badge.textContent = `🔥 ${top}`; badge.style.display = ''; }
+  else badge.style.display = 'none';
+}
+
+function updateDayBadge() {
+  if (!currentUser?.created_at) return;
+  const days = Math.floor((Date.now() - new Date(currentUser.created_at).getTime()) / 86400000) + 1;
+  const el = document.getElementById('user-label');
+  if (!el) return;
+  const name = el.textContent.split(' · ')[0];
+  if (days >= 2) el.textContent = `${name} · Day ${days}`;
+}
+
 const openProModal = () => {
+  if (currentUser?.created_at) {
+    const days = Math.floor((Date.now() - new Date(currentUser.created_at).getTime()) / 86400000);
+    const p = document.getElementById('pro-tagline');
+    if (p) p.textContent = days >= 3
+      ? `You've been building for ${days} days. Pro unlocks the AI layer — so you can see exactly what's compounding and what's falling behind.`
+      : `You're using Compound the right way. Pro unlocks the AI layer — so your system actually tells you what's working and what to do next.`;
+  }
   document.getElementById('pro-modal').classList.add('show');
 };
 const closeProModal = () => document.getElementById('pro-modal').classList.remove('show');
