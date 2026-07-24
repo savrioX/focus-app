@@ -2291,13 +2291,17 @@ async function _obSubmitQuiz() {
 function obShowPlan() {
   if (!_obResult?.plan) { _obFinish(); return; }
   const plan = _obResult.plan;
+  const archetypeName = _obResult.archetype_name || '';
+  // Personalize the plan header
+  const hdr = document.querySelector('#ob-step-plan .ob-plan-header');
+  if (hdr) hdr.textContent = archetypeName ? `Your 30-day plan · ${archetypeName}` : 'Your 30-day plan';
   let html = '';
   if (plan.keystone_habit) {
     html += `<div class="ob-plan-item ob-keystone"><div class="ob-plan-label">Keystone habit · ${plan.keystone_habit.duration_minutes} min/day</div><div class="ob-plan-text">${plan.keystone_habit.if_then}</div></div>`;
   }
-  if (plan.supporting_actions?.[0]) {
-    html += `<div class="ob-plan-item"><div class="ob-plan-label">Reduce friction</div><div class="ob-plan-text">${plan.supporting_actions[0].if_then}</div></div>`;
-  }
+  (plan.supporting_actions || []).forEach(a => {
+    html += `<div class="ob-plan-item"><div class="ob-plan-label">Supporting action</div><div class="ob-plan-text">${a.if_then}</div></div>`;
+  });
   if (plan.miss_protocol) {
     html += `<div class="ob-plan-item"><div class="ob-plan-label">If you miss a day</div><div class="ob-plan-text">${plan.miss_protocol}</div></div>`;
   }
@@ -2324,7 +2328,7 @@ async function _obFinish() {
   const modal = document.getElementById('onboarding-modal');
   if (modal) modal.classList.remove('show');
   const name = _obResult?.archetype_name;
-  setTimeout(() => toast(name ? `Plan ready · ${name} mode activated.` : 'System built. First habit tracking.'), 300);
+  setTimeout(() => toast(name ? `${name} plan live. One habit. Day 1 starts now.` : 'System built. Start your first habit.'), 300);
 }
 
 function updateStreakBadge() {
