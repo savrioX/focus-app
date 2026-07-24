@@ -305,6 +305,8 @@
 <script>
 (function(){
   const DAY_LABELS = ['M','T','W','T','F','S','S'];
+
+  // Base habits — always shown, never deleted
   const CATEGORIES = [
     { key:'cut', title:'Cut', color:'var(--cut)', class:'cut',
       habits: [
@@ -326,40 +328,43 @@
         { id:'reading', name:'Reading', target:7, note:'daily, up from a few' },
       ]},
   ];
-  const ALL_HABITS = CATEGORIES.flatMap(c => c.habits.map(h => ({...h, cat:c.class})));
 
   function mondayOf(d){
     const date = new Date(d);
     const day = date.getDay();
-    const diff = (day === 0 ? -6 : 1) - day;
-    date.setDate(date.getDate() + diff);
+    date.setDate(date.getDate() + (day === 0 ? -6 : 1) - day);
     date.setHours(0,0,0,0);
     return date;
   }
-  function fmt(d){
-    return d.toISOString().slice(0,10);
-  }
-  function addDays(d, n){
-    const nd = new Date(d);
-    nd.setDate(nd.getDate() + n);
-    return nd;
-  }
-  function weekKey(monday){
-    return 'ledger-week:' + fmt(monday);
-  }
+  function fmt(d){ return d.toISOString().slice(0,10); }
+  function addDays(d, n){ const nd = new Date(d); nd.setDate(nd.getDate()+n); return nd; }
+  function weekKey(monday){ return 'ledger-week:' + fmt(monday); }
+  function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
   let currentMonday = mondayOf(new Date());
-  const todayStr = fmt(new Date());
-  let weekData = {};
+  const todayStr    = fmt(new Date());
+  let weekData      = {};
+  let customTargets = {};  // { habitId: number } — overrides default targets
+  let customHabits  = {};  // { catKey: [{id, name, target, note}] } — user-added
 
-  const sectionsEl      = document.getElementById('sections');
-  const weekLabelEl     = document.getElementById('weekLabel');
-  const momentumValueEl = document.getElementById('momentumValue');
+  const sectionsEl       = document.getElementById('sections');
+  const weekLabelEl      = document.getElementById('weekLabel');
+  const momentumValueEl  = document.getElementById('momentumValue');
   const momentumDetailEl = document.getElementById('momentumDetail');
-  const footerNote      = document.getElementById('footerNote');
+  const footerNote       = document.getElementById('footerNote');
 
   function checkIcon(){
     return '<svg viewBox="0 0 16 16" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5L6.2 12 13 4"/></svg>';
+  }
+
+  // Returns merged base + custom habits for a category, with custom targets applied
+  function habitsFor(catKey){
+    const base   = CATEGORIES.find(c => c.key === catKey).habits;
+    const custom = customHabits[catKey] || [];
+    return [...base, ...custom].map(h => ({
+      ...h,
+      target: customTargets[h.id] !== undefined ? customTargets[h.id] : h.target,
+    }));
   }
 
   function render(){
@@ -368,9 +373,10 @@
     weekLabelEl.textContent = currentMonday.toLocaleDateString('en-US', opts) + ' – ' + sunday.toLocaleDateString('en-US', opts);
 
     sectionsEl.innerHTML = '';
-    let totalPct = 0;
+    let totalPct = 0, habitCount = 0;
 
     CATEGORIES.forEach(cat => {
+      const habits = habitsFor(cat.key);
       const section = document.createElement('div');
       section.className = 'section';
 
@@ -378,7 +384,7 @@
       tab.className = 'section-tab';
       tab.innerHTML = `<span class="tab-dot" style="background:${cat.color}"></span>
         <span class="section-title">${cat.title}</span>
-        <span class="section-count">${cat.habits.length} habit${cat.habits.length>1?'s':''}</span>`;
+        <span class="section-count">${habits.length} habit${habits.length !== 1 ? 's' : ''}</span>`;
       section.appendChild(tab);
 
       const ledger = document.createElement('div');
@@ -389,15 +395,36 @@
       head.innerHTML = '<span></span>' + DAY_LABELS.map(d=>`<span>${d}</span>`).join('') + '<span>score</span>';
       ledger.appendChild(head);
 
-      cat.habits.forEach(h => {
+      habits.forEach(h => {
         const row = document.createElement('div');
         row.className = 'habit-row';
 
+        // Name + editable frequency
         const nameCell = document.createElement('div');
-        nameCell.innerHTML = `<div class="habit-name">${h.name}</div><div class="habit-target">${h.note}</div>`;
+        nameCell.innerHTML = `<div class="habit-name">${esc(h.name)}</div>`;
+        const tgtWrap = document.createElement('div');
+        tgtWrap.style.cssText = 'font-size:10px;color:var(--text-faint);margin-top:3px;display:flex;align-items:center;gap:4px;font-family:\'IBM Plex Mono\',monospace;';
+        const tgtInput = document.createElement('input');
+        tgtInput.type = 'number'; tgtInput.min = 1; tgtInput.max = 7; tgtInput.value = h.target;
+        tgtInput.style.cssText = 'width:26px;background:var(--surface-raised);border:1px solid var(--hairline);border-radius:4px;color:var(--text);font-size:10px;text-align:center;padding:1px 2px;font-family:inherit;';
+        tgtInput.setAttribute('aria-label', 'Weekly target for ' + h.name);
+        tgtInput.addEventListener('change', () => {
+          const v = Math.max(1, Math.min(7, parseInt(tgtInput.value) || h.target));
+          tgtInput.value = v;
+          customTargets[h.id] = v;
+          saveCustomTargets();
+          render();
+        });
+        tgtWrap.appendChild(document.createTextNode('target: '));
+        tgtWrap.appendChild(tgtInput);
+        tgtWrap.appendChild(document.createTextNode('/wk'));
+        nameCell.appendChild(tgtWrap);
         row.appendChild(nameCell);
 
-        const checks = (weekData[h.id] && weekData[h.id].length === 7) ? weekData[h.id] : [false,false,false,false,false,false,false];
+        // Day checkboxes
+        const checks = (weekData[h.id] && weekData[h.id].length === 7)
+          ? weekData[h.id]
+          : [false,false,false,false,false,false,false];
         weekData[h.id] = checks;
 
         for (let i = 0; i < 7; i++){
@@ -405,14 +432,16 @@
           const btn = document.createElement('button');
           btn.className = 'check ' + cat.class + (checks[i] ? ' checked' : '') + (dayDate === todayStr ? ' today' : '');
           btn.innerHTML = checkIcon();
-          btn.setAttribute('aria-label', h.name + ' — ' + dayDate + (checks[i] ? ' completed' : ' not completed'));
+          btn.setAttribute('aria-label', h.name + ' — ' + dayDate);
           btn.addEventListener('click', () => toggle(h.id, i));
           row.appendChild(btn);
         }
 
+        // Score
         const count = checks.filter(Boolean).length;
-        const pct = Math.round((count / h.target) * 100);
-        totalPct += Math.min(pct, 100);
+        const pct   = Math.round((count / h.target) * 100);
+        totalPct   += Math.min(pct, 100);
+        habitCount++;
         const status = pct >= 100 ? 'ahead' : pct >= 50 ? 'onpace' : 'behind';
         const scoreCell = document.createElement('div');
         scoreCell.className = 'score ' + status;
@@ -423,57 +452,143 @@
       });
 
       section.appendChild(ledger);
+
+      // Add habit row
+      const addRow = document.createElement('div');
+      addRow.style.cssText = 'padding:10px 18px 18px;';
+      const addBtn = document.createElement('button');
+      addBtn.textContent = '+ Add habit';
+      addBtn.style.cssText = 'background:none;border:1px dashed var(--hairline);border-radius:8px;padding:6px 14px;font-size:12px;color:var(--text-muted);cursor:pointer;font-family:inherit;width:100%;text-align:left;letter-spacing:0.02em;transition:border-color .15s,color .15s;';
+      addBtn.addEventListener('mouseover', () => { addBtn.style.borderColor='var(--text-muted)'; addBtn.style.color='var(--text)'; });
+      addBtn.addEventListener('mouseout',  () => { addBtn.style.borderColor='var(--hairline)';   addBtn.style.color='var(--text-muted)'; });
+
+      const addForm = document.createElement('div');
+      addForm.style.cssText = 'display:none;gap:8px;align-items:center;';
+      const nameInp = document.createElement('input');
+      nameInp.type = 'text'; nameInp.placeholder = 'Habit name…';
+      nameInp.style.cssText = 'flex:1;background:var(--surface-raised);border:1px solid var(--hairline);border-radius:8px;padding:7px 12px;font-size:13px;color:var(--text);font-family:inherit;outline:none;min-width:0;';
+      const freqInp = document.createElement('input');
+      freqInp.type = 'number'; freqInp.min = 1; freqInp.max = 7; freqInp.value = 7; freqInp.placeholder = '7';
+      freqInp.style.cssText = 'width:44px;background:var(--surface-raised);border:1px solid var(--hairline);border-radius:8px;padding:7px 6px;font-size:13px;color:var(--text);font-family:inherit;outline:none;text-align:center;';
+      freqInp.title = 'Days per week';
+      const freqLabel = document.createElement('span');
+      freqLabel.textContent = '/wk';
+      freqLabel.style.cssText = 'font-size:11px;color:var(--text-faint);font-family:\'IBM Plex Mono\',monospace;white-space:nowrap;';
+      const addSubmit = document.createElement('button');
+      addSubmit.textContent = 'Add';
+      addSubmit.style.cssText = `background:${cat.color};border:none;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap;opacity:0.9;`;
+      const addCancel = document.createElement('button');
+      addCancel.textContent = '✕';
+      addCancel.style.cssText = 'background:none;border:1px solid var(--hairline);border-radius:8px;padding:7px 10px;font-size:13px;color:var(--text-muted);cursor:pointer;font-family:inherit;';
+
+      addForm.appendChild(nameInp); addForm.appendChild(freqInp); addForm.appendChild(freqLabel);
+      addForm.appendChild(addSubmit); addForm.appendChild(addCancel);
+
+      addBtn.addEventListener('click', () => { addBtn.style.display='none'; addForm.style.display='flex'; nameInp.focus(); });
+      addCancel.addEventListener('click', () => { addBtn.style.display=''; addForm.style.display='none'; nameInp.value=''; freqInp.value=7; });
+
+      const doAdd = () => {
+        const name = nameInp.value.trim();
+        const freq = Math.max(1, Math.min(7, parseInt(freqInp.value) || 7));
+        if (!name) return;
+        addCustomHabit(cat.key, name, freq);
+        addCancel.click();
+      };
+      addSubmit.addEventListener('click', doAdd);
+      nameInp.addEventListener('keydown', e => { if(e.key==='Enter') doAdd(); if(e.key==='Escape') addCancel.click(); });
+
+      addRow.appendChild(addBtn); addRow.appendChild(addForm);
+      section.appendChild(addRow);
       sectionsEl.appendChild(section);
     });
 
-    const avgPct = Math.round(totalPct / ALL_HABITS.length);
+    const avgPct = habitCount ? Math.round(totalPct / habitCount) : 0;
     momentumValueEl.textContent = avgPct + '%';
     momentumValueEl.style.color = avgPct >= 100 ? 'var(--ahead)' : avgPct >= 50 ? 'var(--onpace)' : 'var(--behind)';
-    const isCurrentWeek = fmt(mondayOf(new Date())) === fmt(currentMonday);
-    momentumDetailEl.textContent = isCurrentWeek ? 'this week, live' : 'archived week';
-
-    footerNote.textContent = 'Tap a box to log the day · scores compare checked days against weekly target';
+    momentumDetailEl.textContent = fmt(mondayOf(new Date())) === fmt(currentMonday) ? 'this week, live' : 'archived week';
+    footerNote.textContent = 'Tap a box to log · edit the number to change frequency · + to add a habit';
   }
+
+  // ── Persistence ──────────────────────────────────────────────────────────
 
   async function loadWeek(){
     const key = weekKey(currentMonday);
     try {
       const result = await window.storage.get(key, false);
       weekData = result && result.value ? JSON.parse(result.value) : {};
-    } catch(e) {
-      weekData = {};
-    }
-    render();
+    } catch(e) { weekData = {}; }
   }
 
   async function saveWeek(){
-    const key = weekKey(currentMonday);
     try {
-      await window.storage.set(key, JSON.stringify(weekData), false);
-    } catch(e) {
-      console.error('Storage error', e);
-    }
+      await window.storage.set(weekKey(currentMonday), JSON.stringify(weekData), false);
+    } catch(e) { console.error('Storage error', e); }
   }
 
+  async function loadCustomTargets(){
+    try {
+      const r = await window.storage.get('ledger-targets', false);
+      customTargets = r && r.value ? JSON.parse(r.value) : {};
+    } catch(e) { customTargets = {}; }
+  }
+
+  async function saveCustomTargets(){
+    try {
+      await window.storage.set('ledger-targets', JSON.stringify(customTargets), false);
+    } catch(e) {}
+  }
+
+  async function loadCustomHabits(){
+    try {
+      const r = await window.storage.get('ledger-custom', false);
+      customHabits = r && r.value ? JSON.parse(r.value) : {};
+    } catch(e) { customHabits = {}; }
+  }
+
+  async function saveCustomHabits(){
+    try {
+      await window.storage.set('ledger-custom', JSON.stringify(customHabits), false);
+    } catch(e) {}
+  }
+
+  // ── Actions ──────────────────────────────────────────────────────────────
+
   function toggle(habitId, dayIndex){
-    if (!weekData[habitId] || weekData[habitId].length !== 7){
+    if (!weekData[habitId] || weekData[habitId].length !== 7)
       weekData[habitId] = [false,false,false,false,false,false,false];
-    }
     weekData[habitId][dayIndex] = !weekData[habitId][dayIndex];
     render();
     saveWeek();
   }
 
-  document.getElementById('prevWeek').addEventListener('click', () => {
+  function addCustomHabit(catKey, name, freq){
+    const id = catKey + '-' + Date.now();
+    if (!customHabits[catKey]) customHabits[catKey] = [];
+    customHabits[catKey].push({ id, name, target: freq, note: freq + 'x / wk' });
+    saveCustomHabits();
+    render();
+  }
+
+  // ── Nav ──────────────────────────────────────────────────────────────────
+
+  document.getElementById('prevWeek').addEventListener('click', async () => {
     currentMonday = addDays(currentMonday, -7);
-    loadWeek();
+    await loadWeek();
+    render();
   });
-  document.getElementById('nextWeek').addEventListener('click', () => {
+  document.getElementById('nextWeek').addEventListener('click', async () => {
     currentMonday = addDays(currentMonday, 7);
-    loadWeek();
+    await loadWeek();
+    render();
   });
 
-  loadWeek();
+  // ── Init ─────────────────────────────────────────────────────────────────
+
+  async function init(){
+    await Promise.all([loadWeek(), loadCustomTargets(), loadCustomHabits()]);
+    render();
+  }
+  init();
 })();
 </script>
 </body>
