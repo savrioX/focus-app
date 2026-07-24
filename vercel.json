@@ -13,6 +13,7 @@
     { "src": "api/telegram.js",                "use": "@vercel/node" },
     { "src": "api/brain.js",                  "use": "@vercel/node" },
     { "src": "api/apex-plan.js",             "use": "@vercel/node" },
+    { "src": "api/onboarding-plan.js",      "use": "@vercel/node" },
     { "src": "*.html",                         "use": "@vercel/static" },
     { "src": "*.PNG",                          "use": "@vercel/static" },
     { "src": "*.png",                          "use": "@vercel/static" },
@@ -34,6 +35,7 @@
     { "src": "/api/telegram",                "dest": "/api/telegram.js"                },
     { "src": "/api/brain",                   "dest": "/api/brain.js"                   },
     { "src": "/api/apex-plan",              "dest": "/api/apex-plan.js"              },
+    { "src": "/api/onboarding-plan",        "dest": "/api/onboarding-plan.js"        },
     { "src": "/sw.js", "dest": "/sw.js", "headers": { "Service-Worker-Allowed": "/" } },
     { "handle": "filesystem" },
     { "src": "/(.*)",                       "dest": "/$1.html"                       }
