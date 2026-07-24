@@ -4,6 +4,9 @@
   "engines": {
     "node": "20.x"
   },
+  "scripts": {
+    "test": "node tests/onboarding.test.js"
+  },
   "dependencies": {
     "resend": "^3.0.0",
     "stripe": "^16.0.0"

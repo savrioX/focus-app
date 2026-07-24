@@ -130,6 +130,20 @@ create policy "users can insert feedback" on feedback
 -- alter table profiles add column if not exists apex_plan_updated_at timestamptz;
 -- ─────────────────────────────────────────────────────────────────────────────
 
+-- ── Onboarding plan engine migrations — run in Supabase SQL Editor ──────────
+-- alter table profiles add column if not exists quiz_data jsonb;
+-- alter table profiles add column if not exists archetype text;
+-- alter table profiles add column if not exists onboarding_plan jsonb;
+-- alter table profiles add column if not exists onboarding_at timestamptz;
+--
+-- quiz_data:        raw 10-question quiz answers from new onboarding flow
+-- archetype:        scored archetype slug (starter/sprinter/ghost/etc.)
+-- onboarding_plan:  full plan object { archetype, angle, plan: { keystone_habit, supporting_actions, miss_protocol, week_1_note } }
+-- onboarding_at:    timestamp when onboarding was completed
+--
+-- These are additive — existing profiles are unaffected (columns default to null).
+-- ─────────────────────────────────────────────────────────────────────────────
+
 -- ── To apply RLS optimizations to existing tables in Supabase SQL editor: ──
 -- Drop old policies and recreate with (select auth.uid()) for each table above.
 -- Example for todos:
