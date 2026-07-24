@@ -183,11 +183,14 @@
   }
   function fmt(d){ return d.toISOString().slice(0,10); }
   function addDays(d, n){ const nd = new Date(d); nd.setDate(nd.getDate()+n); return nd; }
-  function weekKey(monday){ return 'ledger-week:' + fmt(monday); }
+  function weekKey(monday){ return fmt(monday); }
 
+  let currentUser = null;
   let currentMonday = mondayOf(new Date());
   const todayStr = fmt(new Date());
   let weekData = {};
+  let allLedgerData = {};
+  let saveTimer = null;
 
   const sectionsEl    = document.getElementById('sections');
   const weekLabelEl   = document.getElementById('weekLabel');
@@ -275,16 +278,37 @@
 
   function loadWeek(){
     const key = weekKey(currentMonday);
-    try {
-      const raw = localStorage.getItem(key);
-      weekData = raw ? JSON.parse(raw) : {};
-    } catch(e) { weekData = {}; }
+    weekData = allLedgerData[key] ? JSON.parse(JSON.stringify(allLedgerData[key])) : {};
     render();
   }
 
   function saveWeek(){
     const key = weekKey(currentMonday);
-    try { localStorage.setItem(key, JSON.stringify(weekData)); } catch(e) {}
+    allLedgerData[key] = JSON.parse(JSON.stringify(weekData));
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveToSupabase, 1200);
+  }
+
+  async function loadFromSupabase(){
+    if (!currentUser) return;
+    try {
+      const { data, error } = await sb.from('profiles')
+        .select('ledger_data')
+        .eq('id', currentUser.id)
+        .single();
+      if (!error && data?.ledger_data && typeof data.ledger_data === 'object') {
+        allLedgerData = data.ledger_data;
+      }
+    } catch(e) {}
+  }
+
+  async function saveToSupabase(){
+    if (!currentUser) return;
+    try {
+      await sb.from('profiles')
+        .update({ ledger_data: allLedgerData })
+        .eq('id', currentUser.id);
+    } catch(e) {}
   }
 
   function toggle(habitId, dayIndex){
@@ -299,7 +323,6 @@
   document.getElementById('prevWeek').addEventListener('click', () => { currentMonday = addDays(currentMonday,-7); loadWeek(); });
   document.getElementById('nextWeek').addEventListener('click', () => { currentMonday = addDays(currentMonday,7); loadWeek(); });
 
-  // Auth gate — only Savrio's account
   async function init(){
     const { data: { session } } = await sb.auth.getSession();
     const user = session?.user;
@@ -307,7 +330,9 @@
       document.getElementById('auth-gate').style.display = 'flex';
       return;
     }
+    currentUser = user;
     document.getElementById('app').style.display = 'block';
+    await loadFromSupabase();
     loadWeek();
   }
 

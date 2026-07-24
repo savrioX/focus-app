@@ -116,6 +116,14 @@ create policy "users can insert feedback" on feedback
 -- Default false — no emails sent without consent.
 -- ─────────────────────────────────────────────────────────────────────────
 
+-- ── Migration: ledger data ────────────────────────────────────────────────────
+-- Run this once in Supabase Dashboard → SQL Editor
+--
+-- alter table profiles add column if not exists ledger_data jsonb default '{}';
+--
+-- ledger_data: stores Savrio's life audit habit check data, keyed by week date
+-- ─────────────────────────────────────────────────────────────────────────────
+
 -- ── Apex migrations — run in Supabase SQL Editor ───────────────────────────
 -- alter table todos add column if not exists due_date date;
 -- alter table profiles add column if not exists apex_plan jsonb;
