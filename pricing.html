@@ -1,12 +1,12 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pricing — Compound</title>
-  <meta name="description" content="Compound is free to start. Upgrade to Pro at $10/month — AI coach, weekly reports, and daily briefings for student entrepreneurs.">
+  <meta name="description" content="Compound is 100% free. Goals, habits, focus timer, and the Apex AI coach — no paywall, no credit card.">
   <meta property="og:title" content="Pricing — Compound">
-  <meta property="og:description" content="Free to start. Pro at $8/month. Build the person you want to become.">
+  <meta property="og:description" content="Compound is 100% free. Build the person you want to become.">
   <meta property="og:url" content="https://dailycompound.app/pricing">
   <meta property="og:image" content="https://dailycompound.app/logo.PNG">
   <meta name="twitter:card" content="summary_large_image">
@@ -16,35 +16,22 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #09090b; color: #e2e8f0; line-height: 1.7; -webkit-font-smoothing: antialiased; }
-    .wrap { max-width: 820px; margin: 0 auto; padding: 60px 24px 120px; }
+    .wrap { max-width: 640px; margin: 0 auto; padding: 60px 24px 120px; }
     .back { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #a769ff; text-decoration: none; margin-bottom: 48px; font-weight: 600; }
     .hero { text-align: center; margin-bottom: 48px; }
     .hero h1 { font-size: clamp(28px,5vw,44px); font-weight: 800; letter-spacing: -0.04em; margin-bottom: 12px; }
     .hero p { font-size: 16px; color: #94a3b8; max-width: 420px; margin: 0 auto; }
-    .billing-note { text-align: center; font-size: 12px; color: #a769ff; font-weight: 600; margin-bottom: 32px; letter-spacing: 0.04em; }
-    .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 56px; }
-    @media (max-width: 600px) { .cards { grid-template-columns: 1fr; } }
-    .card { background: #111113; border: 1px solid #27272a; border-radius: 18px; padding: 28px 24px; }
-    .card.featured { border: 2px solid #7c3aed; background: #0d0b14; position: relative; }
-    .card-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg,#7c3aed,#a769ff); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 14px; border-radius: 99px; white-space: nowrap; }
-    .card-name { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #94a3b8; margin-bottom: 16px; }
-    .card-name.pro-name { color: #a769ff; }
-    .card-price { font-size: 40px; font-weight: 800; letter-spacing: -0.04em; line-height: 1; margin-bottom: 4px; }
-    .card-period { font-size: 13px; color: #71717a; margin-bottom: 4px; }
-    .card-annual { font-size: 12px; color: #a769ff; font-weight: 600; margin-bottom: 20px; }
+    .card { background: #0d0b14; border: 2px solid #7c3aed; border-radius: 18px; padding: 32px 28px; margin-bottom: 56px; }
+    .card-name { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #a769ff; margin-bottom: 16px; }
+    .card-price { font-size: 48px; font-weight: 800; letter-spacing: -0.04em; line-height: 1; margin-bottom: 4px; }
+    .card-period { font-size: 13px; color: #71717a; margin-bottom: 20px; }
     .card-desc { font-size: 13px; color: #94a3b8; line-height: 1.5; margin-bottom: 22px; }
-    .card-btn { display: block; text-align: center; padding: 13px; border-radius: 12px; font-weight: 700; font-size: 14px; text-decoration: none; margin-bottom: 22px; transition: opacity .2s; }
-    .btn-free { background: #1c1c1e; color: #e2e8f0; border: 1px solid #27272a; }
-    .btn-free:hover { border-color: #52525b; }
-    .btn-pro { background: linear-gradient(135deg,#7c3aed,#a769ff); color: #fff; }
-    .btn-pro:hover { opacity: .88; }
+    .card-btn { display: block; text-align: center; padding: 13px; border-radius: 12px; font-weight: 700; font-size: 14px; text-decoration: none; margin-bottom: 22px; transition: opacity .2s; background: linear-gradient(135deg,#7c3aed,#a769ff); color: #fff; }
+    .card-btn:hover { opacity: .88; }
     .divider { border: none; border-top: 1px solid #1e1e20; margin: 0 0 18px; }
     .feature { display: flex; gap: 10px; font-size: 13px; padding: 5px 0; align-items: flex-start; }
     .fc { flex-shrink: 0; margin-top: 2px; color: #a769ff; font-size: 12px; }
-    .fc.off { color: #3f3f46; }
-    .ft { color: #94a3b8; }
-    .ft.bright { color: #e2e8f0; }
-    .ft.dim { color: #3f3f46; text-decoration: line-through; }
+    .ft { color: #e2e8f0; }
     .faq { margin-top: 64px; }
     .faq h2 { font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 32px; }
     .faq-item { border-top: 1px solid #1e1e20; padding: 20px 0; }
@@ -60,84 +47,37 @@
   <div class="wrap">
     <a href="/" class="back">&larr; Compound</a>
     <div class="hero">
-      <h1>Free forever.<br>$10/month when you're serious.</h1>
-      <p>Start building today. Upgrade when you want the full system.</p>
+      <h1>100% free.<br>No catch.</h1>
+      <p>Every feature, no paywall. Build the person you want to become — free forever.</p>
     </div>
-    <p class="billing-note" id="pricing-day-note">⚡ Pro drops soon — join the waitlist inside the app</p>
-    <script>
-      (function() {
-        const el = document.getElementById('pricing-day-note');
-        if (!el) return;
-        const day = Math.floor((Date.now() - new Date('2026-05-01').getTime()) / 86400000) + 1;
-        el.textContent = `⚡ Day ${day} of building — Pro drops very soon. Waitlist is open.`;
-      })();
-    </script>
-    <div class="cards">
-      <!-- FREE -->
-      <div class="card">
-        <div class="card-name">Free</div>
-        <div class="card-price">$0</div>
-        <div class="card-period">forever</div>
-        <div class="card-annual">&nbsp;</div>
-        <div class="card-desc">Everything you need to build your first habit and set your first goal.</div>
-        <a href="/" class="card-btn btn-free">Get started free</a>
-        <div class="divider"></div>
-        <div class="feature"><span class="fc">✓</span><span class="ft bright">Goals with progress tracking</span></div>
-        <div class="feature"><span class="fc">✓</span><span class="ft bright">Habit streaks and sparklines</span></div>
-        <div class="feature"><span class="fc">✓</span><span class="ft bright">Daily to-do list</span></div>
-        <div class="feature"><span class="fc">✓</span><span class="ft bright">Focus timer</span></div>
-        <div class="feature"><span class="fc">✓</span><span class="ft bright">Habit starter packs</span></div>
-        <div class="feature"><span class="fc off">✗</span><span class="ft dim">Weekly report</span></div>
-        <div class="feature"><span class="fc off">✗</span><span class="ft dim">Morning briefings</span></div>
-        <div class="feature"><span class="fc off">✗</span><span class="ft dim">AI goal → habits builder</span></div>
-        <div class="feature"><span class="fc off">✗</span><span class="ft dim">Apex AI coach</span></div>
-      </div>
-
-      <!-- PRO -->
-      <div class="card featured">
-        <div class="card-badge">⚡ Most Popular</div>
-        <div class="card-name pro-name">Pro</div>
-        <div class="card-price">$8</div>
-        <div class="card-period">/month · billed $96/year</div>
-        <div class="card-annual">Save $24 · 2 months free · or $10/mo monthly</div>
-        <div class="card-desc">For people serious about building habits that actually compound.</div>
-        <a href="/" class="card-btn btn-pro">Join the waitlist →</a>
-        <div class="divider"></div>
-        <div class="feature"><span class="fc">✓</span><span class="ft bright">Everything in Free</span></div>
-        <div class="feature"><span class="fc">✓</span><span class="ft bright">📊 <strong>Weekly report</strong> — see exactly where you're losing momentum</span></div>
-        <div class="feature"><span class="fc">✓</span><span class="ft bright">☀️ <strong>Morning briefing</strong> so you never waste the first hour</span></div>
-        <div class="feature"><span class="fc">✓</span><span class="ft bright">🧠 AI builds your habits and tasks from your goals</span></div>
-        <div class="feature"><span class="fc">✓</span><span class="ft bright">✨ Daily AI task planning</span></div>
-        <div class="feature"><span class="fc">✓</span><span class="ft bright">⚡ Apex Advisor — ask anything, answers from your data</span></div>
-        <div style="margin-top:14px;font-size:12px;color:#52525b;text-align:center;">Cancel anytime · No credit card until launch</div>
-      </div>
+    <div class="card">
+      <div class="card-name">Free</div>
+      <div class="card-price">$0</div>
+      <div class="card-period">forever</div>
+      <div class="card-desc">The full Builder OS — everything Savrio uses to run his own startup.</div>
+      <a href="/" class="card-btn">Get started free →</a>
+      <div class="divider"></div>
+      <div class="feature"><span class="fc">✓</span><span class="ft">Goals with progress tracking</span></div>
+      <div class="feature"><span class="fc">✓</span><span class="ft">Habit streaks and sparklines</span></div>
+      <div class="feature"><span class="fc">✓</span><span class="ft">Daily to-do list</span></div>
+      <div class="feature"><span class="fc">✓</span><span class="ft">Focus timer</span></div>
+      <div class="feature"><span class="fc">✓</span><span class="ft">Habit starter packs</span></div>
+      <div class="feature"><span class="fc">✓</span><span class="ft">⚡ Apex Advisor — ask anything, answers from your actual goals and habits</span></div>
+      <div class="feature"><span class="fc">✓</span><span class="ft">🧠 AI goal → habits builder</span></div>
+      <div class="feature"><span class="fc">✓</span><span class="ft">✨ Daily AI task planning</span></div>
     </div>
 
     <div class="faq">
       <h2>Common questions</h2>
       <div class="faq-item">
-        <div class="faq-q">When does Pro launch?</div>
-        <div class="faq-a">Very soon — the build is live and Stripe is wired up. Join the waitlist inside the app (click any Pro feature) and you'll get an email the moment it opens. Follow <a href="https://www.instagram.com/thestartupjournal1/" target="_blank" rel="noopener">@thestartupjournal1</a> to watch it happen in real time.</div>
+        <div class="faq-q">Is it really free?</div>
+        <div class="faq-a">Yes — every feature, including the Apex AI coach, is free. No credit card, no trial period, no upsell.</div>
       </div>
-      <div class="faq-item">
-        <div class="faq-q">Monthly or annual — what's the difference?</div>
-        <div class="faq-a">Annual billing is $96/year ($8/month equivalent) — you save $24 vs paying monthly. Monthly is $10/month, no commitment. Both cancel anytime.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q">Can I cancel anytime?</div>
-        <div class="faq-a">Yes, anytime. No contracts. Your free tier features stay active after you cancel.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q">What AI powers Apex Advisor?</div>
-        <div class="faq-a">Apex is powered by <strong>Claude by Anthropic</strong> — one of the most capable AI models available. It reads your actual goals, habits, and tasks to give advice that's relevant to your life, not generic templates.</div>
-      </div>
+      <div class="faq-q" style="margin-top:20px;">What AI powers Apex Advisor?</div>
+      <div class="faq-a">Apex is powered by <strong>Claude by Anthropic</strong> — one of the most capable AI models available. It reads your actual goals, habits, and tasks to give advice that's relevant to your life, not generic templates.</div>
       <div class="faq-item">
         <div class="faq-q">Is my data private?</div>
         <div class="faq-a">Yes. We never sell your data. AI features only send what's needed to generate a response. See our <a href="/privacy.html">Privacy Policy</a>.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q">How is payment handled?</div>
-        <div class="faq-a">All payments go through <strong>Stripe</strong>. We never store card details. Manage or cancel from account settings anytime.</div>
       </div>
     </div>
 

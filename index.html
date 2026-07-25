@@ -245,8 +245,8 @@
     /* ── Modals ──────────────────────────── */
     .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 400; padding: 24px; }
     .modal-backdrop.show { display: flex; }
-    #settings-modal, #pro-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 400; padding: 24px; }
-    #settings-modal.show, #pro-modal.show { display: flex; }
+    #settings-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 400; padding: 24px; }
+    #settings-modal.show { display: flex; }
     .pro-feature-row { font-size: 13px; display: flex; align-items: center; gap: 8px; padding: 4px 0; }
     .pro-check { color: #22c55e; font-weight: 700; flex-shrink: 0; }
     .modal-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px; width: 100%; max-width: 440px; position: relative; box-shadow: var(--shadow-md); max-height: calc(100dvh - 48px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
@@ -476,14 +476,14 @@
     <div class="guide-divider"></div>
     <div class="guide-section">
       <div class="guide-section-title">Daily workflow</div>
-      <div class="guide-item">Check your morning briefing (Pro) to see Apex's plan for your day.</div>
+      <div class="guide-item">Check your morning briefing to see Apex's plan for your day.</div>
       <div class="guide-item">Log habits by ticking them off each day. Streaks build momentum.</div>
       <div class="guide-item">Use the Focus Timer when you need to execute — no distractions.</div>
       <div class="guide-item">Cross off todos as you finish. Empty list = great day.</div>
     </div>
     <div class="guide-divider"></div>
     <div class="guide-section">
-      <div class="guide-section-title">AI features (Pro)</div>
+      <div class="guide-section-title">AI features</div>
       <div class="guide-item"><strong>Apex Advisor</strong> — reads your actual data and tells you what's broken and what to do next.</div>
       <div class="guide-item"><strong>Build habits &amp; tasks</strong> — Apex generates a tailored plan from your goals.</div>
       <div class="guide-item"><strong>Weekly report</strong> — see which habits are actually tracking.</div>
@@ -552,43 +552,6 @@
     </div>
     <div class="settings-section" id="settings-signout-row" style="padding-top:16px;border-top:1px solid var(--border);">
       <button id="btn-signout-modal" style="width:100%;background:none;border:1.5px solid var(--border);border-radius:10px;padding:10px;font-size:13px;color:var(--muted);cursor:pointer;font-family:inherit;">Sign out</button>
-    </div>
-  </div>
-</div>
-
-<!-- Pro paywall modal -->
-<div id="pro-modal">
-  <div class="modal-card" style="max-width:400px;">
-    <button class="modal-close" id="pro-modal-close">×</button>
-    <div style="font-size:22px;margin-bottom:6px;">⚡ This is Pro territory.</div>
-    <p id="pro-tagline" style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px;">You're using Compound the right way. Pro unlocks the AI layer — so your system actually tells you what's working and what to do next.</p>
-
-    <div style="background:var(--ai-soft);border:2px solid var(--ai);border-radius:14px;padding:16px;text-align:center;margin-bottom:20px;">
-      <div style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--ai);margin-bottom:4px;">Pro — Monthly</div>
-      <div style="font-size:32px;font-weight:800;letter-spacing:-0.03em;color:var(--text);">$10<span style="font-size:14px;font-weight:500;color:var(--muted);"> / month</span></div>
-      <div style="font-size:12px;color:var(--muted);margin-top:4px;">Cancel anytime</div>
-    </div>
-
-    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:24px;">
-      <div class="pro-feature-row"><span class="pro-check">✓</span> ⚡ Apex Advisor — ask anything, get answers from your actual goals and habits</div>
-      <div class="pro-feature-row"><span class="pro-check">✓</span> ☀️ Morning briefing — Apex reads your data and plans your day before you wake up</div>
-      <div class="pro-feature-row"><span class="pro-check">✓</span> 📊 Weekly report — see exactly where you're losing momentum and what to fix</div>
-      <div class="pro-feature-row"><span class="pro-check">✓</span> 🧠 AI action steps — Apex breaks your goals into tasks, not generic advice</div>
-      <div class="pro-feature-row"><span class="pro-check">✓</span> ✨ Daily planner that knows what you're working toward</div>
-    </div>
-
-    <button class="btn-primary" id="checkout-btn" style="background:var(--ai);font-size:15px;padding:14px;letter-spacing:-0.01em;">⚡ Upgrade to Pro</button>
-    <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:10px;">No lock-in. Cancel anytime from your dashboard.</p>
-
-    <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
-      <button id="show-code-btn" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;font-family:inherit;width:100%;text-align:center;">Have a code?</button>
-      <div id="code-row" style="display:none;margin-top:10px;gap:8px;flex-direction:column;">
-        <div style="display:flex;gap:8px;">
-          <input type="text" id="promo-code-input" placeholder="Enter code…" style="flex:1;font-size:13px;padding:8px 12px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-family:inherit;outline:none;">
-          <button id="apply-code-btn" class="btn-add" style="font-size:14px;height:37px;padding:0 14px;border-radius:10px;">→</button>
-        </div>
-        <div id="code-status" style="font-size:12px;text-align:center;min-height:16px;color:var(--muted);"></div>
-      </div>
     </div>
   </div>
 </div>
@@ -804,7 +767,6 @@
         <span id="streak-badge" style="display:none;font-size:12px;font-weight:700;color:var(--orange);background:rgba(234,88,12,0.1);border:1px solid rgba(234,88,12,0.25);border-radius:99px;padding:3px 10px;white-space:nowrap;"></span>
         <button class="btn-icon" id="btn-focus-timer">🎯 Focus</button>
         <a href="/apex" class="btn-icon" style="border-color:rgba(124,58,237,0.3);color:var(--ai);font-weight:600;text-decoration:none;">⚡ Apex</a>
-        <button class="btn-icon" id="btn-unlock-ai" style="background:var(--ai);border-color:var(--ai);color:#fff;font-weight:700;">Get Pro</button>
         <a href="/ledger" id="btn-ledger" class="btn-icon" style="text-decoration:none;border-color:rgba(34,197,94,0.3);color:#22c55e;" title="Your weekly life audit">📋 Ledger</a>
         <button class="btn-icon" id="btn-guide" title="How to use Compound">? Guide</button>
         <button class="btn-icon" id="btn-settings">⚙️ Settings</button>
@@ -1309,9 +1271,9 @@ function checkMilestones() {
   if (localStorage.getItem(key)) return;
   if (daysSince === 1) { toast('Day 2 — you came back. Most people don\'t. Keep going.'); localStorage.setItem(key, '1'); }
   else if (daysSince === 3) { toast('3 days straight. The habit is forming — don\'t break it now.'); localStorage.setItem(key, '1'); }
-  else if (daysSince === 7) { toast('🗓️ One week in. See exactly where you\'re winning — unlock your weekly report. ⚡'); localStorage.setItem(key, '1'); setTimeout(openProModal, 2000); }
-  else if (daysSince === 14) { toast('📅 Two weeks in. You\'ve built real systems. Time to see what\'s actually working. ⚡'); localStorage.setItem(key, '1'); setTimeout(openProModal, 2500); }
-  else if (daysSince === 30) { toast('📅 30 days in. You\'ve built something real. Time to make it work harder for you. ⚡'); localStorage.setItem(key, '1'); setTimeout(openProModal, 2500); }
+  else if (daysSince === 7) { toast('🗓️ One week in. Ask Apex how you\'re doing. ⚡'); localStorage.setItem(key, '1'); }
+  else if (daysSince === 14) { toast('📅 Two weeks in. You\'ve built real systems.'); localStorage.setItem(key, '1'); }
+  else if (daysSince === 30) { toast('📅 30 days in. You\'ve built something real.'); localStorage.setItem(key, '1'); }
 }
 
 function showMondayStats() {
@@ -1491,18 +1453,7 @@ function handleProRedirect() {
   if (!status) return;
   window.history.replaceState({}, '', window.location.pathname);
   if (status === 'success') {
-    toast('🎉 Welcome to Pro! Activating your AI features…');
-    // The Stripe webhook can take a few seconds — poll until it lands (max ~20 s)
-    let tries = 0;
-    const poll = async () => {
-      await loadProfile();
-      if (isPro) { toast('⚡ Pro is live — your AI coach is ready.'); return; }
-      if (++tries < 7) setTimeout(poll, 3000);
-      else toast('Payment received — refresh in a moment to activate Pro.');
-    };
-    setTimeout(poll, 2000);
-  } else if (status === 'cancel') {
-    toast('No worries — you can upgrade anytime from the header.');
+    toast('🎉 Welcome to Compound — every feature is unlocked.');
   }
 }
 
@@ -1615,13 +1566,11 @@ function renderTodos() {
     const streaks = habits.map(h => calcStreak(h)).filter(s => s > 0);
     const topStreak = streaks.length ? Math.max(...streaks) : 0;
     const streakLine = topStreak >= 2 ? `<div style="font-size:12px;color:var(--muted);margin-top:4px;">🔥 ${topStreak}-day habit streak — keep it up.</div>` : '';
-    const proNudge = !isPro ? `<button onclick="openProModal()" style="margin-top:10px;display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;background:var(--ai-soft);border:1px solid var(--ai-border);border-radius:99px;padding:5px 12px;cursor:pointer;color:var(--ai);font-family:inherit;">⚡ Track your wins with Pro</button>` : '';
     celebrationHtml = `<div style="padding:12px 6px 8px;text-align:center;">
       <div style="font-size:22px;margin-bottom:6px;">✅</div>
       <div style="font-size:14px;font-weight:700;color:var(--text);">You crushed today's list.</div>
       ${streakLine}
       <div style="margin-top:10px;"><button onclick="document.getElementById('todo-input').focus()" style="font-size:12px;font-weight:600;background:var(--surface);border:1px solid var(--border);border-radius:99px;padding:6px 14px;cursor:pointer;color:var(--text);font-family:inherit;transition:all 0.15s;">+ Set tomorrow's priorities</button></div>
-      ${proNudge}
     </div><div style="height:1px;background:var(--border);margin:8px 0;"></div>`;
   }
 
@@ -1817,7 +1766,7 @@ function renderHabits() {
         <div class="item-body">
           <div class="item-label ${checked?'done':''}">${esc(h.text)}</div>
           ${sparklineHtml(h)}
-          ${s>0?`<div class="streak ${s>=3?'hot':''}">🔥 ${s} day streak${shareBtn}${s>=5&&!isPro?'<button onclick="openProModal()" style="display:inline-flex;align-items:center;gap:3px;background:var(--ai-soft);border:1px solid var(--ai-border);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--ai);cursor:pointer;font-family:inherit;font-weight:600;margin-left:6px;min-height:26px;line-height:1;">⚡ Pro</button>':''}</div>`:''}
+          ${s>0?`<div class="streak ${s>=3?'hot':''}">🔥 ${s} day streak${shareBtn}</div>`:''}
         </div>
         <button class="item-del" data-action="del-habit" data-id="${h.id}">×</button>
       </div>`;
@@ -1902,15 +1851,6 @@ document.addEventListener('click', async e => {
           const subs = g.goal_subtasks;
           if (subs.length > 0 && subs.every(sub => sub.done)) {
             toast('🎯 Goal complete! "' + g.text.slice(0, 40) + (g.text.length > 40 ? '…' : '') + '"');
-            if (!isPro) setTimeout(() => {
-              const list = document.getElementById('goals-list');
-              if (!list || list.querySelector('.goal-pro-nudge')) return;
-              const nudge = document.createElement('div');
-              nudge.className = 'goal-pro-nudge';
-              nudge.style.cssText = 'margin-top:12px;background:var(--ai-soft);border:1px solid var(--ai-border);border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;';
-              nudge.innerHTML = `<span style="font-size:12px;color:var(--ai);font-weight:500;">Want Apex to analyze your goal patterns and tell you what to tackle next?</span><button onclick="openProModal()" style="font-size:11px;font-weight:700;background:var(--ai);color:#fff;border:none;border-radius:8px;padding:5px 12px;cursor:pointer;font-family:inherit;white-space:nowrap;">Get Pro</button><button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0;">×</button>`;
-              list.appendChild(nudge);
-            }, 1500);
           }
         }
       } catch(e) { s.done = done; saveCache(); renderGoals(); toast('Could not update.'); }
@@ -1988,8 +1928,8 @@ document.addEventListener('click', async e => {
           saveCache();
           const newStreak = calcStreak(h);
           if (newStreak === 3) toast(`🔥 3-day streak on "${h.text.slice(0,28)}" — the habit is forming.`);
-          else if (newStreak === 7) { toast('🔥 7-day streak! Your habits are compounding. See your full weekly report? ⚡'); setTimeout(openProModal, 2500); }
-          else if (newStreak === 30) { toast('🏆 30-day streak! A full month — you\'ve built a real habit. Level up with Pro. ⚡'); setTimeout(openProModal, 3000); }
+          else if (newStreak === 7) toast('🔥 7-day streak! Your habits are compounding.');
+          else if (newStreak === 30) toast('🏆 30-day streak! A full month — you\'ve built a real habit.');
           else if (newStreak === 100) toast('💎 100-day streak! Legendary consistency.');
         } catch(e) { h.habit_logs = h.habit_logs.filter(l => l !== tempLog); saveCache(); renderHabits(); toast('Could not update.'); }
       }
@@ -2041,22 +1981,8 @@ document.getElementById('habits-input').addEventListener('keydown', e => { if (e
 
 // ── Settings ──────────────────────────────────────────────
 function updateAiVisibility() {
-  document.body.classList.toggle('has-ai', isPro);
-  document.getElementById('chat-btn').classList.toggle('show', isPro);
-  const unlockBtn = document.getElementById('btn-unlock-ai');
-  if (isPro) {
-    unlockBtn.textContent = '⚡ Pro';
-    unlockBtn.style.background = '';
-    unlockBtn.style.color = '#667eea';
-    unlockBtn.style.borderColor = 'rgba(102,126,234,0.4)';
-    unlockBtn.style.fontWeight = '700';
-  } else {
-    unlockBtn.textContent = '⚡ Upgrade to Pro';
-    unlockBtn.style.background = '#7c3aed';
-    unlockBtn.style.color = '#fff';
-    unlockBtn.style.borderColor = '#7c3aed';
-    unlockBtn.style.fontWeight = '700';
-  }
+  document.body.classList.add('has-ai');
+  document.getElementById('chat-btn').classList.add('show');
 }
 
 function loadSettings() {
@@ -2271,27 +2197,6 @@ function updateDayBadge() {
   if (days >= 2) el.textContent = `${name} · Day ${days}`;
 }
 
-const openProModal = () => {
-  const p = document.getElementById('pro-tagline');
-  if (p) {
-    const days = currentUser?.created_at ? Math.floor((Date.now() - new Date(currentUser.created_at).getTime()) / 86400000) : 0;
-    const topStreak = habits.length ? Math.max(...habits.map(h => calcStreak(h))) : 0;
-    const topStreakHabit = topStreak > 0 ? habits.find(h => calcStreak(h) === topStreak) : null;
-    if (topStreak >= 5 && topStreakHabit) {
-      p.textContent = `You're on a ${topStreak}-day streak with "${topStreakHabit.text.slice(0,30)}". Pro shows you which habits are actually moving your goals — and which ones to drop.`;
-    } else if (days >= 7) {
-      p.textContent = `${days} days in. Pro unlocks Apex — the AI layer that reads your goals, habits, and history, then tells you exactly what to do next.`;
-    } else if (days >= 3) {
-      p.textContent = `You've been building for ${days} days. Pro unlocks the AI layer — so you can see exactly what's compounding and what's falling behind.`;
-    } else {
-      p.textContent = `You're using Compound the right way. Pro unlocks the AI layer — so your system actually tells you what's working and what to do next.`;
-    }
-  }
-  document.getElementById('pro-modal').classList.add('show');
-};
-const closeProModal = () => document.getElementById('pro-modal').classList.remove('show');
-
-
 function updateOnboardingChecklist() {
   const el = document.getElementById('onboarding-checklist');
   if (!el) return;
@@ -2344,50 +2249,8 @@ function showOnboardingTip() {
   updateOnboardingChecklist();
 }
 
-document.getElementById('pro-modal-close').addEventListener('click', closeProModal);
-document.getElementById('pro-modal').addEventListener('click', e => { if (e.target === document.getElementById('pro-modal')) closeProModal(); });
-document.getElementById('checkout-btn').addEventListener('click', startCheckout);
-
 // Promo / dev code — codes live server-side only (api/claude.js)
 const DEV_KEY = 'compound_dev';
-
-document.getElementById('show-code-btn').addEventListener('click', () => {
-  const row = document.getElementById('code-row');
-  row.style.display = row.style.display === 'flex' ? 'none' : 'flex';
-  if (row.style.display === 'flex') document.getElementById('promo-code-input').focus();
-});
-document.getElementById('promo-code-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') applyCode();
-});
-document.getElementById('apply-code-btn').addEventListener('click', applyCode);
-
-async function applyCode() {
-  const val = document.getElementById('promo-code-input').value.trim().toUpperCase();
-  const statusEl = document.getElementById('code-status');
-  if (!val) return;
-  // Validate server-side — valid codes must never ship in this file.
-  statusEl.style.color = 'var(--muted)';
-  statusEl.textContent = 'Checking…';
-  try {
-    const res = await fetch('/api/claude', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ messages: [{ role: 'user', content: 'ping' }], system: 'Reply with: pong', devCode: val }),
-    });
-    if (!res.ok) throw new Error('invalid');
-    localStorage.setItem(DEV_KEY, '1');
-    localStorage.setItem('compound_dev_code', val);
-    isPro = true;
-    updateAiVisibility();
-    statusEl.style.color = '#22c55e';
-    statusEl.textContent = '✓ Pro unlocked!';
-    setTimeout(closeProModal, 1200);
-    toast('⚡ Pro unlocked — enjoy!');
-  } catch (e) {
-    statusEl.style.color = 'var(--red)';
-    statusEl.textContent = 'Invalid code.';
-  }
-}
 
 function hasDevUnlock() {
   try { return localStorage.getItem(DEV_KEY) === '1' && !!localStorage.getItem('compound_dev_code'); }
@@ -2403,11 +2266,6 @@ document.getElementById('refresh-btn').addEventListener('click', async () => {
   setSyncing(true); await silentRefresh(); setSyncing(false); toast('Refreshed ✓');
 });
 document.getElementById('btn-settings').addEventListener('click', openSettings);
-document.getElementById('btn-unlock-ai').addEventListener('click', () => {
-  if (isPro && stripeCustomerId) { manageSubscription(); }
-  else if (isPro) { toast('⚡ Pro is active'); }
-  else { openProModal(); }
-});
 document.getElementById('settings-close').addEventListener('click', () => document.getElementById('settings-modal').classList.remove('show'));
 document.getElementById('settings-modal').addEventListener('click', e => { if (e.target === document.getElementById('settings-modal')) document.getElementById('settings-modal').classList.remove('show'); });
 document.getElementById('btn-signout-modal').addEventListener('click', () => document.getElementById('btn-signout').click());
@@ -2464,47 +2322,6 @@ async function handleOptIn(optedIn) {
 document.getElementById('optin-yes').addEventListener('click', () => handleOptIn(true));
 document.getElementById('optin-no').addEventListener('click', () => handleOptIn(false));
 
-// ── Stripe ────────────────────────────────────────────────
-async function startCheckout() {
-  const btn = document.getElementById('checkout-btn');
-  if (btn.disabled) return;
-  if (!currentUser) {
-    toast('Create your free account first — then upgrade from your dashboard.');
-    return;
-  }
-  btn.disabled = true;
-  btn.textContent = 'Redirecting…';
-  try {
-    const res = await fetch('/api/create-checkout', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ userId: currentUser.id, email: currentUser.email }),
-    });
-    const { url, error } = await res.json();
-    if (error) throw new Error(error);
-    window.location.href = url;
-  } catch(e) {
-    btn.disabled = false;
-    btn.textContent = '⚡ Upgrade to Pro';
-    toast('Something went wrong — try again.');
-  }
-}
-
-async function manageSubscription() {
-  if (!stripeCustomerId) { toast('No subscription found.'); return; }
-  try {
-    const { headers, extra } = await buildAuthPayload();
-    const res = await fetch('/api/customer-portal', {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ customerId: stripeCustomerId, ...extra }),
-    });
-    const { url, error } = await res.json();
-    if (error) throw new Error(error);
-    window.location.href = url;
-  } catch (err) { toast('Error: ' + err.message); }
-}
-
 // ── Claude API call ───────────────────────────────────────
 
 // Build auth headers/body based on how pro was unlocked
@@ -2523,9 +2340,6 @@ async function buildAuthPayload() {
 
 // Low-level call — returns raw { content, stop_reason, text } or throws
 async function callClaudeRaw(messages, system, tools) {
-  if (!isPro) {
-    document.getElementById('pro-modal').classList.add('show'); return null;
-  }
   const { headers, extra } = await buildAuthPayload();
   const body = { messages, system, ...extra };
   if (tools?.length) body.tools = tools;
@@ -2533,9 +2347,6 @@ async function callClaudeRaw(messages, system, tools) {
   const res  = await fetch('/api/claude', { method: 'POST', headers, body: JSON.stringify(body) });
   const data = await res.json();
   if (!res.ok) {
-    if (data.error === 'pro_required') {
-      document.getElementById('pro-modal').classList.add('show'); return null;
-    }
     throw new Error(data.error || 'Claude error');
   }
   return data; // { content, stop_reason, text }
@@ -2732,20 +2543,7 @@ document.getElementById('habit-feedback-btn').addEventListener('click', async ()
 // ── Chat ──────────────────────────────────────────────────
 let chatHistory = [];
 
-// ── Non-pro safety net ────────────────────────────────────
-// chat-btn visibility is controlled by updateAiVisibility().
-// Extra guard in case the panel somehow opens without Pro.
-function ensureProForChat() {
-  if (!isPro) {
-    document.getElementById('chat-panel').classList.remove('open');
-    document.getElementById('pro-modal').classList.add('show');
-    return false;
-  }
-  return true;
-}
-
 document.getElementById('chat-btn').addEventListener('click', () => {
-  if (!ensureProForChat()) return;
   document.getElementById('chat-panel').classList.add('open');
 });
 document.getElementById('chat-close').addEventListener('click', () => document.getElementById('chat-panel').classList.remove('open'));
@@ -2780,7 +2578,6 @@ document.getElementById('cform-energy').addEventListener('click', e => {
 });
 
 document.getElementById('cform-submit').addEventListener('click', () => {
-  if (!ensureProForChat()) return;
   const blocker = document.getElementById('cform-blocker').value.trim();
   const focus   = document.getElementById('cform-focus').value.trim();
   if (!blocker && !focus) { return; }
@@ -2890,11 +2687,6 @@ async function sendChat() {
   const text = inp.value.trim();
   const btn  = document.getElementById('chat-send');
   if (!text) return;
-  if (!isPro) {
-    document.getElementById('chat-panel').classList.remove('open');
-    document.getElementById('pro-modal').classList.add('show');
-    return;
-  }
   inp.value = ''; btn.disabled = true;
   appendMsg('user', text);
   chatHistory.push({ role: 'user', content: text });
@@ -3166,7 +2958,7 @@ function focusNext() {
   focusRender();
   const focusMsgs = [
     '✓ Break over. Lock back in.',
-    !isPro ? '✓ 25 min done. Ask Apex what to tackle next. ⚡' : '✓ Focus session complete. Take a break.',
+    '✓ Focus session complete. Take a break.',
     '✓ Long break earned. You put in the work.'
   ];
   toast(focusMsgs[focusModeIdx]);
