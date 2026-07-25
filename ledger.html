@@ -306,27 +306,10 @@
 (function(){
   const DAY_LABELS = ['M','T','W','T','F','S','S'];
 
-  // Base habits — always shown, never deleted
   const CATEGORIES = [
-    { key:'cut', title:'Cut', color:'var(--cut)', class:'cut',
-      habits: [
-        { id:'porn',   name:'Porn',         target:7, note:'avoided' },
-        { id:'weed',   name:'Weed',         target:7, note:'avoided' },
-        { id:'social', name:'Social media', target:7, note:'stayed limited' },
-      ]},
-    { key:'protect', title:'Protect', color:'var(--protect)', class:'protect',
-      habits: [
-        { id:'lifting',          name:'Lifting',          target:3, note:'3x / wk' },
-        { id:'selfcare',         name:'Self-care',        target:7, note:'daily' },
-        { id:'meditation',       name:'Meditation',       target:6, note:'near-daily' },
-        { id:'entrepreneurship', name:'Entrepreneurship', target:6, note:'near-daily' },
-        { id:'stretching',       name:'Stretching',       target:7, note:'daily' },
-      ]},
-    { key:'grow', title:'Grow', color:'var(--grow)', class:'grow',
-      habits: [
-        { id:'cardio',  name:'Cardio',  target:3, note:'3x / wk, up from 2' },
-        { id:'reading', name:'Reading', target:7, note:'daily, up from a few' },
-      ]},
+    { key:'cut',     title:'Cut',     color:'var(--cut)',     class:'cut',     habits:[] },
+    { key:'protect', title:'Protect', color:'var(--protect)', class:'protect', habits:[] },
+    { key:'grow',    title:'Grow',    color:'var(--grow)',    class:'grow',    habits:[] },
   ];
 
   function mondayOf(d){
@@ -387,6 +370,7 @@
         <span class="section-count">${habits.length} habit${habits.length !== 1 ? 's' : ''}</span>`;
       section.appendChild(tab);
 
+      if (habits.length) {
       const ledger = document.createElement('div');
       ledger.className = 'ledger';
 
@@ -452,6 +436,7 @@
       });
 
       section.appendChild(ledger);
+      } // end if habits.length
 
       // Add habit row
       const addRow = document.createElement('div');
