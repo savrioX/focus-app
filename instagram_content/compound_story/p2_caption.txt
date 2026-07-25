@@ -1,0 +1,13 @@
+No co-founder. No funding. No framework.
+
+Just me, a text editor, and a single HTML file.
+
+The entire app — the goals, the habits, the AI, the payments — runs from one file.
+
+Most people told me to learn React first.
+
+I shipped instead.
+
+🔗 dailycompound.app
+
+#buildinpublic #solofounder #justship #startupjournal #makingmoneywithAI #saas #claudecode #indiemaker #studentfounder #dailycompound

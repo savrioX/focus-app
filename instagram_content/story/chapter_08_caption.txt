@@ -1,0 +1,17 @@
+I built an AI agent to document building with AI.
+
+Every time I push a new commit to GitHub:
+→ The agent detects it
+→ Takes a screenshot automatically
+→ Generates a 9:16 hook card
+→ Writes a caption with AI
+→ Packages everything ready to post
+
+The build documents itself. The series runs itself.
+
+This is what making money with AI actually looks like — not prompting ChatGPT for tweets. Building systems that work while you sleep.
+
+Follow → @thestartupjournal_
+🔗 dailycompound.app
+
+#makingmoneywithAI #claudecode #buildinpublic #solofounder #aiautomation #startupjournal #saas #contentcreator #indiemaker #buildingwithai

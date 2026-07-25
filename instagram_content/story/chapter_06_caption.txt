@@ -1,0 +1,20 @@
+3 weeks of work. Vercel wouldn't build.
+
+Build error. Command "npm run build" exited with 1.
+
+I pasted the error into Claude. 5 minutes later:
+
+→ AI identified the missing outputDirectory in vercel.json
+→ AI wrote the fix
+→ AI explained why it broke so it never happens again
+→ I pushed one commit
+
+Status: Ready ✅
+
+I didn't touch a single line of code myself. The AI diagnosed it, fixed it, and shipped it.
+
+This is episode 4 of the making money with AI series.
+
+🔗 dailycompound.app
+
+#makingmoneywithAI #claudecode #vercel #buildinpublic #solofounder #saasfounder #debugging #aitools #startupjournal

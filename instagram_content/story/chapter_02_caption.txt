@@ -1,0 +1,16 @@
+I didn't hire a dev team.
+
+I described what I wanted. The AI built it.
+
+Claude Code → writes the code
+Supabase → auth and database
+Vercel → deploy in seconds
+Stripe → $10/month Pro tier
+
+71 commits. Zero co-founders. One conversation at a time.
+
+This is what the tech stack looks like when you build with AI in 2025.
+
+🔗 dailycompound.app
+
+#makingmoneywithAI #claudecode #saasstack #buildinpublic #solofounder #supabase #vercel #stripe #aitools

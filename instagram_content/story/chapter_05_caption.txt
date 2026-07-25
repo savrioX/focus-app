@@ -1,0 +1,13 @@
+I typed one sentence.
+
+"When the user opens the app, greet them by name, read their goals and habits, and give personalised advice."
+
+An entire AI coach appeared. Greets you by name. Reads your goals. Checks your streaks. Gives daily advice tailored to your life.
+
+That's Apex Advisor. It's live. It's on the Pro tier.
+
+One prompt. Shipped.
+
+🔗 dailycompound.app
+
+#makingmoneywithAI #claudecode #aitools #buildinpublic #solofounder #saas #productdevelopment #startupjournal #apexadvisor

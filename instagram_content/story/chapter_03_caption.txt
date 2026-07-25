@@ -1,0 +1,13 @@
+I didn't know what row-level security was.
+
+I just said: "Build me login with Google, email magic-links, and a user profile table in Supabase."
+
+It built it. Then it explained what RLS is and set that up too.
+
+Google OAuth. Magic-link auth. Database schema. Security policies. One session.
+
+This is how you build without a CS degree.
+
+🔗 dailycompound.app
+
+#makingmoneywithAI #supabase #claudecode #buildinpublic #nocode #solofounder #saas #webdev #aitools
