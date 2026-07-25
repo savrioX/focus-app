@@ -726,7 +726,7 @@
 
     <div class="land-quote" style="margin-top:28px;margin-bottom:20px;">
       <p>"I was juggling ten apps to manage my goals, habits, and todos — and none of them talked to each other. I built Compound for myself. It's the system I use every day to run my startup."</p>
-      <cite>&#8212; Savrio, founder &middot; <a href="https://www.instagram.com/thestartupjournal1/" target="_blank" rel="noopener">building in public @thestartupjournal1</a></cite>
+      <cite>&#8212; Founder &middot; <a href="https://www.instagram.com/thestartupjournal1/" target="_blank" rel="noopener">building in public @thestartupjournal1</a></cite>
     </div>
 
     <div style="margin-top:4px;">
@@ -1276,7 +1276,7 @@ sb.auth.onAuthStateChange((event, session) => {
     if (!appStarted) { appStarted = true; setTimeout(initApp, 0); }
   } else {
     appStarted = false;
-    currentUser = null; isPro = false; stripeCustomerId = null;
+    currentUser = null; stripeCustomerId = null;
     todos = []; goals = []; habits = [];
     try { localStorage.removeItem(CACHE_KEY); localStorage.removeItem('compound_apikey'); } catch(e) {}
     updateAiVisibility();
@@ -1293,18 +1293,9 @@ sb.auth.onAuthStateChange((event, session) => {
 let todos  = [];
 let goals  = [];
 let habits = [];
-let isPro            = false;
+let isPro            = true;
 let stripeCustomerId = null;
 let activeContext    = '';
-
-// Intercept clicks on locked AI buttons for non-Pro users
-document.addEventListener('click', e => {
-  const aiBtn = e.target.closest('.btn-ai');
-  if (aiBtn && !isPro) {
-    e.stopImmediatePropagation();
-    openProModal();
-  }
-}, true);
 
 function checkMilestones() {
   if (!currentUser?.created_at) return;

@@ -144,7 +144,7 @@ function briefingHtml({ todos, topHabit, topStreak, goalStep, allGoals, quote, s
                 <a href="${appUrl}" style="display:inline-block;background:#7c3aed;color:#ffffff;text-decoration:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;">Open Compound →</a>
               </p>
               <p style="margin:0;font-size:15px;color:#18181b;line-height:1.7;">
-                — Savrio<br/>
+                — Compound<br/>
                 <span style="color:#71717a;font-size:13px;">dailycompound.app</span>
               </p>
             </td>
@@ -275,7 +275,7 @@ module.exports = async function handler(req, res) {
           const igTask  = email === OWNER ? IG_TASKS[dayOfWeek] : null;
 
           const { error } = await resend.emails.send({
-            from:    'Savrio from Compound <savrio@dailycompound.app>',
+            from:    'Compound <savrio@dailycompound.app>',
             to:      email,
             subject: 'Good morning. Here\'s today.',
             html:    briefingHtml({ todos: userTodos, topHabit, topStreak, goalStep, allGoals, quote, strategy, igTask, appUrl: APP_URL }),

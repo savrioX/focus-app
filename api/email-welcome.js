@@ -39,7 +39,7 @@ function welcomeHtml(firstName) {
                 <a href="${APP_URL}" style="color:#7c3aed;font-weight:600;text-decoration:none;">Open Compound and add your first habit →</a>
               </p>
               <p style="margin:0 0 6px 0;font-size:15px;color:#18181b;line-height:1.7;">
-                — Savrio<br/>
+                — Compound<br/>
                 <span style="color:#71717a;font-size:13px;">Founder, dailycompound.app</span>
               </p>
             </td>
@@ -74,7 +74,7 @@ module.exports = async function handler(req, res) {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Savrio from Compound <savrio@dailycompound.app>',
+      from: 'Compound <savrio@dailycompound.app>',
       to: email,
       subject: "Here's your first move",
       html: welcomeHtml(firstName),
