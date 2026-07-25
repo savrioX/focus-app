@@ -14,32 +14,14 @@ module.exports = async function handler(req, res) {
   if (!messages || !Array.isArray(messages))
     return res.status(400).json({ error: 'Messages required' });
 
-  // Auth
-  let authorised = false;
-  if (devCode && DEV_CODES.includes(String(devCode).toUpperCase())) {
-    authorised = true;
-  } else {
-    const token = (req.headers.authorization || '').replace('Bearer ', '').trim();
-    if (!token) return res.status(403).json({ error: 'pro_required' });
-
-    const userRes = await fetch(`${process.env.SUPABASE_URL}/auth/v1/user`, {
-      headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${token}` }
-    }).catch(() => null);
-    if (!userRes?.ok)
-      return res.status(401).json({ error: 'Invalid session — please sign in again.' });
-    const user = await userRes.json();
-
-    // Founder always has Pro access
-    if (user.email === 'vsf4046@gmail.com') authorised = true;
-
-    const profileRes = await fetch(
-      `${process.env.SUPABASE_URL}/rest/v1/profiles?id=eq.${user.id}&select=is_pro`,
-      { headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}` } }
-    ).catch(() => null);
-    const profiles = profileRes?.ok ? await profileRes.json() : [];
-    if (profiles[0]?.is_pro) authorised = true;
-  }
-  if (!authorised) return res.status(403).json({ error: 'pro_required' });
+  // Auth — verify user is signed in (all features free)
+  const token = (req.headers.authorization || '').replace('Bearer ', '').trim();
+  if (!token) return res.status(403).json({ error: 'auth_required' });
+  const userRes = await fetch(`${process.env.SUPABASE_URL}/auth/v1/user`, {
+    headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${token}` }
+  }).catch(() => null);
+  if (!userRes?.ok)
+    return res.status(401).json({ error: 'Invalid session — please sign in again.' });
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'Server API key not configured.' });

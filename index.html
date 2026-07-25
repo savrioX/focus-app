@@ -1503,7 +1503,7 @@ async function loadProfile() {
       .eq('id', currentUser.id)
       .single();
     if (data) {
-      isPro            = !!data.is_pro || hasDevUnlock() || currentUser.email === 'vsf4046@gmail.com';
+      isPro            = true;
       stripeCustomerId = data.stripe_customer_id || null;
       activeContext    = data.active_context || '';
       emailOptIn       = !!data.email_opt_in;
