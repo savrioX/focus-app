@@ -39,6 +39,16 @@ Content style: viral hooks, real numbers, build updates, founder lessons.
 
 ## What We've Built (Session History)
 
+### Full Pro/paywall removal — July 25, 2026 (commit 2be14bd)
+`isPro` was already hardcoded `true` (commit 459f73e), but the paywall UI and marketing copy still advertised a $10/mo Pro tier. Removed all of it:
+- `index.html`: deleted the Pro modal, header "Get Pro" button, Stripe checkout/manage-subscription flow, all upsell nudges (milestone toasts, streak badges, goal-complete nudge, chat gating), guide panel "(Pro)" labels.
+- `pricing.html`: rewritten as single "$0 forever" plan, no waitlist.
+- `focus-app-for-students.html`, `focus-timer-entrepreneurs.html`, `habit-tracker-college-students.html`, `productivity-app-student-entrepreneurs.html`: removed "$10/month Pro plan" copy.
+- `terms.html`: removed the paid-subscription clause, renumbered sections.
+- Left Stripe backend files (`api/create-checkout.js`, `api/customer-portal.js`, `api/stripe-webhook.js`) untouched — only disconnected the front-end. No live paying customers as of this session (pricing page pre-change said "waitlist," not live checkout).
+
+Also: set global git identity on this Mac (`user.name`/`user.email` were unset — likely why prior commits/work went missing). Committed but not pushed.
+
 ### Ledger (`ledger.html`) — last major work July 24, 2026
 Complete rewrite. Ledger is now a **standalone page using `window.storage`** — NOT Supabase.
 
