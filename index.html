@@ -925,7 +925,7 @@
 
     <!-- Q1 -->
     <div class="ob-step ob-active" id="ob-step-1">
-      <div class="ob-q-num">1 of 10</div>
+      <div class="ob-q-num">1 of 5</div>
       <div class="ob-q-text">Which area do you most want to build a daily habit in?</div>
       <div class="ob-options">
         <button class="ob-opt" data-field="domain" data-val="fitness"><span class="ob-opt-dot"></span>Physical fitness / movement</button>
@@ -939,7 +939,7 @@
 
     <!-- Q2 -->
     <div class="ob-step" id="ob-step-2">
-      <div class="ob-q-num">2 of 10</div>
+      <div class="ob-q-num">2 of 5</div>
       <div class="ob-q-text">Honestly — how often are you doing something in this area right now?</div>
       <div class="ob-options">
         <button class="ob-opt" data-field="baseline" data-val="0"><span class="ob-opt-dot"></span>Rarely or never — starting from scratch</button>
@@ -950,23 +950,9 @@
       <button class="ob-back" onclick="obPrevStep()">← Back</button>
     </div>
 
-    <!-- Q3 -->
+    <!-- Q3 multi-select -->
     <div class="ob-step" id="ob-step-3">
-      <div class="ob-q-num">3 of 10</div>
-      <div class="ob-q-text">The longest you've ever stuck with a habit before:</div>
-      <div class="ob-options">
-        <button class="ob-opt" data-field="attempt" data-val="0"><span class="ob-opt-dot"></span>I've never seriously tried</button>
-        <button class="ob-opt" data-field="attempt" data-val="1"><span class="ob-opt-dot"></span>A few days, then it fades</button>
-        <button class="ob-opt" data-field="attempt" data-val="2"><span class="ob-opt-dot"></span>1–3 weeks, then I stop</button>
-        <button class="ob-opt" data-field="attempt" data-val="3"><span class="ob-opt-dot"></span>A month or more, then something breaks it</button>
-        <button class="ob-opt" data-field="attempt" data-val="4"><span class="ob-opt-dot"></span>3+ months at some point</button>
-      </div>
-      <button class="ob-back" onclick="obPrevStep()">← Back</button>
-    </div>
-
-    <!-- Q4 multi-select -->
-    <div class="ob-step" id="ob-step-4">
-      <div class="ob-q-num">4 of 10</div>
+      <div class="ob-q-num">3 of 5</div>
       <div class="ob-q-text">What usually kills a habit attempt?</div>
       <div class="ob-multi-hint">Pick up to 2 that feel most true</div>
       <div class="ob-options">
@@ -979,26 +965,13 @@
       </div>
       <div class="ob-nav">
         <button class="ob-back" onclick="obPrevStep()">← Back</button>
-        <button class="ob-next" id="ob-step-4-next" onclick="obNextStep()" disabled>Next →</button>
+        <button class="ob-next" id="ob-step-3-next" onclick="obNextStep()" disabled>Next →</button>
       </div>
     </div>
 
-    <!-- Q5 -->
-    <div class="ob-step" id="ob-step-5">
-      <div class="ob-q-num">5 of 10</div>
-      <div class="ob-q-text">When you miss a day of a habit you're building, you usually:</div>
-      <div class="ob-options">
-        <button class="ob-opt" data-field="miss" data-val="0"><span class="ob-opt-dot"></span>Get straight back the next day — one miss is nothing</button>
-        <button class="ob-opt" data-field="miss" data-val="1"><span class="ob-opt-dot"></span>Push myself back in a day or two</button>
-        <button class="ob-opt" data-field="miss" data-val="2"><span class="ob-opt-dot"></span>Miss several more days before returning</button>
-        <button class="ob-opt" data-field="miss" data-val="3"><span class="ob-opt-dot"></span>Pretty much stop — restart weeks later if at all</button>
-      </div>
-      <button class="ob-back" onclick="obPrevStep()">← Back</button>
-    </div>
-
-    <!-- Q6 -->
-    <div class="ob-step" id="ob-step-6">
-      <div class="ob-q-num">6 of 10</div>
+    <!-- Q4 -->
+    <div class="ob-step" id="ob-step-4">
+      <div class="ob-q-num">4 of 5</div>
       <div class="ob-q-text">On your worst day this week — how much time could you spare for ONE new habit?</div>
       <div class="ob-options">
         <button class="ob-opt" data-field="time" data-val="5"><span class="ob-opt-dot"></span>Under 5 minutes</button>
@@ -1010,50 +983,9 @@
       <button class="ob-back" onclick="obPrevStep()">← Back</button>
     </div>
 
-    <!-- Q7 -->
-    <div class="ob-step" id="ob-step-7">
-      <div class="ob-q-num">7 of 10</div>
-      <div class="ob-q-text">When in your day would this habit most naturally slot in?</div>
-      <div class="ob-options">
-        <button class="ob-opt" data-field="trigger" data-val="morning"><span class="ob-opt-dot"></span>Right after waking up</button>
-        <button class="ob-opt" data-field="trigger" data-val="midday"><span class="ob-opt-dot"></span>Around midday / lunch</button>
-        <button class="ob-opt" data-field="trigger" data-val="afternoon"><span class="ob-opt-dot"></span>Right after school or work ends</button>
-        <button class="ob-opt" data-field="trigger" data-val="evening"><span class="ob-opt-dot"></span>Evening (7–10pm)</button>
-        <button class="ob-opt" data-field="trigger" data-val="variable"><span class="ob-opt-dot"></span>My schedule varies — no fixed time</button>
-      </div>
-      <button class="ob-back" onclick="obPrevStep()">← Back</button>
-    </div>
-
-    <!-- Q8 -->
-    <div class="ob-step" id="ob-step-8">
-      <div class="ob-q-num">8 of 10</div>
-      <div class="ob-q-text">Your biggest environment challenge for this habit:</div>
-      <div class="ob-options">
-        <button class="ob-opt" data-field="env" data-val="equipment"><span class="ob-opt-dot"></span>I don't have the gear or space I need</button>
-        <button class="ob-opt" data-field="env" data-val="phone"><span class="ob-opt-dot"></span>My phone is always nearby and pulls me in</button>
-        <button class="ob-opt" data-field="env" data-val="people"><span class="ob-opt-dot"></span>The people I live with make it hard to be consistent</button>
-        <button class="ob-opt" data-field="env" data-val="mobile"><span class="ob-opt-dot"></span>I'm often away from home (commuting, campus, travel)</button>
-        <button class="ob-opt" data-field="env" data-val="none"><span class="ob-opt-dot"></span>No major environment challenges</button>
-      </div>
-      <button class="ob-back" onclick="obPrevStep()">← Back</button>
-    </div>
-
-    <!-- Q9 -->
-    <div class="ob-step" id="ob-step-9">
-      <div class="ob-q-num">9 of 10</div>
-      <div class="ob-q-text">How many habits are you currently trying to build (including this one)?</div>
-      <div class="ob-options">
-        <button class="ob-opt" data-field="load" data-val="1"><span class="ob-opt-dot"></span>Just this one — focused</button>
-        <button class="ob-opt" data-field="load" data-val="2"><span class="ob-opt-dot"></span>2–3 habits</button>
-        <button class="ob-opt" data-field="load" data-val="5"><span class="ob-opt-dot"></span>4–6 habits</button>
-        <button class="ob-opt" data-field="load" data-val="7"><span class="ob-opt-dot"></span>More than 6</button>
-      </div>
-      <button class="ob-back" onclick="obPrevStep()">← Back</button>
-    </div>
-
-    <!-- Q10 -->
-    <div class="ob-step" id="ob-step-10">
-      <div class="ob-q-num">10 of 10</div>
+    <!-- Q5 -->
+    <div class="ob-step" id="ob-step-5">
+      <div class="ob-q-num">5 of 5</div>
       <div class="ob-q-text">You're most consistent when:</div>
       <div class="ob-options">
         <button class="ob-opt" data-field="motivation" data-val="scheduled"><span class="ob-opt-dot"></span>The habit is at a fixed time — I treat it like a meeting</button>
@@ -2168,14 +2100,14 @@ applyPrefs();
 const openSettings  = () => document.getElementById('settings-modal').classList.add('show');
 
 // ── Onboarding quiz ──────────────────────────────────────
-const OB_TOTAL = 10;
+const OB_TOTAL = 5;
 let _obStep = 1;
-let _obAnswers = { failure_modes: [] };
+let _obAnswers = { failure_modes: [], attempt: 2, miss: 1, trigger: 'morning', env: 'none', load: 1 };
 let _obResult  = null;
 
 function showOnboarding() {
   _obStep    = 1;
-  _obAnswers = { failure_modes: [] };
+  _obAnswers = { failure_modes: [], attempt: 2, miss: 1, trigger: 'morning', env: 'none', load: 1 };
   _obResult  = null;
   document.querySelectorAll('#onboarding-modal .ob-step').forEach(el => el.classList.remove('ob-active'));
   const s1 = document.getElementById('ob-step-1');
@@ -2183,14 +2115,14 @@ function showOnboarding() {
   const fill = document.getElementById('ob-progress-fill');
   if (fill) fill.style.width = '0%';
   document.querySelectorAll('#onboarding-modal .ob-opt').forEach(el => el.classList.remove('ob-selected'));
-  const nb = document.getElementById('ob-step-4-next');
+  const nb = document.getElementById('ob-step-3-next');
   if (nb) nb.disabled = true;
   const modal = document.getElementById('onboarding-modal');
   if (modal) modal.classList.add('show');
 }
 
 function skipOnboarding() {
-  _obAnswers = { domain:'focus', baseline:0, attempt:0, failure_modes:[], miss:1, time:20, trigger:'morning', env:'none', load:1, motivation:'scheduled' };
+  _obAnswers = { domain:'focus', baseline:0, attempt:2, failure_modes:[], miss:1, time:20, trigger:'morning', env:'none', load:1, motivation:'scheduled' };
   _obResult  = null;
   _obFinish();
 }
@@ -2207,7 +2139,7 @@ function _obActivate(n) {
 }
 
 function obNextStep() {
-  if (_obStep === 4 && !_obAnswers.failure_modes?.length) return;
+  if (_obStep === 3 && !_obAnswers.failure_modes?.length) return;
   if (_obStep < OB_TOTAL) { _obStep++; _obActivate(_obStep); }
   else _obSubmitQuiz();
 }
@@ -2225,6 +2157,7 @@ function obPrevStep() {
     if (!field || val === undefined) return;
 
     if (field === 'failure_modes') {
+      e.preventDefault();
       const already = opt.classList.contains('ob-selected');
       if (already) {
         opt.classList.remove('ob-selected');
@@ -2234,12 +2167,12 @@ function obPrevStep() {
         opt.classList.add('ob-selected');
         _obAnswers.failure_modes.push(val);
       }
-      const nb = document.getElementById('ob-step-4-next');
-      if (nb) nb.disabled = !_obAnswers.failure_modes.length;
+      const nb = document.getElementById('ob-step-3-next');
+      if (nb) nb.disabled = _obAnswers.failure_modes.length === 0;
       return;
     }
 
-    // Single-select: deselect siblings
+    // Single-select: deselect siblings, then select clicked
     const stepEl = opt.closest('.ob-step');
     if (stepEl) stepEl.querySelectorAll('.ob-opt').forEach(o => o.classList.remove('ob-selected'));
     opt.classList.add('ob-selected');
@@ -2247,8 +2180,8 @@ function obPrevStep() {
     const numFields = ['baseline', 'attempt', 'miss', 'time', 'load'];
     _obAnswers[field] = numFields.includes(field) ? parseInt(val, 10) : val;
 
-    // Auto-advance for all single-select steps
-    if (_obStep !== 4) {
+    // Auto-advance for all single-select steps (not Q3 multi-select)
+    if (_obStep !== 3) {
       setTimeout(() => {
         if (_obStep < OB_TOTAL) { _obStep++; _obActivate(_obStep); }
         else _obSubmitQuiz();
