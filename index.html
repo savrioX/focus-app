@@ -6,7 +6,7 @@
   <title>Compound — Build the person you want to become</title>
   <meta name="description" content="The productivity system for student entrepreneurs. Goals, habits, daily todos, and an AI advisor — all in one place.">
   <meta property="og:title" content="Compound — Build the person you want to become">
-  <meta property="og:description" content="Goals, habits, daily execution, and your personal AI coach. Free to start.">
+  <meta property="og:description" content="Goals, habits, daily execution, and your personal AI coach. 100% free forever.">
   <meta property="og:image" content="https://dailycompound.app/logo.PNG">
   <meta property="og:url" content="https://dailycompound.app">
   <meta name="twitter:card" content="summary">
@@ -2347,7 +2347,7 @@ async function callClaudeRaw(messages, system, tools) {
   const res  = await fetch('/api/claude', { method: 'POST', headers, body: JSON.stringify(body) });
   const data = await res.json();
   if (!res.ok) {
-    throw new Error(data.error || 'Claude error');
+    throw new Error(data.message || data.error || 'Claude error');
   }
   return data; // { content, stop_reason, text }
 }
@@ -2496,7 +2496,7 @@ async function suggestSteps(goalId) {
     if (parts.length) toast(`✨ Added ${parts.join(' + ')} from your goal`);
     else toast('No steps added — try again.');
   } catch(e) {
-    toast('Could not get suggestions — try again.');
+    toast(/daily ai limit/i.test(e.message) ? e.message : 'Could not get suggestions — try again.');
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = orig; }
   }
@@ -2519,7 +2519,7 @@ document.getElementById('plan-day-btn').addEventListener('click', async () => {
     }
     saveCache(); renderTodos(); toast('Tasks added to your list!');
   } catch(e) {
-    toast('Could not plan your day — try again.');
+    toast(/daily ai limit/i.test(e.message) ? e.message : 'Could not plan your day — try again.');
   } finally { btn.disabled = false; btn.textContent = orig; }
 });
 
@@ -2536,7 +2536,7 @@ document.getElementById('habit-feedback-btn').addEventListener('click', async ()
     if (!result) return;
     txt.textContent = result; box.style.display = 'block';
   } catch(e) {
-    toast('Could not get feedback — try again.');
+    toast(/daily ai limit/i.test(e.message) ? e.message : 'Could not get feedback — try again.');
   } finally { btn.disabled = false; btn.textContent = orig; }
 });
 
@@ -2731,7 +2731,7 @@ async function sendChat() {
     if (finalText) appendMsg('ai', finalText);
   } catch(e) {
     thinking.remove();
-    appendMsg('ai', 'Something went wrong — try again.');
+    appendMsg('ai', /daily ai limit/i.test(e.message) ? e.message : 'Something went wrong — try again.');
   } finally { btn.disabled = false; inp.focus(); }
 }
 
@@ -2805,7 +2805,7 @@ TASKS:
     renderHabits(); renderTodos();
     toast(`✓ Added ${suggestedHabits.length} habits + ${suggestedTasks.length} tasks from your goals!`);
   } catch(e) {
-    toast('Could not build plan — try again.');
+    toast(/daily ai limit/i.test(e.message) ? e.message : 'Could not build plan — try again.');
   } finally { btn.disabled = false; btn.textContent = orig; }
 });
 
@@ -3026,7 +3026,7 @@ Keep it punchy. No bullet points. Talk directly to me.`
     else contentEl.textContent = 'Could not generate briefing — try again.';
   } catch(e) {
     loadingEl.classList.remove('visible');
-    contentEl.textContent = 'Could not generate briefing — try again.';
+    contentEl.textContent = /daily ai limit/i.test(e.message) ? e.message : 'Could not generate briefing — try again.';
   } finally { btn.disabled = false; btn.textContent = orig; }
 });
 document.getElementById('brief-close').addEventListener('click',   () => document.getElementById('brief-modal').classList.remove('show'));
@@ -3059,7 +3059,7 @@ Use plain text only — no asterisks, no markdown. Use ALL CAPS for section name
     else contentEl.textContent = 'Could not generate report — try again.';
   } catch(e) {
     loadingEl.classList.remove('visible');
-    contentEl.textContent = 'Could not generate report — try again.';
+    contentEl.textContent = /daily ai limit/i.test(e.message) ? e.message : 'Could not generate report — try again.';
   } finally { btn.disabled = false; btn.textContent = orig; }
 });
 document.getElementById('report-close').addEventListener('click',   () => document.getElementById('report-modal').classList.remove('show'));

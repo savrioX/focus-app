@@ -188,6 +188,17 @@ module.exports = async function handler(req, res) {
     });
   }
 
+  if (!isSecret) {
+    const claimRes = await fetch(`${SB_URL}/rest/v1/rpc/claim_ai_usage`, {
+      method:  'POST',
+      headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'content-type': 'application/json' },
+      body:    JSON.stringify({ p_user_id: uid, p_limit: parseInt(process.env.AI_DAILY_LIMIT || '15', 10) }),
+    }).catch(() => null);
+    const allowed = claimRes?.ok ? await claimRes.json() : true; // fail open if RPC missing/down
+    if (allowed === false)
+      return res.status(429).json({ error: 'rate_limited', message: 'Daily AI limit reached. Resets at midnight UTC.' });
+  }
+
   try {
     const plan = await generatePlan(uid);
     if (!plan) return res.status(500).json({ error: 'Plan generation failed — could not parse Claude response' });

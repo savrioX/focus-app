@@ -4,7 +4,13 @@ const DEV_CODES = [
   ...(process.env.DEV_CODES || '').split(',').map(c => c.trim().toUpperCase()).filter(Boolean),
 ];
 const DEFAULT_MODEL  = 'claude-haiku-4-5';
-const ALLOWED_MODELS = new Set(['claude-haiku-4-5', 'claude-haiku-4-5-20251001', 'claude-sonnet-4-6']);
+// Sonnet costs ~10x Haiku — locked out until AI_ALLOW_SONNET=true is set (budget is tight).
+const ALLOWED_MODELS = new Set(
+  process.env.AI_ALLOW_SONNET === 'true'
+    ? ['claude-haiku-4-5', 'claude-haiku-4-5-20251001', 'claude-sonnet-4-6']
+    : ['claude-haiku-4-5', 'claude-haiku-4-5-20251001']
+);
+const DAILY_AI_LIMIT  = parseInt(process.env.AI_DAILY_LIMIT || '15', 10);
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST')
@@ -22,6 +28,22 @@ module.exports = async function handler(req, res) {
   }).catch(() => null);
   if (!userRes?.ok)
     return res.status(401).json({ error: 'Invalid session — please sign in again.' });
+  const user = await userRes.json();
+
+  // Per-user daily cap — one atomic UPDATE that resets on a new day and
+  // rejects once the cap is hit, so concurrent requests can't race past it.
+  const claimRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/rpc/claim_ai_usage`, {
+    method:  'POST',
+    headers: {
+      apikey:         process.env.SUPABASE_SERVICE_ROLE_KEY,
+      Authorization:  `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({ p_user_id: user.id, p_limit: DAILY_AI_LIMIT }),
+  }).catch(() => null);
+  const allowed = claimRes?.ok ? await claimRes.json() : true; // fail open if RPC missing/down
+  if (allowed === false)
+    return res.status(429).json({ error: 'rate_limited', message: `Daily AI limit reached (${DAILY_AI_LIMIT} messages). Resets at midnight UTC.` });
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'Server API key not configured.' });

@@ -152,3 +152,32 @@ create policy "users can insert feedback" on feedback
 --     for all using ((select auth.uid()) = user_id)
 --     with check ((select auth.uid()) = user_id);
 --   create index if not exists idx_todos_user_id on todos (user_id);
+
+-- ── Apex daily usage cap — run in Supabase SQL Editor ───────────────────────
+-- alter table profiles add column if not exists ai_usage_count int default 0 not null;
+-- alter table profiles add column if not exists ai_usage_date date;
+--
+-- create or replace function claim_ai_usage(p_user_id uuid, p_limit int)
+-- returns boolean
+-- language plpgsql
+-- security definer
+-- as $$
+-- declare
+--   ok boolean;
+-- begin
+--   update profiles
+--   set ai_usage_count = case when ai_usage_date = current_date then ai_usage_count + 1 else 1 end,
+--       ai_usage_date  = current_date
+--   where id = p_user_id
+--     and (ai_usage_date is distinct from current_date or ai_usage_count < p_limit)
+--   returning true into ok;
+--
+--   return coalesce(ok, false);
+-- end;
+-- $$;
+--
+-- Single atomic UPDATE: resets the counter on a new day and enforces the cap
+-- in the same statement, so concurrent requests from one user can't race past
+-- the limit. Called from api/claude.js via /rest/v1/rpc/claim_ai_usage using
+-- the service role key (bypasses RLS, which is fine — it's server-only).
+-- ─────────────────────────────────────────────────────────────────────────────
