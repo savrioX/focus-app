@@ -11,3 +11,5 @@ Append-only log. One entry per turn where real work shipped — same recap Claud
 **Added a per-user daily AI usage cap.** Anthropic balance was down to $4.91, so added a hard cap (15 messages/user/day, Haiku-only unless `AI_ALLOW_SONNET=true`) enforced via a new `claim_ai_usage` Postgres RPC, wired into `/api/claude` and `/api/apex-plan`. Chat and every AI-feature button now surface a clear "daily limit reached" message instead of a generic error. **Requires running the SQL migration in `schema.sql` (bottom of file) in Supabase Dashboard → SQL Editor** — the code fails open (no cap enforced) until that migration is run.
 
 Committed as `494a1e0` and pushed to `main`.
+
+**AI usage cap is now live.** Savrio ran the `claim_ai_usage` migration in Supabase SQL Editor — the 15/day-per-user cap on `/api/claude` and `/api/apex-plan` is now actually enforced, not just deployed.
