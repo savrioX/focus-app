@@ -4,11 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Compound — Build the person you want to become</title>
-  <meta name="description" content="The productivity system for student entrepreneurs. Goals, habits, daily todos, and an AI advisor — all in one place.">
-  <meta property="og:title" content="Compound — Build the person you want to become">
-  <meta property="og:description" content="Goals, habits, daily execution, and your personal AI coach. 100% free forever.">
+  <meta name="description" content="Not a wellness app — a builder's system. Goals, habits and daily execution in one place, plus an AI advisor that reads your real data and tells you where you're losing momentum. 100% free.">
+  <meta property="og:title" content="Compound — Not a wellness app. A builder's system.">
+  <meta property="og:description" content="Goals, habits, daily execution, and an AI advisor that reads your actual data. 100% free forever.">
   <meta property="og:image" content="https://dailycompound.app/logo.PNG">
   <meta property="og:url" content="https://dailycompound.app">
+  <!-- Stays "summary" (not summary_large_image) until og:image is a real
+       1200x630 asset — a square logo in a large card renders badly. -->
   <meta name="twitter:card" content="summary">
   <meta name="theme-color" content="#09090b">
   <link rel="preconnect" href="https://diwwapnpnffubepdvrxg.supabase.co">
@@ -43,10 +45,14 @@
     body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: var(--fs); transition: background 0.2s, color 0.2s; -webkit-font-smoothing: antialiased; }
     body.dark #load-overlay { background: #000; }
 
-    /* ── Auth ────────────────────────────── */
     /* ── Landing / Auth ─────────────────────── */
-    #auth-screen { display: flex; min-height: 100vh; height: 100vh; background: var(--bg); overflow: hidden; }
-    .land-left { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 60px 56px; background: #09090b; color: #fafafa; min-height: 100vh; }
+    /* Unauthenticated visitors get a full scrolling marketing page. #auth-screen
+       is the whole page; .land-hero is the first fold (copy + auth card), and
+       .land-section blocks stack below it. Toggled by JS via display:none/''. */
+    #auth-screen { display: block; background: #09090b; scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; }
+    .land-hero { display: flex; min-height: 100vh; }
+    .land-left { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 60px 56px; background: #09090b; color: #fafafa; }
     .land-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 52px; }
     .land-logo img { width: 32px; height: 32px; border-radius: 8px; }
     .land-logo span { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; color: #fafafa; }
@@ -69,11 +75,102 @@
     .auth-logo-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
     .auth-card h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
     .auth-card > p { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
+
+    /* ── Landing sections (below the fold) ───────────────────
+       The whole landing page is dark regardless of app theme, so these use
+       literal colours rather than the light/dark custom properties. */
+    .land-section { padding: 88px 32px; border-top: 1px solid rgba(255,255,255,0.07); }
+    .land-inner { max-width: 1000px; margin: 0 auto; }
+    .land-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #a78bfa; margin-bottom: 14px; }
+    .land-h2 { font-size: 30px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.2; color: #fafafa; margin-bottom: 14px; }
+    .land-lede { font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.6); max-width: 620px; margin-bottom: 44px; }
+    .land-cta { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg,#7c3aed,#a78bfa); color: #fff; border: none; border-radius: 12px; padding: 15px 32px; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; text-decoration: none; transition: opacity 0.15s, transform 0.15s; }
+    .land-cta:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* Steps */
+    .land-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+    .land-step { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 26px 24px; }
+    .land-step-n { width: 28px; height: 28px; border-radius: 8px; background: rgba(124,58,237,0.18); border: 1px solid rgba(167,139,250,0.35); color: #c4b5fd; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+    .land-step h3 { font-size: 15px; font-weight: 700; color: #fafafa; margin-bottom: 8px; }
+    .land-step p { font-size: 13.5px; line-height: 1.65; color: rgba(255,255,255,0.55); }
+
+    /* Feature cards */
+    .land-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+    .land-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px; }
+    .land-card-icon { font-size: 22px; margin-bottom: 12px; }
+    .land-card h3 { font-size: 14.5px; font-weight: 700; color: #fafafa; margin-bottom: 7px; }
+    .land-card p { font-size: 13px; line-height: 1.65; color: rgba(255,255,255,0.5); }
+
+    /* ── Mock app UI (hand-built, not a screenshot) ──────────
+       Kept as markup rather than an image: stays crisp at any DPI, adds no
+       bytes to the load path, and can't drift out of date the way a PNG does. */
+    .mock { background: #101014; border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; box-shadow: 0 24px 60px rgba(0,0,0,0.5); overflow: hidden; }
+    .mock-bar { display: flex; align-items: center; gap: 7px; padding: 11px 14px; background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .mock-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.16); }
+    .mock-url { margin-left: 10px; font-size: 11px; color: rgba(255,255,255,0.3); }
+    .mock-body { padding: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .mock-col { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 11px; padding: 15px; }
+    .mock-col-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 13px; }
+    .mock-col-title { font-size: 12.5px; font-weight: 700; color: #fafafa; }
+    .mock-col-meta { font-size: 10.5px; color: rgba(255,255,255,0.35); }
+    .mock-row { display: flex; align-items: flex-start; gap: 9px; margin-bottom: 11px; }
+    .mock-box { width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid rgba(255,255,255,0.22); flex-shrink: 0; margin-top: 1px; }
+    .mock-box.on { background: #7c3aed; border-color: #7c3aed; position: relative; }
+    .mock-box.on::after { content: '✓'; position: absolute; inset: 0; font-size: 10px; color: #fff; display: flex; align-items: center; justify-content: center; }
+    .mock-text { font-size: 11.5px; line-height: 1.5; color: rgba(255,255,255,0.62); }
+    .mock-text.done { color: rgba(255,255,255,0.28); text-decoration: line-through; }
+    .mock-spark { display: flex; gap: 3px; margin-top: 5px; }
+    .mock-spark i { width: 7px; height: 7px; border-radius: 2px; background: rgba(255,255,255,0.12); }
+    .mock-spark i.on { background: #7c3aed; }
+    .mock-streak { font-size: 10px; font-weight: 700; color: #fb923c; }
+    /* Apex sample answer */
+    .mock-apex { margin: 0 20px 20px; background: rgba(124,58,237,0.09); border: 1px solid rgba(167,139,250,0.24); border-radius: 11px; padding: 15px 17px; }
+    .mock-apex-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #a78bfa; margin-bottom: 9px; }
+    .mock-apex p { font-size: 12px; line-height: 1.7; color: rgba(255,255,255,0.72); }
+    .mock-apex strong { color: #fafafa; }
+
+    /* FAQ */
+    .land-faq { max-width: 720px; }
+    .land-faq details { border-bottom: 1px solid rgba(255,255,255,0.08); padding: 18px 0; }
+    .land-faq summary { font-size: 14.5px; font-weight: 600; color: #fafafa; cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+    .land-faq summary::-webkit-details-marker { display: none; }
+    .land-faq summary::after { content: '+'; color: #a78bfa; font-size: 19px; line-height: 1; flex-shrink: 0; }
+    .land-faq details[open] summary::after { content: '−'; }
+    .land-faq p { font-size: 13.5px; line-height: 1.75; color: rgba(255,255,255,0.55); margin-top: 12px; }
+    .land-faq a { color: #a78bfa; }
+
+    /* Free-tier checklist */
+    .land-free { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 11px 26px; margin-bottom: 40px; }
+    .land-free div { font-size: 13.5px; color: rgba(255,255,255,0.62); display: flex; gap: 9px; }
+    .land-free span { color: #a78bfa; font-weight: 700; }
+
+    /* Footer */
+    .land-footer { padding: 52px 32px 60px; border-top: 1px solid rgba(255,255,255,0.07); }
+    .land-footer-inner { max-width: 1000px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 32px 56px; }
+    .land-fcol h4 { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 13px; }
+    .land-fcol a { display: block; font-size: 13px; color: rgba(255,255,255,0.55); text-decoration: none; margin-bottom: 9px; }
+    .land-fcol a:hover { color: #a78bfa; }
+    .land-copy { max-width: 1000px; margin: 40px auto 0; font-size: 12px; color: rgba(255,255,255,0.28); }
+
+    /* Sticky mobile CTA — only while the landing page is showing */
+    #land-sticky { display: none; }
     @media (max-width: 768px) {
-      #auth-screen { flex-direction: column; }
-      .land-left { padding: 40px 28px 36px; min-height: auto; }
+      .land-section { padding: 60px 20px; }
+      .land-h2 { font-size: 24px; }
+      .land-steps { grid-template-columns: 1fr; }
+      .mock-body { grid-template-columns: 1fr; }
+      .land-footer { padding: 44px 20px 100px; }
+      #land-sticky { display: block; position: fixed; bottom: 0; left: 0; right: 0; z-index: 400; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(9,9,11,0.94); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid rgba(255,255,255,0.1); }
+      #land-sticky a { display: block; text-align: center; justify-content: center; width: 100%; }
+    }
+    @media (max-width: 768px) {
+      .land-hero { flex-direction: column; min-height: auto; }
+      .land-left { padding: 40px 28px 36px; }
       .land-headline { font-size: 28px; }
-      .land-right { width: 100%; padding: 0 20px 48px; order: -1; }
+      /* No order:-1 here — the headline and value prop must come before the
+         auth card on phones, or the first thing a visitor sees is a password
+         field with no context. Most traffic is mobile. */
+      .land-right { width: 100%; padding: 0 20px 48px; }
       .land-features { display: flex; flex-wrap: wrap; gap: 8px; }
       .land-feat { font-size: 13px; }
       .land-quote { font-size: 12px; }
@@ -669,6 +766,8 @@
 <!-- Auth / Landing screen -->
 <div id="auth-screen">
 
+ <div class="land-hero">
+
   <!-- Left: marketing -->
   <div class="land-left">
     <div class="land-logo">
@@ -676,7 +775,7 @@
       <span>Compound</span>
     </div>
 
-    <div class="land-headline">Not a wellness app.<br>A <em>builder's system.</em></div>
+    <h1 class="land-headline">Not a wellness app.<br>A <em>builder's system.</em></h1>
     <p class="land-sub">Goals, habits, and daily execution — plus an AI advisor that reads your actual data and tells you exactly where you're losing momentum.</p>
 
     <div class="land-features">
@@ -706,7 +805,7 @@
   </div>
 
   <!-- Right: auth form -->
-  <div class="land-right">
+  <div class="land-right" id="auth-card-anchor">
     <div class="auth-card">
       <h2 id="auth-title">Start building</h2>
       <p id="auth-sub" style="margin-bottom:20px;">Free forever. Your system starts in 60 seconds.</p>
@@ -751,6 +850,229 @@
       </p>
     </div>
   </div>
+
+ </div><!-- /.land-hero -->
+
+ <!-- ── What it looks like ─────────────────────────────────── -->
+ <section class="land-section">
+  <div class="land-inner">
+    <div class="land-eyebrow">What you actually get</div>
+    <h2 class="land-h2">One screen for everything you're trying to become.</h2>
+    <p class="land-lede">Your goals, the habits that feed them, and today's tasks — side by side. No switching between five apps that don't talk to each other.</p>
+
+    <div class="mock" role="img" aria-label="The Compound dashboard: three columns for to-dos, goals and habits, with an example response from the Apex AI advisor below.">
+      <div class="mock-bar">
+        <div class="mock-dot"></div><div class="mock-dot"></div><div class="mock-dot"></div>
+        <span class="mock-url">dailycompound.app</span>
+      </div>
+      <div class="mock-body">
+        <div class="mock-col">
+          <div class="mock-col-head"><span class="mock-col-title">To-do</span><span class="mock-col-meta">2 left</span></div>
+          <div class="mock-row"><span class="mock-box on"></span><span class="mock-text done">Email 3 beta users for feedback</span></div>
+          <div class="mock-row"><span class="mock-box"></span><span class="mock-text">Ship the pricing page copy</span></div>
+          <div class="mock-row"><span class="mock-box"></span><span class="mock-text">Outline next week's content</span></div>
+        </div>
+        <div class="mock-col">
+          <div class="mock-col-head"><span class="mock-col-title">Goals</span><span class="mock-col-meta">1 active</span></div>
+          <div class="mock-row"><span class="mock-box"></span><span class="mock-text">Launch v1 to 100 users</span></div>
+          <div class="mock-row" style="margin-left:23px;"><span class="mock-box on"></span><span class="mock-text done">Build the waitlist page</span></div>
+          <div class="mock-row" style="margin-left:23px;"><span class="mock-box on"></span><span class="mock-text done">Set up analytics</span></div>
+          <div class="mock-row" style="margin-left:23px;"><span class="mock-box"></span><span class="mock-text">Write the launch post</span></div>
+        </div>
+        <div class="mock-col">
+          <div class="mock-col-head"><span class="mock-col-title">Habits</span><span class="mock-col-meta">4/5 today</span></div>
+          <div class="mock-row">
+            <span class="mock-box on"></span>
+            <span>
+              <span class="mock-text">Deep work, 2h</span>
+              <span class="mock-spark"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i class="on"></i></span>
+            </span>
+          </div>
+          <div class="mock-row">
+            <span class="mock-box on"></span>
+            <span>
+              <span class="mock-text">Ship something daily</span>
+              <span class="mock-spark"><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span>
+              <span class="mock-streak">12 day streak</span>
+            </span>
+          </div>
+          <div class="mock-row">
+            <span class="mock-box"></span>
+            <span>
+              <span class="mock-text">Read 20 pages</span>
+              <span class="mock-spark"><i class="on"></i><i></i><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i></i></span>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="mock-apex">
+        <div class="mock-apex-label">⚡ Apex Advisor</div>
+        <p><strong>You're 3 for 7 on "Read 20 pages" but 6 for 7 on deep work.</strong> The reading habit isn't failing because you're lazy — it's scheduled after your last deep-work block, when you're spent. Move it to before your first block tomorrow. And "Launch v1 to 100 users" hasn't moved in 5 days: the only step that matters this week is the launch post. Do that first.</p>
+      </div>
+    </div>
+  </div>
+ </section>
+
+ <!-- ── How it works ──────────────────────────────────────── -->
+ <section class="land-section">
+  <div class="land-inner">
+    <div class="land-eyebrow">How it works</div>
+    <h2 class="land-h2">Three steps. Then just show up.</h2>
+    <p class="land-lede">Setup takes about a minute. The system does the rest.</p>
+    <div class="land-steps">
+      <div class="land-step">
+        <div class="land-step-n">1</div>
+        <h3>Name what you're building</h3>
+        <p>One goal, in your words. "Launch my app," "hit 5k followers," "get my first paying customer."</p>
+      </div>
+      <div class="land-step">
+        <div class="land-step-n">2</div>
+        <h3>Apex breaks it down</h3>
+        <p>It turns that goal into concrete steps and the daily habits that actually move it — not a generic template.</p>
+      </div>
+      <div class="land-step">
+        <div class="land-step-n">3</div>
+        <h3>Check off, compound</h3>
+        <p>Track it daily. Streaks and sparklines make the progress visible, and Apex tells you when something's slipping.</p>
+      </div>
+    </div>
+  </div>
+ </section>
+
+ <!-- ── Features ──────────────────────────────────────────── -->
+ <section class="land-section">
+  <div class="land-inner">
+    <div class="land-eyebrow">Inside the system</div>
+    <h2 class="land-h2">Built for people who are actually building something.</h2>
+    <p class="land-lede">Every feature exists because the alternative was another browser tab.</p>
+    <div class="land-cards">
+      <div class="land-card">
+        <div class="land-card-icon">⚡</div>
+        <h3>Apex Advisor</h3>
+        <p>Reads your real streaks, goals and history — then tells you what's broken and what to do about it. Powered by Claude.</p>
+      </div>
+      <div class="land-card">
+        <div class="land-card-icon">🎯</div>
+        <h3>Goals with real steps</h3>
+        <p>Big goals become ordered, checkable actions instead of a vague intention you re-read every week.</p>
+      </div>
+      <div class="land-card">
+        <div class="land-card-icon">🔥</div>
+        <h3>Streaks + sparklines</h3>
+        <p>Seven-day sparkline per habit, so you can see which ones are holding and which are quietly dying.</p>
+      </div>
+      <div class="land-card">
+        <div class="land-card-icon">☀️</div>
+        <h3>Morning briefing</h3>
+        <p>Apex plans your day and emails it before you open your laptop. Optional, and off by default.</p>
+      </div>
+      <div class="land-card">
+        <div class="land-card-icon">⏱</div>
+        <h3>Focus timer</h3>
+        <p>Pomodoro sessions in the same place as your work, so starting doesn't mean opening another app.</p>
+      </div>
+      <div class="land-card">
+        <div class="land-card-icon">📓</div>
+        <h3>The Ledger</h3>
+        <p>A weekly audit: what to cut, what to protect, what to grow. For the habits that don't fit a checkbox.</p>
+      </div>
+    </div>
+  </div>
+ </section>
+
+ <!-- ── Free ──────────────────────────────────────────────── -->
+ <section class="land-section">
+  <div class="land-inner">
+    <div class="land-eyebrow">Pricing</div>
+    <h2 class="land-h2">Free. All of it.</h2>
+    <p class="land-lede">No paywall, no credit card, no trial that expires. Including the AI.</p>
+    <div class="land-free">
+      <div><span>✓</span> Unlimited goals, habits and todos</div>
+      <div><span>✓</span> Apex Advisor AI coach</div>
+      <div><span>✓</span> AI-generated action steps</div>
+      <div><span>✓</span> Habit streaks and sparklines</div>
+      <div><span>✓</span> Focus timer</div>
+      <div><span>✓</span> Weekly AI progress reports</div>
+      <div><span>✓</span> Morning briefing emails</div>
+      <div><span>✓</span> Works on phone and desktop</div>
+    </div>
+    <a href="#auth-card-anchor" class="land-cta" data-cta="pricing">Start free →</a>
+  </div>
+ </section>
+
+ <!-- ── FAQ ───────────────────────────────────────────────── -->
+ <section class="land-section">
+  <div class="land-inner">
+    <div class="land-eyebrow">Questions</div>
+    <h2 class="land-h2">Before you sign up.</h2>
+    <div class="land-faq">
+      <details open>
+        <summary>Is it really free?</summary>
+        <p>Yes — every feature, including the Apex AI coach. No credit card, no trial period, no upsell. AI usage has a fair-use daily cap so one person can't run up the bill for everyone.</p>
+      </details>
+      <details>
+        <summary>Do I have to be a student or a founder?</summary>
+        <p>No. It's built around goals, habits and daily execution, which isn't specific to either. It's shaped for people building something on the side, so that's who it speaks to — but nothing stops you using it for anything else.</p>
+      </details>
+      <details>
+        <summary>What AI powers the Apex Advisor?</summary>
+        <p>Claude, by Anthropic. It reads your actual goals, habits and tasks, so the advice is about your situation rather than generic productivity tips.</p>
+      </details>
+      <details>
+        <summary>Does it work on my phone?</summary>
+        <p>Yes. It's a web app that works in any mobile browser, and you can add it to your home screen to use it like a native app.</p>
+      </details>
+      <details>
+        <summary>What happens to my data?</summary>
+        <p>It's never sold. AI features send only what's needed to generate a response. Full detail in the <a href="/privacy.html">Privacy Policy</a>.</p>
+      </details>
+      <details>
+        <summary>Will it stay free?</summary>
+        <p>Everything listed on this page is free today, and there's no paywall in the product. If a paid tier is ever added it'll be for new capability on top — not by taking away what you're already using.</p>
+      </details>
+    </div>
+  </div>
+ </section>
+
+ <!-- ── Final CTA ─────────────────────────────────────────── -->
+ <section class="land-section">
+  <div class="land-inner" style="text-align:center;">
+    <h2 class="land-h2">Start today. Compound from here.</h2>
+    <p class="land-lede" style="margin:0 auto 36px;">Setup takes about a minute, and it's free.</p>
+    <a href="#auth-card-anchor" class="land-cta" data-cta="footer">Build your system →</a>
+  </div>
+ </section>
+
+ <!-- ── Footer ────────────────────────────────────────────── -->
+ <footer class="land-footer">
+  <div class="land-footer-inner">
+    <div class="land-fcol">
+      <h4>Compound</h4>
+      <a href="#auth-card-anchor" data-cta="footer-nav">Sign up</a>
+      <a href="/pricing">Pricing</a>
+      <a href="https://www.instagram.com/thestartupjournal1/" target="_blank" rel="noopener">Building in public</a>
+    </div>
+    <div class="land-fcol">
+      <h4>Use cases</h4>
+      <a href="/focus-app-for-students">Focus app for students</a>
+      <a href="/habit-tracker-college-students">Habit tracker for college students</a>
+      <a href="/focus-timer-entrepreneurs">Focus timer for entrepreneurs</a>
+    </div>
+    <div class="land-fcol">
+      <h4>More</h4>
+      <a href="/productivity-app-student-entrepreneurs">For student entrepreneurs</a>
+      <a href="/compound-habit-app">The habit app</a>
+    </div>
+    <div class="land-fcol">
+      <h4>Legal</h4>
+      <a href="/terms.html">Terms</a>
+      <a href="/privacy.html">Privacy</a>
+    </div>
+  </div>
+  <div class="land-copy">© 2026 Compound · Built in public.</div>
+ </footer>
+
+ <div id="land-sticky"><a href="#auth-card-anchor" class="land-cta" data-cta="sticky">Start free →</a></div>
 
 </div>
 
@@ -986,6 +1308,37 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// ── Analytics ──────────────────────────────────────────────
+// Vercel Web Analytics. window.va only exists once /_vercel/insights/script.js
+// has loaded and Web Analytics is enabled for the project, so every call is
+// optional-chained — tracking must never be able to break the app.
+// Events are deliberately limited to the signup funnel: view → cta → start →
+// account → onboarded → first habit checked. The Hobby plan caps monthly
+// events, so don't add high-frequency ones here.
+function trackEvent(name, data) {
+  try { window.va?.('event', data ? { name, data } : { name }); } catch (e) {}
+}
+
+// Landing-page CTAs are plain #anchor links; one delegated listener covers all
+// of them and records which section the visitor converted from.
+document.addEventListener('click', (e) => {
+  const cta = e.target.closest('[data-cta]');
+  if (cta) trackEvent('landing_cta_click', { from: cta.dataset.cta });
+}, true);
+
+// The mobile sticky CTA and the cookie banner are both fixed to the bottom, and
+// the banner sits at z-index 9999. Rather than out-stack it, park the CTA
+// directly above whatever height the banner currently occupies.
+function positionLandSticky() {
+  const sticky = document.getElementById('land-sticky');
+  if (!sticky) return;
+  const banner = document.getElementById('cookie-banner');
+  const visible = banner && getComputedStyle(banner).display !== 'none';
+  sticky.style.bottom = visible ? banner.offsetHeight + 'px' : '0px';
+}
+window.addEventListener('load', positionLandSticky);
+window.addEventListener('resize', positionLandSticky);
+
 // ── Completed todos (shown at bottom until midnight) ───────
 function getCompletedTodos() {
   try {
@@ -1042,7 +1395,7 @@ if (IS_OAUTH_CALLBACK) {
   if (_oauthErr) {
     setTimeout(() => {
       setLoading(false);
-      document.getElementById('auth-screen').style.display = 'flex';
+      document.getElementById('auth-screen').style.display = '';
       document.getElementById('auth-err').textContent = decodeURIComponent(_oauthErr.replace(/\+/g, ' '));
     }, 400);
   }
@@ -1060,7 +1413,7 @@ if (IS_OAUTH_CALLBACK) {
       if (session?.user) return; // onAuthStateChange will fire and handle it
     } catch(e) {}
     setLoading(false);
-    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('auth-screen').style.display = '';
     document.getElementById('auth-err').textContent = 'Google sign-in timed out — check your connection and try again.';
   }, 10000);
 }
@@ -1150,6 +1503,7 @@ document.getElementById('pass-toggle').addEventListener('click', () => {
 
 document.getElementById('google-btn').addEventListener('click', async () => {
   const btn = document.getElementById('google-btn');
+  trackEvent('signup_start', { method: 'google' });
   btn.disabled = true;
   btn.innerHTML = 'Redirecting…';
   try {
@@ -1180,9 +1534,11 @@ async function doAuth() {
   if (!password || password.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; return; }
   btn.disabled = true; btn.textContent = '…';
   if (isRegister) {
+    trackEvent('signup_start', { method: 'password' });
     const { error } = await sb.auth.signUp({ email: toEmail(username), password, options: { data: { username } } });
     if (error) { errEl.textContent = error.message.includes('already') ? 'Username taken — try another.' : error.message; btn.disabled = false; syncAuthUI(); }
     else {
+      trackEvent('signup_complete', { method: 'password' });
       const ev = (document.getElementById('auth-email')?.value || '').trim();
       if (ev && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ev)) pendingEmail = ev;
       pendingEmailOptIn = !!(pendingEmail && document.getElementById('auth-email-optin')?.checked);
@@ -1226,8 +1582,13 @@ sb.auth.onAuthStateChange((event, session) => {
     document.getElementById('app').style.display         = 'block';
     // For brand-new Google OAuth signups, ask for email opt-in before sending anything
     if (event === 'SIGNED_IN' && !appStarted) {
+      const ageSecs = (Date.now() - new Date(currentUser.created_at).getTime()) / 1000;
+      // Google signups can't be caught at submit time (the flow leaves the
+      // page), so infer a new account from how recently it was created.
+      if (ageSecs < 90 && currentUser.app_metadata?.provider === 'google') {
+        trackEvent('signup_complete', { method: 'google' });
+      }
       setTimeout(() => {
-        const ageSecs = (Date.now() - new Date(currentUser.created_at).getTime()) / 1000;
         if (ageSecs < 90 && currentUser.app_metadata?.provider === 'google') {
           showEmailOptIn();
         }
@@ -1247,7 +1608,8 @@ sb.auth.onAuthStateChange((event, session) => {
     // being established — SIGNED_IN will fire and take over.
     if (IS_OAUTH_CALLBACK) return;
     setLoading(false);
-    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('auth-screen').style.display = '';
+    trackEvent('landing_view');
   }
 });
 
@@ -1926,6 +2288,14 @@ document.addEventListener('click', async e => {
           const i = h.habit_logs.indexOf(tempLog);
           if (i !== -1) h.habit_logs[i] = data;
           saveCache();
+          // Activation marker: the first habit ever checked off on this account.
+          // localStorage-gated so it fires once per browser rather than daily.
+          try {
+            if (!localStorage.getItem('compound_first_check')) {
+              localStorage.setItem('compound_first_check', '1');
+              trackEvent('first_habit_check');
+            }
+          } catch(e) {}
           const newStreak = calcStreak(h);
           if (newStreak === 3) toast(`🔥 3-day streak on "${h.text.slice(0,28)}" — the habit is forming.`);
           else if (newStreak === 7) toast('🔥 7-day streak! Your habits are compounding.');
@@ -2174,6 +2544,7 @@ async function _obFinish() {
 
   saveCache(); renderAll();
   try { localStorage.setItem('compound_onboarded', '1'); } catch(e) {}
+  trackEvent('onboarding_complete', { archetype: _obResult?.archetype || 'unknown' });
   const modal = document.getElementById('onboarding-modal');
   if (modal) modal.classList.remove('show');
   const name = _obResult?.archetype_name;
@@ -3070,9 +3441,9 @@ document.getElementById('report-modal').addEventListener('click', e => { if (e.t
 <!-- GDPR / cookie notice -->
 <div id="cookie-banner" style="position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#18181b;border-top:1px solid #27272a;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
   <p style="font-size:12px;color:#a1a1aa;margin:0;line-height:1.6;max-width:700px;">We use browser local storage to save your data and preferences. No advertising cookies. By continuing you agree to our <a href="/privacy.html" style="color:#a78bfa;text-decoration:underline;">Privacy Policy</a>.</p>
-  <button onclick="document.getElementById('cookie-banner').style.display='none';try{localStorage.setItem('cookie_ok','1');}catch(e){}" style="background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;flex-shrink:0;">Got it</button>
+  <button onclick="document.getElementById('cookie-banner').style.display='none';try{localStorage.setItem('cookie_ok','1');}catch(e){}positionLandSticky();" style="background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;flex-shrink:0;">Got it</button>
 </div>
-<script>if(localStorage.getItem('cookie_ok')){document.getElementById('cookie-banner').style.display='none';}</script>
+<script>if(localStorage.getItem('cookie_ok')){document.getElementById('cookie-banner').style.display='none';}if(typeof positionLandSticky==='function')positionLandSticky();</script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {

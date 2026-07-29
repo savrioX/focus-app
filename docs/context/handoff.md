@@ -39,6 +39,22 @@ Content style: viral hooks, real numbers, build updates, founder lessons.
 
 ## What We've Built (Session History)
 
+### Landing page rebuild + funnel analytics — July 29, 2026
+The homepage was a login wall: `#auth-screen` was `height:100vh; overflow:hidden`
+with no scroll, no product visuals and no FAQ, and on mobile `.land-right` had
+`order:-1` so the first thing a phone visitor saw was a password field. Rebuilt as
+a scrolling page — hero unchanged, then six sections below it (hand-built CSS mock
+of the dashboard, how-it-works, features, free-forever, FAQ, final CTA, footer
+linking all five SEO pages, which previously got zero internal links from the
+homepage). Six funnel events wired via a `trackEvent()` helper. Also found and
+fixed the `claim_ai_usage` 429 lockout — see the URGENT item below.
+
+**Landing page structure note:** the whole landing page lives inside
+`#auth-screen` in `index.html` and is dark regardless of app theme (it uses
+literal colours, not the light/dark custom properties). It's shown/hidden by
+setting `style.display` to `'none'` / `''` — **never to `'flex'`**, or the
+section stacking breaks. `.land-hero` is the flex split; `#auth-screen` is block.
+
 ### Full Pro/paywall removal — July 25, 2026 (commit 2be14bd)
 `isPro` was already hardcoded `true` (commit 459f73e), but the paywall UI and marketing copy still advertised a $10/mo Pro tier. Removed all of it:
 - `index.html`: deleted the Pro modal, header "Get Pro" button, Stripe checkout/manage-subscription flow, all upsell nudges (milestone toasts, streak badges, goal-complete nudge, chat gating), guide panel "(Pro)" labels.
@@ -89,6 +105,13 @@ Reduced from 10 → 5 questions. Fixed multi-select deselection bug.
 
 ## Pending Items (Not Done Yet)
 
+### 🔴 URGENT — run `migrations/2026-07-29-fix-claim-ai-usage.sql`
+Until this runs in Supabase SQL Editor, **every user with no `profiles` row gets
+`429 "Daily AI limit reached"` on their first AI request, forever** — chat, Apex
+plan, goal steps, all of it. Profiles rows aren't created at signup, so this hits
+new users hardest. Deploying the code does nothing; the fix is entirely in the
+Postgres function. See the 2026-07-29 entry in `docs/context/recaps.md`.
+
 ### Supabase SQL — run in Supabase Dashboard → SQL Editor
 ```sql
 alter table todos add column if not exists due_date date;
@@ -103,7 +126,23 @@ alter table profiles add column if not exists email_opt_in boolean default false
 - `ANTHROPIC_API_KEY` — must be set
 - `RESEND_API_KEY` — must be set
 - `COMPOUND_ACCOUNT_EMAIL` — optional, defaults to vsf4046@gmail.com
+- `VERCEL_TOKEN` + `VERCEL_PROJECT_ID` — **not set.** This is why the daily
+  digest says "Website views: Not configured". Web Analytics itself *is* enabled
+  and tracking fine (`/_vercel/insights/script.js` returns 200) — only the
+  digest's API read is missing credentials.
 - `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` — no longer needed
+
+### Landing page / growth follow-ups
+- Real 1200×630 `og:image` (currently the square `logo.PNG`, which is why
+  `twitter:card` is still `summary` and not `summary_large_image`). Instagram and
+  DM link shares are the main traffic source, so this affects click-through.
+- `pricing.html` says "everything **Savrio** uses to run his own startup" —
+  contradicts `459f73e`, which stripped the founder name from the site. Pick one.
+- The `AUDIT.md` activation items are still open and are the natural next step now
+  that the top of the funnel works: no Apex plan on arrival, and three modals
+  competing for the screen in the first 5 seconds of a new session.
+- Node isn't installed on this Mac, so `npm test` can't run here. Install node or
+  run the test suite on the Windows machine.
 
 ### Instagram / Marketing (not urgent)
 - Update Instagram bio to Builder OS angle
