@@ -153,31 +153,18 @@ create policy "users can insert feedback" on feedback
 --     with check ((select auth.uid()) = user_id);
 --   create index if not exists idx_todos_user_id on todos (user_id);
 
--- ── Apex daily usage cap — run in Supabase SQL Editor ───────────────────────
--- alter table profiles add column if not exists ai_usage_count int default 0 not null;
--- alter table profiles add column if not exists ai_usage_date date;
+-- ── Apex daily usage cap ────────────────────────────────────────────────────
+-- Current version lives in migrations/2026-07-29-fix-claim-ai-usage.sql —
+-- run that file, not the snippet history below.
 --
--- create or replace function claim_ai_usage(p_user_id uuid, p_limit int)
--- returns boolean
--- language plpgsql
--- security definer
--- as $$
--- declare
---   ok boolean;
--- begin
---   update profiles
---   set ai_usage_count = case when ai_usage_date = current_date then ai_usage_count + 1 else 1 end,
---       ai_usage_date  = current_date
---   where id = p_user_id
---     and (ai_usage_date is distinct from current_date or ai_usage_count < p_limit)
---   returning true into ok;
+-- The first version of claim_ai_usage was a bare UPDATE on profiles. Users with
+-- no profiles row matched zero rows and got a permanent 429 "Daily AI limit
+-- reached" on their first AI request. The fix upserts instead. Don't reintroduce
+-- the UPDATE-only form.
 --
---   return coalesce(ok, false);
--- end;
--- $$;
---
--- Single atomic UPDATE: resets the counter on a new day and enforces the cap
--- in the same statement, so concurrent requests from one user can't race past
--- the limit. Called from api/claude.js via /rest/v1/rpc/claim_ai_usage using
--- the service role key (bypasses RLS, which is fine — it's server-only).
+-- Single atomic statement: resets the counter on a new day and enforces the cap
+-- at once, so concurrent requests from one user can't race past the limit.
+-- Called from api/claude.js and api/apex-plan.js via
+-- /rest/v1/rpc/claim_ai_usage using the service role key (bypasses RLS, which
+-- is fine — it's server-only).
 -- ─────────────────────────────────────────────────────────────────────────────
