@@ -30,4 +30,12 @@ Chose a CSS mock over real screenshots deliberately: the live Ledger and Apex pa
 
 Not verified: `npm test` couldn't run — **node isn't installed on this Mac**. Checked for JS errors in-browser instead (clean; the only console output was from a MetaMask extension).
 
-Still open: run the SQL migration; set `VERCEL_TOKEN` + `VERCEL_PROJECT_ID` so the daily digest stops reporting "Website views: Not configured" (the tracking was never the problem); make a real 1200×630 `og:image`; `pricing.html` still says "everything **Savrio** uses" despite `459f73e` stripping the founder name.
+Still open: set `VERCEL_TOKEN` + `VERCEL_PROJECT_ID` so the daily digest stops reporting "Website views: Not configured" (the tracking was never the problem); make a real 1200×630 `og:image`; `pricing.html` still says "everything **Savrio** uses" despite `459f73e` stripping the founder name.
+
+---
+
+## 2026-07-30
+
+**AI lockout fix is live and verified.** Savrio ran `migrations/2026-07-29-fix-claim-ai-usage.sql` in the Supabase SQL Editor and confirmed Generate Plan on `/apex` now works — previously a hard 429. The `claim_ai_usage` upsert is enforcing correctly, and AI features are functional for users with no `profiles` row (which was all new signups). Nothing left outstanding on this bug.
+
+Note for future migrations: don't interleave prose between SQL code blocks in chat — Savrio pasted an explanation paragraph into the SQL Editor along with a query and got `ERROR: 42601 syntax error at or near "One"`. Give SQL as one clean, self-contained block with commentary before or after, never between blocks.

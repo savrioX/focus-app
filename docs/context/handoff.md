@@ -46,8 +46,14 @@ with no scroll, no product visuals and no FAQ, and on mobile `.land-right` had
 a scrolling page — hero unchanged, then six sections below it (hand-built CSS mock
 of the dashboard, how-it-works, features, free-forever, FAQ, final CTA, footer
 linking all five SEO pages, which previously got zero internal links from the
-homepage). Six funnel events wired via a `trackEvent()` helper. Also found and
-fixed the `claim_ai_usage` 429 lockout — see the URGENT item below.
+homepage). Six funnel events wired via a `trackEvent()` helper.
+
+Also found and fixed the `claim_ai_usage` 429 lockout (commit `f46fa63`): the
+function was a bare `UPDATE profiles`, so any user with **no profiles row** got a
+permanent `429 "Daily AI limit reached"` on their first AI request. Rows aren't
+created at signup, so this killed every AI feature for new users. Savrio ran
+`migrations/2026-07-29-fix-claim-ai-usage.sql` on 2026-07-30 and confirmed Generate
+Plan works — **resolved, cap now enforced correctly.**
 
 **Landing page structure note:** the whole landing page lives inside
 `#auth-screen` in `index.html` and is dark regardless of app theme (it uses
@@ -104,13 +110,6 @@ Reduced from 10 → 5 questions. Fixed multi-select deselection bug.
 ---
 
 ## Pending Items (Not Done Yet)
-
-### 🔴 URGENT — run `migrations/2026-07-29-fix-claim-ai-usage.sql`
-Until this runs in Supabase SQL Editor, **every user with no `profiles` row gets
-`429 "Daily AI limit reached"` on their first AI request, forever** — chat, Apex
-plan, goal steps, all of it. Profiles rows aren't created at signup, so this hits
-new users hardest. Deploying the code does nothing; the fix is entirely in the
-Postgres function. See the 2026-07-29 entry in `docs/context/recaps.md`.
 
 ### Supabase SQL — run in Supabase Dashboard → SQL Editor
 ```sql
