@@ -179,12 +179,21 @@ module.exports = async function handler(req, res) {
   if (!uid) return res.status(404).json({ error: 'User not found' });
 
   if (req.method === 'GET') {
-    const profiles = await sbFetch('profiles', `?id=eq.${uid}&select=apex_plan,apex_plan_updated_at&limit=1`);
+    const profiles = await sbFetch(
+      'profiles',
+      `?id=eq.${uid}&select=apex_plan,apex_plan_updated_at,onboarding_plan,onboarding_at&limit=1`
+    );
     const cached = profiles[0];
+    // Fall back to the plan built during onboarding. It was previously shown
+    // once on the reveal screen and then never again, which left anyone who
+    // hadn't hit "Generate Plan" staring at an empty Apex page — and buried the
+    // miss protocol, the guidance that matters most at the first broken streak.
     return res.status(200).json({
-      plan: cached?.apex_plan || null,
-      updated_at: cached?.apex_plan_updated_at || null,
-      cached: !!cached?.apex_plan,
+      plan:            cached?.apex_plan || null,
+      updated_at:      cached?.apex_plan_updated_at || null,
+      cached:          !!cached?.apex_plan,
+      onboarding_plan: cached?.apex_plan ? null : (cached?.onboarding_plan || null),
+      onboarding_at:   cached?.onboarding_at || null,
     });
   }
 

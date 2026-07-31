@@ -39,3 +39,17 @@ Still open: set `VERCEL_TOKEN` + `VERCEL_PROJECT_ID` so the daily digest stops r
 **AI lockout fix is live and verified.** Savrio ran `migrations/2026-07-29-fix-claim-ai-usage.sql` in the Supabase SQL Editor and confirmed Generate Plan on `/apex` now works — previously a hard 429. The `claim_ai_usage` upsert is enforcing correctly, and AI features are functional for users with no `profiles` row (which was all new signups). Nothing left outstanding on this bug.
 
 Note for future migrations: don't interleave prose between SQL code blocks in chat — Savrio pasted an explanation paragraph into the SQL Editor along with a query and got `ERROR: 42601 syntax error at or near "One"`. Give SQL as one clean, self-contained block with commentary before or after, never between blocks.
+
+---
+
+## 2026-07-31
+
+**Fixed the first-session modal pile-up (`AUDIT.md` #2).** Onboarding (900ms), the guide panel (1500ms) and the email opt-in (3000ms) each fired on their own timer, so a new Google signup could get all three stacked before forming any intent. Replaced with a small queue in `index.html` — `queueModal()` / `modalDone()` — that runs one at a time and only opens the next once the previous is dismissed. Verified in-browser: onboarding shows, opt-in is held at queue length 1, then appears on dismissal, and the queue drains without stalling.
+
+**The guide panel no longer auto-opens.** It used to slide in 1.5s after load for any account under 5 minutes old — on top of onboarding, which explains the same features better and is the thing we actually want finished. Still available from the `? Guide` header button (verified working).
+
+**Surfaced the onboarding plan on `/apex` (`AUDIT.md` #1 and #4).** The personalised plan — archetype, keystone habit, supporting actions and **miss protocol** — was rendered once on the onboarding reveal screen and then never again; `profiles.onboarding_plan` stored it but nothing read it back. So the miss protocol, the guidance meant to save users at their first broken streak, was only ever shown *before* they'd missed a day. `/api/apex-plan` GET now also returns `onboarding_plan` when `apex_plan` is null, and `apex.html` renders it as a "Your starting plan" card instead of the bare "No plan yet" empty state. A generated plan supersedes it.
+
+**Escaping.** The new `renderStarterPlan()` escapes all interpolated values (verified at runtime — injected `<img onerror>` / `<svg onload>` payloads did not execute and produced zero elements). Also retrofitted escaping onto `obShowPlan()` in `index.html`, which was building the same model-generated content with raw template literals into `innerHTML`; it reuses the existing `esc` helper at `index.html:1424`. That one is verified by static check of all six interpolations rather than at runtime, because `_obResult` is a script-scoped `let` and can't be set from the console.
+
+Still not run: `npm test` — node is still not installed on this Mac.

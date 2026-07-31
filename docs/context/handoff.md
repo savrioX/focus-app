@@ -137,9 +137,12 @@ alter table profiles add column if not exists email_opt_in boolean default false
   DM link shares are the main traffic source, so this affects click-through.
 - `pricing.html` says "everything **Savrio** uses to run his own startup" —
   contradicts `459f73e`, which stripped the founder name from the site. Pick one.
-- The `AUDIT.md` activation items are still open and are the natural next step now
-  that the top of the funnel works: no Apex plan on arrival, and three modals
-  competing for the screen in the first 5 seconds of a new session.
+- `AUDIT.md` #1, #2 and #4 were addressed on 2026-07-31 (modal queue, guide
+  auto-open removed, onboarding plan surfaced on `/apex`). Still open from that
+  audit: **#3** — the quiz captures *what* but the archetype/failure-mode signal
+  still isn't fed into the Apex chat or plan prompts, so advice stays generic —
+  and **#5**, `compound_onboarded` living only in localStorage, which means
+  onboarding completion can't be measured server-side or used for segmentation.
 - Node isn't installed on this Mac, so `npm test` can't run here. Install node or
   run the test suite on the Windows machine.
 

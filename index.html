@@ -1588,9 +1588,11 @@ sb.auth.onAuthStateChange((event, session) => {
       if (ageSecs < 90 && currentUser.app_metadata?.provider === 'google') {
         trackEvent('signup_complete', { method: 'google' });
       }
+      // Queued rather than fired on its own timer, so it waits for onboarding
+      // to finish instead of landing on top of it.
       setTimeout(() => {
         if (ageSecs < 90 && currentUser.app_metadata?.provider === 'google') {
-          showEmailOptIn();
+          queueModal(showEmailOptIn);
         }
       }, 3000);
     }
@@ -1664,19 +1666,14 @@ async function initApp() {
   handleProRedirect();
   updateApexGreeting();
   if (!localStorage.getItem('compound_onboarded') && habits.length === 0 && goals.length === 0) {
-    setTimeout(showOnboarding, 900);
+    setTimeout(() => queueModal(showOnboarding), 900);
   }
   checkMilestones();
   showMondayStats();
-  // Auto-open guide for new users who haven't seen it yet
-  try {
-    if (!localStorage.getItem('compound_guide_seen') && !localStorage.getItem('compound_guide_closed')) {
-      const ageSecs = currentUser?.created_at
-        ? (Date.now() - new Date(currentUser.created_at).getTime()) / 1000
-        : 9999;
-      if (ageSecs < 300) setTimeout(openGuide, 1500);
-    }
-  } catch(e) {}
+  // The guide panel no longer auto-opens. It used to slide in 1.5s after load
+  // for anyone under 5 minutes old — on top of onboarding, which explains the
+  // same features better and is the thing we actually want them to finish. It
+  // stays available on demand from the "? Guide" button in the header.
 }
 
 // ── Dynamic Apex opening message ──────────────────────────
@@ -2392,6 +2389,31 @@ let _obStep = 1;
 let _obAnswers = { failure_modes: [], attempt: 2, miss: 1, trigger: 'morning', env: 'none', load: 1 };
 let _obResult  = null;
 
+// ── First-session modal queue ──────────────────────────────
+// Onboarding (900ms), the guide panel (1500ms) and the email opt-in (3000ms)
+// used to fire on three independent timers, so a new Google signup could get
+// all three stacked on top of each other before forming any intent — the user
+// clicks through all of them without reading. They're now a queue: one at a
+// time, and the next only opens once the previous has been dismissed.
+const _modalQueue = [];
+let _modalActive  = false;
+
+function queueModal(fn) {
+  _modalQueue.push(fn);
+  if (!_modalActive) _runNextModal();
+}
+function _runNextModal() {
+  const next = _modalQueue.shift();
+  if (!next) { _modalActive = false; return; }
+  _modalActive = true;
+  try { next(); } catch (e) { modalDone(); }
+}
+// Every queued modal must call this when it closes, or the queue stalls.
+function modalDone() {
+  _modalActive = false;
+  setTimeout(_runNextModal, 400);
+}
+
 function showOnboarding() {
   _obStep    = 1;
   _obAnswers = { failure_modes: [], attempt: 2, miss: 1, trigger: 'morning', env: 'none', load: 1 };
@@ -2514,18 +2536,21 @@ function obShowPlan() {
   // Personalize the plan header
   const hdr = document.querySelector('#ob-step-plan .ob-plan-header');
   if (hdr) hdr.textContent = archetypeName ? `Your 30-day plan · ${archetypeName}` : 'Your 30-day plan';
+  // Escaped via esc() — this content is model-generated on the server, so it
+  // must not be trusted to be HTML-free before going into innerHTML.
+  const e = v => esc(String(v == null ? '' : v));
   let html = '';
   if (plan.keystone_habit) {
-    html += `<div class="ob-plan-item ob-keystone"><div class="ob-plan-label">Keystone habit · ${plan.keystone_habit.duration_minutes} min/day</div><div class="ob-plan-text">${plan.keystone_habit.if_then}</div></div>`;
+    html += `<div class="ob-plan-item ob-keystone"><div class="ob-plan-label">Keystone habit · ${e(plan.keystone_habit.duration_minutes)} min/day</div><div class="ob-plan-text">${e(plan.keystone_habit.if_then)}</div></div>`;
   }
   (plan.supporting_actions || []).forEach(a => {
-    html += `<div class="ob-plan-item"><div class="ob-plan-label">Supporting action</div><div class="ob-plan-text">${a.if_then}</div></div>`;
+    html += `<div class="ob-plan-item"><div class="ob-plan-label">Supporting action</div><div class="ob-plan-text">${e(typeof a === 'string' ? a : a.if_then)}</div></div>`;
   });
   if (plan.miss_protocol) {
-    html += `<div class="ob-plan-item"><div class="ob-plan-label">If you miss a day</div><div class="ob-plan-text">${plan.miss_protocol}</div></div>`;
+    html += `<div class="ob-plan-item"><div class="ob-plan-label">If you miss a day</div><div class="ob-plan-text">${e(plan.miss_protocol)}</div></div>`;
   }
   if (plan.week_1_note) {
-    html += `<div style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.6;">${plan.week_1_note}</div>`;
+    html += `<div style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.6;">${e(plan.week_1_note)}</div>`;
   }
   document.getElementById('ob-plan-items').innerHTML = html;
   _obActivate('plan');
@@ -2547,6 +2572,7 @@ async function _obFinish() {
   trackEvent('onboarding_complete', { archetype: _obResult?.archetype || 'unknown' });
   const modal = document.getElementById('onboarding-modal');
   if (modal) modal.classList.remove('show');
+  modalDone();
   const name = _obResult?.archetype_name;
   setTimeout(() => toast(name ? `${name} plan live. One habit. Day 1 starts now.` : 'System built. Start your first habit.'), 300);
 }
@@ -2670,6 +2696,7 @@ function showEmailOptIn() {
 }
 function hideEmailOptIn() {
   document.getElementById('optin-modal').classList.remove('show');
+  modalDone();
 }
 async function handleOptIn(optedIn) {
   hideEmailOptIn();

@@ -65,6 +65,19 @@
     .plan-empty-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
     .plan-empty-sub { font-size: 13px; color: var(--muted); line-height: 1.6; }
 
+    /* Starter plan — the onboarding plan surfaced until a real one is generated */
+    #plan-starter { padding: 22px; }
+    .starter-badge { font-size: 10px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ai-bright); margin-bottom: 8px; }
+    .starter-name { font-size: 19px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 10px; }
+    .starter-angle { font-size: 13px; line-height: 1.65; color: var(--muted); font-style: italic; border-left: 3px solid var(--ai); padding-left: 12px; margin-bottom: 18px; }
+    .starter-item { background: var(--ai-soft); border: 1px solid var(--ai-border); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
+    .starter-item.starter-key { border-color: var(--ai); }
+    .starter-item.starter-miss { background: rgba(234,88,12,0.08); border-color: rgba(234,88,12,0.3); }
+    .starter-label { font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+    .starter-text { font-size: 13px; line-height: 1.6; }
+    .starter-note { font-size: 12px; color: var(--muted); line-height: 1.6; margin-top: 12px; }
+    .starter-cta { font-size: 12px; color: var(--muted); line-height: 1.6; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+
     /* ── Plan sections ────────────────────────── */
     .plan-section { padding: 14px 18px; border-bottom: 1px solid var(--border); }
     .plan-section:last-child { border-bottom: none; }
@@ -174,6 +187,7 @@
         <div class="plan-empty-title">No plan yet</div>
         <div class="plan-empty-sub">Apex has access to your goals, habits, todos, and brain notes — but hasn't run an analysis yet. Hit Generate Plan to get your diagnosis.</div>
       </div>
+      <div id="plan-starter" style="display:none"></div>
       <div id="plan-content" style="display:none"></div>
     </div>
 
@@ -338,6 +352,50 @@ async function loadCachedPlan() {
   if (!res.ok) return;
   const data = await res.json();
   if (data.plan) renderPlan(data.plan, data.updated_at);
+  else if (data.onboarding_plan) renderStarterPlan(data.onboarding_plan);
+}
+
+// Shown when the user has completed onboarding but never hit Generate Plan.
+// Without this the page reads "No plan yet" even though a personalised plan
+// already exists — and the miss protocol, which is the whole point of the
+// archetype quiz, would only ever have been visible during onboarding itself.
+function renderStarterPlan(result) {
+  const plan = result?.plan;
+  if (!plan) return;
+  document.getElementById('plan-empty').style.display = 'none';
+  const el = document.getElementById('plan-starter');
+  el.style.display = 'block';
+
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+    ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+
+  let html = '<div class="starter-badge">Your starting plan</div>';
+  if (result.archetype_name) html += `<div class="starter-name">${esc(result.archetype_name)}</div>`;
+  if (result.angle)          html += `<div class="starter-angle">${esc(result.angle)}</div>`;
+
+  if (plan.keystone_habit) {
+    const mins = plan.keystone_habit.duration_minutes;
+    html += `<div class="starter-item starter-key">
+      <div class="starter-label">Keystone habit${mins ? ` · ${esc(mins)} min/day` : ''}</div>
+      <div class="starter-text">${esc(plan.keystone_habit.if_then || plan.keystone_habit.label)}</div>
+    </div>`;
+  }
+  (plan.supporting_actions || []).forEach(a => {
+    html += `<div class="starter-item">
+      <div class="starter-label">Supporting action</div>
+      <div class="starter-text">${esc(typeof a === 'string' ? a : (a.if_then || a.label))}</div>
+    </div>`;
+  });
+  if (plan.miss_protocol) {
+    html += `<div class="starter-item starter-miss">
+      <div class="starter-label">If you miss a day</div>
+      <div class="starter-text">${esc(plan.miss_protocol)}</div>
+    </div>`;
+  }
+  if (plan.week_1_note) html += `<div class="starter-note">${esc(plan.week_1_note)}</div>`;
+
+  html += `<div class="starter-cta">Hit <strong>Generate Plan</strong> once you have a few days of data — Apex will diagnose what's actually happening instead of what you predicted.</div>`;
+  el.innerHTML = html;
 }
 
 document.getElementById('btn-generate').addEventListener('click', async () => {
@@ -372,6 +430,9 @@ document.getElementById('btn-generate').addEventListener('click', async () => {
 
 function renderPlan(plan, updatedAt) {
   document.getElementById('plan-empty').style.display = 'none';
+  // A generated plan supersedes the onboarding starter plan.
+  const starter = document.getElementById('plan-starter');
+  if (starter) starter.style.display = 'none';
   const content = document.getElementById('plan-content');
   content.style.display = 'block';
 
