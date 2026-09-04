@@ -48,8 +48,8 @@ Wait for CEO approval before writing code.
 - Frontend: HTML, CSS, vanilla JS (`index.html`)
 - DB/Auth: Supabase
 - Hosting: Vercel (auto-deploy from GitHub push)
-- Payments: Stripe ($10/month Pro)
-- Repo: savrioX/focus-app | Local: C:/Users/klszo/focus-app/
+- Payments: none — the product is free, no paid tier
+- Repo: savrioX/focus-app | Local: ~/Desktop/claude/focus-app/
 
 ## Priorities
 1. Nothing breaks in production

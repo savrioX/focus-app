@@ -43,7 +43,7 @@ Wait for CEO approval before writing code.
 - Vibe: dark, premium, startup energy
 
 ## Delivery Standard
-- Python + Pillow only. Must run on Windows 11 without errors.
+- Python + Pillow only. Must run on macOS without errors.
 - No placeholders. No instructions. Working code only.
 - First slide = viral hook, bold number/claim, max contrast
 - One idea per carousel slide, minimal text

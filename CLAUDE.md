@@ -6,9 +6,9 @@ Every agent on this team loads this file automatically. Read it fully before doi
 
 ## The Founder
 
-**Savrio** — 19-year-old solo founder, Windows 11.
+**Savrio** — 19-year-old solo founder, macOS.
 - Wants **production-ready output**, not instructions or options
-- Moves fast, speaks directly — match his energy
+- Moves fast, speaks directly — match that energy
 - No fluff. Deliver results.
 
 ---
@@ -21,20 +21,23 @@ Productivity SaaS for student entrepreneurs.
 **Stack:**
 - Frontend: HTML, CSS, vanilla JavaScript (93% of codebase)
 - Database/Auth: Supabase
-- Hosting: Vercel (auto-deploy from GitHub)
-- Payments: Stripe
-- Repo: `savrioX/focus-app` | Local: `C:/Users/klszo/focus-app/`
+- Hosting: Vercel (auto-deploy from GitHub — pushing to `main` deploys to production)
+- Payments: none. The product is free; there is no paid tier.
+- Repo: `savrioX/focus-app` | Local: `~/Desktop/claude/focus-app/`
 
 **Features:**
 - Goals with AI-generated action steps
 - Habit streaks
 - Daily todos
-- Apex Advisor AI coach
+- Apex Advisor AI coach (fair-use cap: `AI_DAILY_LIMIT`, default 15/day, applies to everyone)
 - Focus timer
-- Free tier + **$10/month Pro** subscription
+- **Everything is free.** The Pro tier and its paywall were removed. Three Stripe
+  endpoints remain in `api/` but nothing in the UI reaches them — see
+  `docs/context/website-improvements.md`.
 
 **Current Goals:**
-- Convert free users → $10/month Pro
+- ⚠️ NEEDS SAVRIO — the previous goals here were all "convert free users to
+  $10/month Pro", which no longer exists. Replace with the real current goals.
 - Improve onboarding and retention
 - Optimize mobile UX
 
@@ -95,10 +98,10 @@ voice-of-reason clears → CEO delivers to Savrio
 
 ## Key Numbers to Know
 
-- Subscription price: **$10/month**
+- Price: **free** — no paid tier exists
 - Follower goal: **10,000**
-- GitHub commits: 71+ (production app, live users)
-- Build started: ~May 2026
+- GitHub commits: don't hardcode this, it goes stale — run `git log --oneline | wc -l`
+- First commit: **2026-05-13**
 
 ---
 

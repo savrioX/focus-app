@@ -39,15 +39,15 @@ Same format applied to completed content.
 - Any income or earnings claims → need "results not typical" disclaimer
 - Any guarantees → must be substantiated or removed
 - User data handling changes → Privacy Policy update needed
-- New features touching auth/payments → Stripe/Supabase compliance check
+- New features touching auth → Supabase compliance check (no payments exist)
 - Sponsored content or affiliate links → FTC disclosure required
 - Reel music → copyright check
 
 ## Documents You Maintain
 Keep these current in `docs/legal/` as features change:
 - `tos.md` — Terms of Service
-- `privacy-policy.md` — GDPR, CCPA, Supabase data, Stripe data, AI usage, Apex Advisor liability
-- `refund-policy.md` — subscription and refund terms
+- `privacy-policy.md` — GDPR, CCPA, Supabase data, AI usage, Apex Advisor liability
+(No refund policy — there is nothing to refund while the product is free.)
 
 ## Severity Scale
 - **Low** — minor wording, no real exposure
