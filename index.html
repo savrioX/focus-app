@@ -775,15 +775,15 @@
       <span>Compound</span>
     </div>
 
-    <h1 class="land-headline">Not a wellness app.<br>A <em>builder's system.</em></h1>
-    <p class="land-sub">Goals, habits, and daily execution — plus an AI advisor that reads your actual data and tells you exactly where you're losing momentum.</p>
+    <h1 class="land-headline">One system for<br>everything you're <em>building.</em></h1>
+    <p class="land-sub">Goals, habits, and daily tasks in one place — plus an AI advisor that reads your actual data and shows you where your momentum is slipping.</p>
 
     <div class="land-features">
-      <div class="land-feat"><div class="land-feat-icon">⚡</div> Apex Advisor — sees your streaks, goals, and history. Tells you what's broken.</div>
+      <div class="land-feat"><div class="land-feat-icon">⚡</div> Apex Advisor — reads your streaks, goals, and history, then tells you what to adjust</div>
       <div class="land-feat"><div class="land-feat-icon">🎯</div> Goals with real action steps built around what you're actually working toward</div>
-      <div class="land-feat"><div class="land-feat-icon">🔥</div> Habit streaks + sparklines — see which habits are actually moving your goals</div>
+      <div class="land-feat"><div class="land-feat-icon">🔥</div> Habit streaks + sparklines — see which habits are moving your goals</div>
       <div class="land-feat"><div class="land-feat-icon">☀️</div> Morning briefing — Apex plans your day before you open your laptop</div>
-      <div class="land-feat"><div class="land-feat-icon">⏱</div> Focus timer — no distractions, just execution</div>
+      <div class="land-feat"><div class="land-feat-icon">⏱</div> Focus timer — start a session without leaving the app</div>
     </div>
 
     <div class="land-quote" style="margin-top:28px;margin-bottom:20px;">
@@ -907,7 +907,7 @@
       </div>
       <div class="mock-apex">
         <div class="mock-apex-label">⚡ Apex Advisor</div>
-        <p><strong>You're 3 for 7 on "Read 20 pages" but 6 for 7 on deep work.</strong> The reading habit isn't failing because you're lazy — it's scheduled after your last deep-work block, when you're spent. Move it to before your first block tomorrow. And "Launch v1 to 100 users" hasn't moved in 5 days: the only step that matters this week is the launch post. Do that first.</p>
+        <p><strong>You're 3 for 7 on "Read 20 pages" but 6 for 7 on deep work.</strong> The reading habit isn't failing on willpower — it's scheduled after your last deep-work block, when you're spent. Move it to before your first block tomorrow. And "Launch v1 to 100 users" hasn't moved in 5 days: the only step that matters this week is the launch post. Do that first.</p>
       </div>
     </div>
   </div>
@@ -3136,7 +3136,7 @@ async function sendChat() {
 // ── Apex Advisor system prompt ────────────────────────────
 function getApexPrompt() {
   const name = document.getElementById('user-label').textContent;
-  return `You are Apex — a sharp, no-nonsense personal advisor inside the Compound productivity app used by ${name}, a student entrepreneur. You have full visibility into their goals, habits, and daily tasks. Be direct, practical, and motivating. Think like a mentor who has built companies, not a therapist. Keep responses concise and actionable.\n\nUser data:\n${buildContext()}`;
+  return `You are Apex — a practical personal advisor inside the Compound productivity app used by ${name}, a student entrepreneur. You have full visibility into their goals, habits, and daily tasks. Be direct, specific, and encouraging. Think like an experienced mentor: focus on the work and the system around it, and don't give medical or mental-health advice — suggest a qualified professional if that comes up. Keep responses concise and actionable.\n\nUser data:\n${buildContext()}`;
 }
 
 // Override getSystemPrompt to use Apex persona for chat
@@ -3211,32 +3211,32 @@ TASKS:
 const HABIT_PACKS = [
   {
     id: 'baseline',
-    name: '🏆 Baseline Self-Improvement',
-    desc: 'The non-negotiable daily habits for anyone serious about growth. Inspired by the "no-excuses" school of self-improvement.',
-    habits: ['Wake up before 7am', 'Cold shower', 'Workout (no days off)', 'Read for 30 minutes', 'No social media before noon', 'Journal before bed', 'Walk 10,000 steps']
+    name: '🌱 Daily Baseline',
+    desc: 'A simple set of daily habits to build a consistent routine around. Start with two or three and add more once they stick.',
+    habits: ['Consistent wake-up time', 'Move your body (20+ min)', 'Read for 30 minutes', 'No social media before noon', 'Journal before bed', 'Walk 10,000 steps']
   },
   {
     id: 'science',
     name: '🧠 Science-Based Performance',
-    desc: 'Habits grounded in neuroscience and biology for peak cognitive and physical performance. Inspired by research-backed wellness protocols.',
+    desc: 'Habits drawn from common sleep, light and exercise research — the kind of routine that supports steady focus and energy.',
     habits: ['Morning sunlight (10 min outside)', 'No caffeine for first 90 minutes after waking', 'Daily exercise', 'No food 2-3 hours before sleep', 'Consistent sleep and wake time', 'Non-sleep deep rest (10-min relaxation)', 'View natural light at sunset']
   },
   {
     id: 'student',
     name: '📚 Student Success',
-    desc: 'Built for students who want to win academically while building something on the side.',
+    desc: 'Built for students who want to do well academically while building something on the side.',
     habits: ['Review yesterday\'s notes (15 min)', '2-hour focused study block (no phone)', 'No phone during class', '8 hours of sleep', 'Weekly goal review (Sunday)', 'Reach out to one professor or mentor this week']
   },
   {
     id: 'entrepreneur',
-    name: '⚡ Founder Grind',
+    name: '⚡ Founder Routine',
     desc: 'Daily systems for student entrepreneurs building something real alongside school.',
     habits: ['Morning planning session (15 min)', '2-hour deep work block (no interruptions)', 'Review key business metric daily', '5 cold outreach messages', 'Read business or self-improvement content', 'Evening review: wins and tomorrow\'s priority']
   },
   {
     id: 'mentalhealth',
     name: '🧘 Mental Health Foundation',
-    desc: 'Protect your mind first. These habits build resilience, reduce anxiety, and keep you grounded.',
+    desc: 'Habits that support rest, perspective and connection. Not a substitute for professional support if you need it.',
     habits: ['10-minute meditation', 'Gratitude journal (3 things)', '20-minute walk outside', 'Limit social media to 30 minutes', 'Connect with someone you care about', '8 hours of sleep']
   }
 ];
