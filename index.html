@@ -547,7 +547,7 @@
 
 <!-- Loading screen -->
 <div id="load-overlay">
-  <img src="logo.PNG" class="load-logo">
+  <img src="logo.PNG" class="load-logo" alt="">
   <div class="load-name">Compound</div>
   <div class="load-spinner" id="load-spinner"></div>
   <div class="load-sub" id="load-msg">Loading your data…</div>
@@ -555,7 +555,7 @@
 </div>
 
 <div id="toast"></div>
-<button id="habits-pill" onclick="document.getElementById('habits-list')?.scrollIntoView({behavior:'smooth',block:'start'})"></button>
+<button id="habits-pill" aria-label="Jump to habits" onclick="document.getElementById('habits-list')?.scrollIntoView({behavior:'smooth',block:'start'})"></button>
 
 <!-- Guide panel -->
 <div id="guide-panel">
@@ -1081,7 +1081,7 @@
   <div class="app-header">
     <div class="app-header-inner">
       <div class="header-left" id="refresh-btn" title="Tap to refresh">
-        <img src="logo.PNG" style="width:28px;height:28px;border-radius:6px;">
+        <img src="logo.PNG" alt="" style="width:28px;height:28px;border-radius:6px;">
         <span class="app-title">Compound</span>
       </div>
       <div class="header-right">
