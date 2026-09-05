@@ -26,7 +26,8 @@ This follows the structure from Nate Herk's video: **goal → agents → deliver
 
 ```
 GOAL: Help Savrio grow @thestartupjournal1 to 10,000 Instagram followers and
-monetize dailycompound.app at $10/month Pro subscriptions. All agents work in
+grow dailycompound.app signups. The product is free — there is no paid tier
+and nothing to monetize. All agents work in
 parallel and message each other directly. All agents plan first and need
 CEO + voice-of-reason + lawyer approval before executing.
 
@@ -110,9 +111,9 @@ Mix of carousel and single image. Goal: new followers + website signups.
 Get the full team started.
 ```
 
-**Monetization fix:**
+**Activation fix:**
 ```
-What's the #1 thing stopping free users from converting to $10/month?
+What's the #1 thing stopping new signups from becoming daily users?
 Have it-dev and publicity investigate in parallel.
 ```
 

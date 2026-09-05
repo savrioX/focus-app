@@ -1,5 +1,10 @@
 # Compound — Instagram Reels Scripts
-### The Startup Journal · Making Money with AI Series
+### The Startup Journal · Building in Public
+
+> **Series name changed 2026-09-05 — your call to keep or revert.** This was the
+> "Making Money with AI" series. Compound makes no money by design now, so the
+> name claimed something untrue, and "making money with AI" is the exact
+> register the site copy was just moved away from. Reverting is one edit.
 ---
 
 ## REEL 1 — "I Built a SaaS App With AI in Days"
@@ -27,20 +32,20 @@ Here's what that actually looks like."
 
 *[Cut to: screen recording of Claude Code — you typing a feature request, it generating the full implementation]*
 
-"Auth system — done. Supabase database — done. Stripe payments — done. AI features — done.
+"Auth system — done. Supabase database — done. Habit streaks — done. AI coach — done.
 
 Every feature you're seeing was built through conversation with AI.
 
-This is what making money with AI actually looks like in 2025 — not prompting ChatGPT for tweets.
+This is what building with AI actually looks like — not prompting ChatGPT for tweets.
 
-Building real products. Fast."
+Real products. Shipped."
 
 ---
 
 **FINAL FRAME:** App on screen — *"dailycompound.app — link in bio"*
 
 **CAPTION:**
-Built a full SaaS app with AI — goals, habits, an AI coach, Stripe payments. This is the making money with AI series. Follow to see the whole build. 🔗 dailycompound.app
+Built a full SaaS app with AI — goals, habits, an AI coach. Follow to see the whole build. 🔗 dailycompound.app
 
 **AUDIO:** High-energy lo-fi or trap instrumental (something with momentum)
 
@@ -78,7 +83,7 @@ It can also add tasks and habits directly from chat."
 
 This is what an AI productivity tool should actually look like.
 
-It's called Compound. Free to try — Pro is $10 a month."
+It's called Compound. It's free — all of it, including the AI."
 
 ---
 
@@ -92,51 +97,54 @@ Your AI coach that actually knows your data — not just a chatbot. Built for st
 ---
 ---
 
-## REEL 3 — "The Business Model Behind This App"
-**Angle: Talk-to-camera / the money angle**
+## REEL 3 — "Why I Deleted the Paywall"
+**Angle: Talk-to-camera / the decision**
 **Format: Face cam with app on screen cutaways**
 **Target length: 45–60 sec**
+
+> ⚠️ Rewritten 2026-09-05. The original script pitched a $10/month Pro tier and
+> a Stripe payment flow. Both were removed from the product, so filming it as
+> written would have described something that doesn't exist. Check this sounds
+> like you before shooting.
 
 ---
 
 **HOOK (0–3s)**
-On-screen text: *"How I'm monetizing an app I built with AI."*
+On-screen text: *"I built a paywall, then deleted it."*
 Visual: You on camera, direct eye contact.
 
 ---
 
 **SCRIPT (to camera):**
 
-"People always ask — how do you actually make money with AI?
+"I spent weeks building a payment system for my app. Stripe checkout, webhooks, subscription management — the whole thing, built with Claude Code.
 
-Here's a real example.
+Then I deleted all of it.
 
-I built Compound — a productivity app for student entrepreneurs. The whole thing was built using Claude Code, Anthropic's AI coding tool.
+Here's why.
 
-The product has a free tier — goals, habits, daily todos, a focus timer. All free.
+I built Compound — a productivity app for student entrepreneurs. Goals, habits, daily todos, a focus timer, and an AI coach that reads your actual data.
 
-Then there's Pro — $10 a month. That unlocks Apex, the AI advisor. Morning briefings. Weekly performance reports. AI-powered planning.
+The plan was a free tier, and $10 a month for the AI. Standard playbook. Gate the good part.
 
-The entire payment flow — Stripe checkout, webhooks, subscription management — all built with AI. I described what I wanted and it got built.
+But I'm nineteen, I have no users to lose, and the thing I actually need right now isn't ten dollars — it's people using it and telling me what's broken.
 
-So the business model is simple: build something people genuinely need, gate the most powerful features behind a subscription, let AI handle 90% of the development cost.
+A paywall on an app nobody uses yet is just a wall.
 
-That's it.
+So it's all free. Every feature, including the AI. And the payment code I spent weeks on? Deleted in one commit."
 
-I'm not selling a course about this. I'm actually doing it — and I'm showing you the whole thing here."
+*[Cut to: the diff — files being deleted]*
 
-*[Cut to: app on screen — the Pro features visible]*
+"That's the part nobody posts about. Building the wrong thing well, and being willing to throw it away.
 
-"This is the making money with AI series. Every week I'm showing you what's actually being built, how it's being built, and what's working.
-
-Follow if you want to see the full journey."
+Follow if you want to see what I get wrong next."
 
 ---
 
-**FINAL FRAME:** You + app side by side — *"Making Money with AI · The Startup Journal"*
+**FINAL FRAME:** You + app side by side — *"The Startup Journal"*
 
 **CAPTION:**
-This is how I'm monetizing an app I built with AI. Free tier to get users in. $10/month Pro tier for the AI features. Built entirely with Claude Code. This is the series. Follow for the full journey. 🔗 dailycompound.app
+I spent weeks building a Stripe paywall for my app, then deleted every line of it. Here's the reasoning. Compound is free now — all of it, including the AI. 🔗 dailycompound.app
 
 **AUDIO:** Talking head — no music, or very subtle background beat. Let the words land.
 
@@ -144,7 +152,7 @@ This is how I'm monetizing an app I built with AI. Free tier to get users in. $1
 ---
 
 ## POSTING ORDER
-Post Reel 1 first (the build story), then Reel 3 (the business model), then Reel 2 (the demo). Lead with process and money angle before product — gets curiosity up before you show features.
+Post Reel 1 first (the build story), then Reel 3 (deleting the paywall), then Reel 2 (the demo). Lead with process and the decision before product — gets curiosity up before you show features.
 
 ## SERIES HASHTAGS
-#makingmoneywithAI #claudecode #AI #buildinpublic #studententrepreneur #solofounder #saas #startupjournal #aitools #indiemaker
+#claudecode #AI #buildinpublic #studententrepreneur #solofounder #saas #startupjournal #aitools #indiemaker

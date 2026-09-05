@@ -70,10 +70,10 @@ create index idx_habit_logs_user_id on habit_logs (user_id);
 create index idx_habit_logs_habit_id on habit_logs (habit_id);
 
 -- Profiles (subscription status)
+-- Pro/Stripe removed 2026-09-05: stripe_customer_id and is_pro were dropped.
+-- See migrations/2026-09-05-drop-pro-columns.sql
 create table if not exists profiles (
   id                 uuid references auth.users on delete cascade primary key,
-  stripe_customer_id text,
-  is_pro             boolean default false,
   waitlist           boolean default false,
   updated_at         timestamptz default now()
 );

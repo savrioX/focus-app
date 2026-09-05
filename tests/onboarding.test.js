@@ -174,7 +174,7 @@ console.log('\n7. Additive-only: new columns are separate from existing profile 
 
 // Verify the upsert body shape only touches new columns
 const NEW_COLUMNS = ['quiz_data', 'archetype', 'onboarding_plan', 'onboarding_at'];
-const OLD_COLUMNS = ['is_pro', 'stripe_customer_id', 'active_context', 'email_opt_in', 'email', 'morning_briefing', 'apex_plan', 'apex_plan_updated_at'];
+const OLD_COLUMNS = ['active_context', 'email_opt_in', 'email', 'morning_briefing', 'apex_plan', 'apex_plan_updated_at'];
 const upsertBody = { id: 'test-uid', quiz_data: {}, archetype: 'ghost', onboarding_plan: {}, onboarding_at: new Date().toISOString() };
 for (const col of NEW_COLUMNS) {
   assert(col in upsertBody, `upsert body includes new column: ${col}`);

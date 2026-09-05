@@ -189,11 +189,11 @@ Day [X]. $0 MRR. Still building.
 
 ---
 
-### VIDEO 8: The $10/Month Question
+### VIDEO 8: Why There's No Paywall
 
-**Hook:** "Would YOU pay $10/month for an app that only you use?"
+**Hook:** "I built a paywall for my app, then deleted it."
 **Format:** Talking head, question-style. 45s.
-**Content:** Frame the psychological barrier of charging money for something you built. Show the Pro modal in the app. "I haven't launched paid yet. Here's what I'm waiting for." (Don't mention lawyer explicitly — keep it vague: "Making sure everything is right.")
+**Content:** The decision to give it all away instead of charging. Show the deleted Stripe code in the diff. "A paywall on an app nobody uses yet is just a wall." Honest about the tradeoff: no revenue, but no barrier to the feedback that actually matters right now.
 
 ---
 

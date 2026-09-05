@@ -37,7 +37,7 @@ Wait for CEO approval before finalizing.
 
 ## Primary Goals
 1. Grow @thestartupjournal1 to 10,000 followers
-2. Drive $10/month Pro signups at dailycompound.app
+2. Drive signups at dailycompound.app — the product is free, there is no paid tier
 3. Build Savrio's brand: "19yo building a startup with AI"
 
 ## What Works in This Niche

@@ -53,6 +53,6 @@ Wait for CEO approval before writing code.
 
 ## Priorities
 1. Nothing breaks in production
-2. Every change moves toward free → $10/month Pro conversion
+2. Every change improves activation and retention — the product is free, there is nothing to convert to
 3. Mobile UX first — most users are on phones
 4. Edge Runtime where possible for performance

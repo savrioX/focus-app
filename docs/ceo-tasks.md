@@ -1,5 +1,10 @@
 # CEO Task Board
 
+> **Historical record.** Cycles below that describe Pro, Stripe checkout, or the
+> $10/month tier are superseded — the paywall and the Stripe integration were
+> removed from the product (2026-09-05). Kept as-is for context; do not action
+> anything payment-related from this file.
+
 ## Session: 2026-07-23
 
 ### Cycle 6 (Active) — UI/GUI Polish Pass: index.html + ledger.html

@@ -31,9 +31,8 @@ Productivity SaaS for student entrepreneurs.
 - Daily todos
 - Apex Advisor AI coach (fair-use cap: `AI_DAILY_LIMIT`, default 15/day, applies to everyone)
 - Focus timer
-- **Everything is free.** The Pro tier and its paywall were removed. Three Stripe
-  endpoints remain in `api/` but nothing in the UI reaches them — see
-  `docs/context/website-improvements.md`.
+- **Everything is free.** The Pro tier, its paywall, and the Stripe integration
+  were all removed (2026-09-05). There is no billing anywhere in the product.
 
 **Current Goals:**
 - ⚠️ NEEDS SAVRIO — the previous goals here were all "convert free users to
