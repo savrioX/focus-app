@@ -1,5 +1,8 @@
 # COMPOUND — User Confusion Report
 
+> Entries about the Pro modal or $10/month pricing are historical — the paywall
+> and Stripe integration were removed from the product (2026-09-05).
+
 Three personas walk the full product. Every point of friction, confusion, or silent failure is logged. No fixes — observations only.
 
 ---

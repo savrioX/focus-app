@@ -1,5 +1,8 @@
 # Dev WIP — Codebase audit fixes (2026-07-03)
 
+> Historical WIP notes. Anything referencing Pro, Stripe, or handleProRedirect
+> is superseded — the paywall and Stripe integration were removed 2026-09-05.
+
 ## Shipped this session
 
 ### index.html

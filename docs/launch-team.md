@@ -125,7 +125,7 @@ Review my TOS and Privacy Policy. What's missing, risky, or outdated?
 **Full sprint:**
 ```
 Ship one new website feature AND run a 3-post Instagram campaign this week.
-Both focused on driving Pro subscriptions. Plan it and get everyone moving.
+Both focused on driving signups and daily use. Plan it and get everyone moving.
 ```
 
 ---

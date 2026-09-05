@@ -426,7 +426,13 @@ This series doesn't end until we get there.
 
 ---
 
-### VIDEO 14: The First Paying Customer (Pre-Plan This Now — Film It When It Happens)
+### VIDEO 14: ⚠️ OBSOLETE — The First Paying Customer
+
+> There is no paid tier and no Stripe integration, so there will be no first
+> payment to film. Kept because the *structure* is reusable: pre-plan a single
+> high-emotion milestone and film it raw the moment it lands. Pick a milestone
+> that can actually happen — first 100 daily actives, first unsolicited thank-you
+> email, first time someone posts about Compound without being asked.
 
 **Pillar:** The Scoreboard (most important post of the year)
 **Research source:** Submagic (David Zitoun) — posted TikTok to zero followers, one video hit 100k views, brought 40-50 paying customers in 10 days → $1M ARR in 90 days. The "$0 → first dollar" moment is the highest-leverage content event in a build-in-public journey. Marketing strategy already flags this: "the week it ticks to $10 becomes your best-performing post of the year."
