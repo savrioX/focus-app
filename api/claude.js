@@ -16,7 +16,7 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST')
     return res.status(405).json({ error: 'Method not allowed' });
 
-  const { messages, system, model, devCode, tools } = req.body || {};
+  const { messages, system, model, tools } = req.body || {};
   if (!messages || !Array.isArray(messages))
     return res.status(400).json({ error: 'Messages required' });
 

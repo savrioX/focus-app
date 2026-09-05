@@ -1601,7 +1601,7 @@ sb.auth.onAuthStateChange((event, session) => {
     if (!appStarted) { appStarted = true; setTimeout(initApp, 0); }
   } else {
     appStarted = false;
-    currentUser = null; stripeCustomerId = null;
+    currentUser = null;
     todos = []; goals = []; habits = [];
     try { localStorage.removeItem(CACHE_KEY); localStorage.removeItem('compound_apikey'); } catch(e) {}
     updateAiVisibility();
@@ -1619,8 +1619,6 @@ sb.auth.onAuthStateChange((event, session) => {
 let todos  = [];
 let goals  = [];
 let habits = [];
-let isPro            = true;
-let stripeCustomerId = null;
 let activeContext    = '';
 
 function checkMilestones() {
@@ -1658,8 +1656,7 @@ function showMondayStats() {
 }
 
 async function initApp() {
-  checkDevCode();
-  updateAiVisibility(); // show AI buttons immediately if dev code already in localStorage
+  updateAiVisibility();
   await loadData();
   await Promise.all([loadSettings(), loadProfile()]);
   updateDayBadge();
@@ -1743,12 +1740,10 @@ async function loadProfile() {
   if (!currentUser) return;
   try {
     const { data, error } = await sb.from('profiles')
-      .select('is_pro, stripe_customer_id, active_context, email_opt_in')
+      .select('active_context, email_opt_in')
       .eq('id', currentUser.id)
       .single();
     if (data) {
-      isPro            = true;
-      stripeCustomerId = data.stripe_customer_id || null;
       activeContext    = data.active_context || '';
       emailOptIn       = !!data.email_opt_in;
       renderContextCard();
@@ -1756,8 +1751,7 @@ async function loadProfile() {
       if (toggle) toggle.checked = emailOptIn;
     } else if (error && error.code === 'PGRST116') {
       // No profile row yet — create one now
-      isPro = true;
-      await sb.from('profiles').insert({ id: currentUser.id, is_pro: false, email_opt_in: pendingEmailOptIn }).select().single();
+      await sb.from('profiles').insert({ id: currentUser.id, email_opt_in: pendingEmailOptIn }).select().single();
       if (pendingEmail) {
         try { await sb.from('profiles').update({ email: pendingEmail, morning_briefing: pendingEmailOptIn }).eq('id', currentUser.id); } catch(e) {}
         pendingEmail = null;
@@ -2646,19 +2640,6 @@ function showOnboardingTip() {
   updateOnboardingChecklist();
 }
 
-// Promo / dev code — codes live server-side only (api/claude.js)
-const DEV_KEY = 'compound_dev';
-
-function hasDevUnlock() {
-  try { return localStorage.getItem(DEV_KEY) === '1' && !!localStorage.getItem('compound_dev_code'); }
-  catch(e) { return false; }
-}
-function checkDevCode() {
-  // Paid Pro is determined server-side in loadProfile(). Promo/dev-code Pro
-  // persists locally — the code itself is re-validated by /api/claude on every call.
-  if (hasDevUnlock()) isPro = true;
-}
-
 document.getElementById('refresh-btn').addEventListener('click', async () => {
   setSyncing(true); await silentRefresh(); setSyncing(false); toast('Refreshed ✓');
 });
@@ -2722,17 +2703,12 @@ document.getElementById('optin-no').addEventListener('click', () => handleOptIn(
 
 // ── Claude API call ───────────────────────────────────────
 
-// Build auth headers/body based on how pro was unlocked
+// Build auth headers for the API — signed-in session token
 async function buildAuthPayload() {
   const headers = { 'content-type': 'application/json' };
   const extra   = {};
-  const storedCode = localStorage.getItem('compound_dev_code');
-  if (localStorage.getItem(DEV_KEY) === '1' && storedCode) {
-    extra.devCode = storedCode;
-  } else {
-    const { data: { session } } = await sb.auth.getSession();
-    if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`;
-  }
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`;
   return { headers, extra };
 }
 

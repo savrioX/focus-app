@@ -2,9 +2,6 @@
   "version": 2,
   "builds": [
     { "src": "api/claude.js",                  "use": "@vercel/node" },
-    { "src": "api/create-checkout.js",         "use": "@vercel/node" },
-    { "src": "api/customer-portal.js",         "use": "@vercel/node" },
-    { "src": "api/stripe-webhook.js",          "use": "@vercel/node" },
     { "src": "api/email-welcome.js",           "use": "@vercel/node" },
     { "src": "api/cron-streak-reminder.js",    "use": "@vercel/node" },
     { "src": "api/cron-weekly-digest.js",      "use": "@vercel/node" },
@@ -23,9 +20,6 @@
   ],
   "routes": [
     { "src": "/api/claude",                 "dest": "/api/claude.js"                 },
-    { "src": "/api/create-checkout",        "dest": "/api/create-checkout.js"        },
-    { "src": "/api/customer-portal",        "dest": "/api/customer-portal.js"        },
-    { "src": "/api/stripe-webhook",         "dest": "/api/stripe-webhook.js"         },
     { "src": "/api/email-welcome",          "dest": "/api/email-welcome.js"          },
     { "src": "/api/cron-streak-reminder",   "dest": "/api/cron-streak-reminder.js"   },
     { "src": "/api/cron-weekly-digest",      "dest": "/api/cron-weekly-digest.js"     },
