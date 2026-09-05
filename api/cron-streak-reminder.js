@@ -173,7 +173,7 @@ module.exports = async function handler(req, res) {
           const name = usernameById[uid] || null;
 
           const { error } = await resend.emails.send({
-            from:    'Compound <savrio@dailycompound.app>',
+            from:    process.env.EMAIL_FROM || 'Compound <hello@dailycompound.app>',
             to:      user.email,
             subject: streak > 0
               ? `Your ${streak}-day streak is at risk.`

@@ -1,7 +1,7 @@
 const SB_URL      = process.env.SUPABASE_URL;
 const SB_KEY      = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const SECRET      = process.env.CRON_SECRET;
-const OWNER_EMAIL = 'vsf4046@gmail.com';
+const OWNER_EMAIL = process.env.COMPOUND_ACCOUNT_EMAIL;
 
 async function sbFetch(path, params = '') {
   const res = await fetch(`${SB_URL}/rest/v1/${path}${params}`, {
@@ -84,7 +84,7 @@ module.exports = async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-      const { source = 'savrio', type = 'note', content, pinned = false } = req.body || {};
+      const { source = 'owner', type = 'note', content, pinned = false } = req.body || {};
       if (!content?.trim()) return res.status(400).json({ error: 'content required' });
       const rows = await sbInsert('brain', { user_id: uid, source, type, content: content.trim(), pinned });
       return res.status(201).json(rows[0] || { ok: true });

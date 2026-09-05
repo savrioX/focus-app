@@ -1,4 +1,4 @@
-# Video Ideas — @thestartupjournal_
+# Video Ideas — build-in-public account
 
 **Format:** Vertical 9:16 | 1080x1920 | Post TikTok first, Instagram 24-48h later
 **Target:** Aspiring Builders (16-24, student/early-career, wants to be a founder)
@@ -285,7 +285,7 @@ Comment PLAYBOOK and I'll send you the full stack.
 ### VIDEO 12: YC Funded an AI Founder — I've Had One for Months
 
 **Pillar:** War Stories / Hot Take
-**Research source:** June 2026 — YC backed "Thomas," a virtual human AI founder who starts, runs, and grows companies autonomously. Direct hook: Savrio has been using AI as a cofounder before YC made it official.
+**Research source:** June 2026 — YC backed "Thomas," a virtual human AI founder who starts, runs, and grows companies autonomously. Direct hook: the founder has been using AI as a cofounder before YC made it official.
 **Optimal length:** 30-45s (hot take — land it and leave)
 **Format:** Talking head, direct to camera, raw. Show YC website briefly on screen.
 
@@ -504,7 +504,7 @@ Day [X]. $10 MRR. Let's go.
 - [ ] Make sure screen recording is set up on phone
 - [ ] Have Stripe dashboard bookmarked on phone
 - [ ] Know what you want to say for the "context" section — practice it loosely
-- [ ] Turn on post notifications for @thestartupjournal1 — tell followers "the first customer post is coming"
+- [ ] Turn on post notifications — tell followers the milestone post is coming
 
 ---
 
@@ -513,14 +513,14 @@ Day [X]. $10 MRR. Let's go.
 ### VIDEO 17: "Anthropic Said a 1-Person Billion-Dollar Company Is Coming in 2026. I'm Trying to Be It."
 
 **Pillar:** The Build / Newsjack
-**Research source:** Anthropic publicly predicted a one-person billion-dollar company would emerge in 2026 (two-person AI-built companies have already crossed $1B valuation). Claude Code creator Boris Cherny revealed he runs "a few thousand" AI agents overnight — his X post got 104,000 saves and 8.1 million views. Vibe coding (AI-assisted software development) = Collins Dictionary Word of the Year 2025; 46% of all GitHub code is now AI-generated; 63% of vibe coders have no traditional dev background. This is the macro tailwind. Savrio is the specific example.
-**Why this now:** This is the most powerful newsjack available because (1) the prediction comes from the company building the AI Savrio uses, (2) Savrio's Claude loop is literally the same workflow that went viral at 8.1M views, (3) "billion-dollar" is the aspiration — being audacious on this makes people share it. Post within the next 2-4 weeks while vibe coding is still peaking.
+**Research source:** Anthropic publicly predicted a one-person billion-dollar company would emerge in 2026 (two-person AI-built companies have already crossed $1B valuation). Claude Code creator Boris Cherny revealed he runs "a few thousand" AI agents overnight — his X post got 104,000 saves and 8.1 million views. Vibe coding (AI-assisted software development) = Collins Dictionary Word of the Year 2025; 46% of all GitHub code is now AI-generated; 63% of vibe coders have no traditional dev background. This is the macro tailwind. the founder is the specific example.
+**Why this now:** This is the most powerful newsjack available because (1) the prediction comes from the company building the AI the founder uses, (2) the founder's Claude loop is literally the same workflow that went viral at 8.1M views, (3) "billion-dollar" is the aspiration — being audacious on this makes people share it. Post within the next 2-4 weeks while vibe coding is still peaking.
 **Optimal length:** 45-60s — punchy, results-first, let the claim do the work
 **Format:** Face to camera, show the Claude loop terminal or the app on screen at the hook. No polish needed. The boldness of the claim is the production value.
 
 **Researched Hook Variants (pick one):**
 1. "Anthropic said a 1-person billion-dollar company is coming in 2026. I'm trying to be it." *(RECOMMENDED — direct, audacious, specific source = credibility)*
-2. "The company that built Claude just predicted a solo founder will hit a billion dollars this year. Here's my attempt." *(longer but positions Savrio as a protagonist in a known story)*
+2. "The company that built Claude just predicted a solo founder will hit a billion dollars this year. Here's my attempt." *(longer but positions the founder as a protagonist in a known story)*
 3. "I'm 19. I have an AI that ships code while I sleep. Anthropic says I could be the first 1-person unicorn. Let's go." *(stacks all the credibility signals: age + AI workflow + Anthropic prediction)*
 4. "The creator of Claude Code runs thousands of AI agents overnight. I started doing that 6 months ago. Here's what happened." *(connects to the 8.1M view viral post specifically — high search intent)*
 5. "46% of all code on GitHub is now AI-generated. I'm 19 and I wrote most of Compound that way. This is what it looks like." *(data-first hook — works for the developer/builder audience)*
@@ -587,7 +587,7 @@ Day [X]. Building.
 #buildinpublic #aifounders #vibecoding #solofounder #startupjournal
 ```
 
-**ManyChat trigger:** "LOOP" → DM with how the Claude Code loop works (link to the Boris Cherny viral post + explanation of how Savrio runs his version)
+**ManyChat trigger:** "LOOP" → DM with how the Claude Code loop works (link to the Boris Cherny viral post + explanation of how the founder runs his version)
 **Newsjack timing:** The Boris Cherny viral moment was January 2026 (8.1M views). Vibe coding is still peaking (Collins WOTY, 46% of GitHub code). Post this within 2 weeks — the window is open but won't be forever.
 **Production note:** The claim does the work — don't over-produce. Film in front of a screen showing the Claude terminal or the live app. The contrast of "19 years old, no team, running AI agents" + "Anthropic predicted this" is the entire video. Say the hook with confidence, not irony.
 
@@ -596,7 +596,7 @@ Day [X]. Building.
 ### VIDEO 16: "5 Things Nobody Tells You About Building a Startup at 19"
 
 **Pillar:** Founder Story / Wisdom Drop
-**Research source:** "Things I wish I knew before..." is a confirmed viral TikTok format — drives high saves (saves signal to algo = distribution boost) because people bookmark it to re-watch. Also: nano accounts (1K-10K followers) get 8.1% TikTok engagement — the highest tier. Savrio's current size IS the advantage. Authenticity is the moat.
+**Research source:** "Things I wish I knew before..." is a confirmed viral TikTok format — drives high saves (saves signal to algo = distribution boost) because people bookmark it to re-watch. Also: nano accounts (1K-10K followers) get 8.1% TikTok engagement — the highest tier. the founder's current size IS the advantage. Authenticity is the moat.
 **Why this works:** Lists create a psychological contract — viewer stays to see all 5. Each lesson can be its own follow-up video (free content calendar). "At 19" filters to exactly the right audience (aspiring builders 16-24) and repels everyone else. The specificity is the hook.
 **Optimal length:** 60-90s — lists justify the length, completion rate stays high because each point = mini payoff
 **Format:** Fast-cut talking head. Start each lesson with a bold text overlay. No intro, no outro fluff.
@@ -675,7 +675,7 @@ Save this if you're building something too.
 
 **Pillar:** The Scoreboard + Serial Retention
 **Research source:** 2026 TikTok data — "lock-in commitment" content is one of the top viral formats. Mechanism: publicly declaring a goal creates audience investment. They follow to see if you make it. Every update post gets auto-engagement because they're already emotionally in. Top accounts in fitness/learning use this to compound followers 4x faster than standalone posts. For a build-in-public founder, this is the natural native format — this is literally what you're already doing, just make it explicit.
-**Why this now:** Savrio is approaching the point where paying customers become real. Declaring "30 days to first paying customer" or "30 days to $100 MRR" before it happens creates narrative tension → serial retention → the milestone post (Video 14) gets 10x the views because people were waiting for it.
+**Why this now:** the founder is approaching the point where paying customers become real. Declaring "30 days to first paying customer" or "30 days to $100 MRR" before it happens creates narrative tension → serial retention → the milestone post (Video 14) gets 10x the views because people were waiting for it.
 **Optimal length:** 45-60s (long enough to build stakes, short enough to hold 70% completion)
 **Format:** Face to camera. Show the scoreboard / app on screen at the start. No polish needed.
 

@@ -19,7 +19,7 @@ status: COMPLETE — loop finished 15/15 iterations
 - **Iter 11 (website):** Fixed iOS auto-zoom bug — inputs were font-size 14px, iOS auto-zooms on any input < 16px. Added mobile override to 16px. Also bumped .btn-add from 39px to 44px (minimum touch target).
 - **Iter 12 (video):** Added VIDEO 16 — "5 Things Nobody Tells You About Building at 19". Wisdom-drop/list format drives saves (algo distribution signal). Research: nano accounts (1K-10K) = 8.1% TikTok engagement — highest tier. Each of 5 lessons = standalone follow-up video.
 - **Iter 13 (website):** Habits + Goals empty states redesigned — added quick-fill chips to both (matching todos pattern from iter 7). Habits: 5 chips + "Browse starter packs". Goals: 4 chips + hover effects + "Let Apex build my plan". All 3 cards now have consistent empty-state UX.
-- **Iter 14 (video):** Added VIDEO 17 — "Anthropic Said a 1-Person Billion-Dollar Company Is Coming. I'm Trying to Be It." Newsjack: Anthropic's public prediction + Boris Cherny Claude Code viral post (8.1M views). Savrio IS the protagonist. Post within 2 weeks.
+- **Iter 14 (video):** Added VIDEO 17 — "Anthropic Said a 1-Person Billion-Dollar Company Is Coming. I'm Trying to Be It." Newsjack: Anthropic's public prediction + Boris Cherny Claude Code viral post (8.1M views). the founder IS the protagonist. Post within 2 weeks.
 - **Iter 15 (website):** Apex greeting rewrite — context-aware 5-state advisor: empty state, all habits done, evening urgency, goal with no steps, normal. Replaced passive "What do you want to work on?" with specific situational nudges.
 
 ## LOOP COMPLETE — 15/15 iterations done June 23, 2026

@@ -5,7 +5,7 @@ const SB_URL  = process.env.SUPABASE_URL;
 const SB_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const APP_URL = process.env.APP_URL || 'https://dailycompound.app';
 const SECRET  = process.env.CRON_SECRET;
-const OWNER   = 'savrio.xsi@gmail.com';
+const OWNER   = process.env.COMPOUND_ACCOUNT_EMAIL;
 
 async function sbFetch(path, params = '') {
   const res = await fetch(`${SB_URL}/rest/v1/${path}${params}`, {
@@ -158,7 +158,7 @@ module.exports = async function handler(req, res) {
     });
 
     const { error } = await resend.emails.send({
-      from:    'Compound <savrio@dailycompound.app>',
+      from:    process.env.EMAIL_FROM || 'Compound <hello@dailycompound.app>',
       to:      OWNER,
       subject: `Compound daily — ${totalUsers !== null ? totalUsers + ' users' : new Date().toLocaleDateString()}`,
       html:    digestHtml({ totalUsers, newToday, views, date }),

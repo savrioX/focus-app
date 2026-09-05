@@ -193,7 +193,7 @@ Based on Systeme.io (60-70% of revenue from affiliates) and Marc Lou (ShipFast):
 **Verdict: Start X this week.** The #buildinpublic audience on X is the exact demographic that buys $10/month productivity SaaS. Instagram grows brand awareness; X drives signups directly.
 
 ### Account Setup (Day 1, 1 hour)
-- Handle: your real name (@savriobresolin) or @dailycompound
+- Handle: your real name or @dailycompound
 - Bio: `19yo solo founder. Building @dailycompound — $10/mo focus system for founders. Documenting the journey. #buildinpublic`
 - Real face photo (not logo — logos don't convert to followers)
 - Pin your intro thread (write it on Day 2)

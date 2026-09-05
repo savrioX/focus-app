@@ -6,7 +6,7 @@ Every agent on this team loads this file automatically. Read it fully before doi
 
 ## The Founder
 
-**Savrio** — 19-year-old solo founder, macOS.
+**The founder** — 19-year-old solo founder, macOS.
 - Wants **production-ready output**, not instructions or options
 - Moves fast, speaks directly — match that energy
 - No fluff. Deliver results.
@@ -23,7 +23,7 @@ Productivity SaaS for student entrepreneurs.
 - Database/Auth: Supabase
 - Hosting: Vercel (auto-deploy from GitHub — pushing to `main` deploys to production)
 - Payments: none. The product is free; there is no paid tier.
-- Repo: `savrioX/focus-app` | Local: `~/Desktop/claude/focus-app/`
+- Repo: see `git remote -v` | Local: `~/Desktop/claude/focus-app/`
 
 **Features:**
 - Goals with AI-generated action steps
@@ -40,7 +40,7 @@ Productivity SaaS for student entrepreneurs.
 - Improve onboarding and retention
 - Optimize mobile UX
 
-### 2. The Startup Journal — @thestartupjournal1
+### 2. The Startup Journal — build-in-public account
 Instagram page documenting the build in public.
 
 **Angle:** "19-year-old building a startup with AI"
@@ -69,7 +69,7 @@ Graphics are generated with Python + Pillow. Output to `instagram_content/`.
 
 | Agent | Role |
 |:------|:-----|
-| **ceo** | Savrio's main contact. Manages team, approves all plans, synthesizes results |
+| **ceo** | the founder's main contact. Manages team, approves all plans, synthesizes results |
 | **graphic-design** | All visual assets — posts, logos, graphics |
 | **publicity** | Instagram strategy, captions, marketing, growth |
 | **voice-of-reason** | Reviews all plans before execution + all finished work before delivery |
@@ -90,7 +90,7 @@ CEO sends plan to voice-of-reason + lawyer simultaneously
 Both review in parallel → Send verdicts to CEO
 CEO approves/rejects → Agent executes
 Agent finishes → Sends to voice-of-reason for final QC
-voice-of-reason clears → CEO delivers to Savrio
+voice-of-reason clears → CEO delivers to the founder
 ```
 
 ---

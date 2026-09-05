@@ -1,16 +1,19 @@
 # Claude Code Handoff — Compound / focus-app
 
+> ⚠️ **Partially stale as of 2026-09-05.** Sections below still describe Stripe,
+> a $10/month Pro tier, and the old "Not a wellness app" headline. All were
+> removed. See `docs/context/website-improvements.md` for current state.
+
 Read this at the start of every session. It replaces needing to catch up from scratch.
 
 ---
 
 ## Who You're Talking To
 
-**Savrio** — 19-year-old solo founder, Windows 11 (now also Mac).
+**the founder** — 19-year-old solo founder, Windows 11 (now also Mac).
 - Wants **production-ready output**, not options or explanations
-- Moves fast, speaks directly — match his energy
+- Moves fast, speaks directly — match that energy
 - No fluff. Deliver results.
-- Email: vsf4046@gmail.com
 
 ---
 
@@ -24,15 +27,16 @@ Productivity SaaS for student entrepreneurs. Built solo with AI.
 - Database/Auth: Supabase
 - Hosting: Vercel (auto-deploy from `main` branch on GitHub)
 - Payments: Stripe
-- Repo: `savrioX/focus-app`
+- Repo: see `git remote -v`
 
-**Positioning:** "Builder OS" — not a wellness app, the exact system Savrio uses to run his startup. Dogfooding as marketing.
+**Positioning:** "Builder OS" — not a wellness app, the exact system the founder uses to run his startup. Dogfooding as marketing.
 - One-line pitch: *"I'm 19, building a startup in public with AI — and the product I'm selling is the exact system I use to do it."*
 
 **Subscription:** $10/month Pro (currently all features free while building user base)
 
-### 2. The Startup Journal — @thestartupjournal1
-Instagram documenting the build in public. Goal: 10,000 followers.
+### 2. The Startup Journal — build-in-public account
+Documents the build in public. Goal: 10,000 followers.
+**The website no longer links to it** (2026-09-05, by request).
 Content style: viral hooks, real numbers, build updates, founder lessons.
 
 ---
@@ -51,7 +55,7 @@ homepage). Six funnel events wired via a `trackEvent()` helper.
 Also found and fixed the `claim_ai_usage` 429 lockout (commit `f46fa63`): the
 function was a bare `UPDATE profiles`, so any user with **no profiles row** got a
 permanent `429 "Daily AI limit reached"` on their first AI request. Rows aren't
-created at signup, so this killed every AI feature for new users. Savrio ran
+created at signup, so this killed every AI feature for new users. the founder ran
 `migrations/2026-07-29-fix-claim-ai-usage.sql` on 2026-07-30 and confirmed Generate
 Plan works — **resolved, cap now enforced correctly.**
 
@@ -124,7 +128,9 @@ alter table profiles add column if not exists email_opt_in boolean default false
 - `CRON_SECRET` = `9e1b6b3998719fd043f84e90031f4b798b3a9bbbe0192857e8bfb218bee1ca57`
 - `ANTHROPIC_API_KEY` — must be set
 - `RESEND_API_KEY` — must be set
-- `COMPOUND_ACCOUNT_EMAIL` — optional, defaults to vsf4046@gmail.com
+- `COMPOUND_ACCOUNT_EMAIL` — **must be set.** Owner-only features (daily digest,
+  morning briefing, brain API) read it; there is no hardcoded fallback.
+- `EMAIL_FROM` — optional, defaults to `Compound <hello@dailycompound.app>`
 - `VERCEL_TOKEN` + `VERCEL_PROJECT_ID` — **not set.** This is why the daily
   digest says "Website views: Not configured". Web Analytics itself *is* enabled
   and tracking fine (`/_vercel/insights/script.js` returns 200) — only the
@@ -135,7 +141,7 @@ alter table profiles add column if not exists email_opt_in boolean default false
 - Real 1200×630 `og:image` (currently the square `logo.PNG`, which is why
   `twitter:card` is still `summary` and not `summary_large_image`). Instagram and
   DM link shares are the main traffic source, so this affects click-through.
-- `pricing.html` says "everything **Savrio** uses to run his own startup" —
+- `pricing.html` says "everything **the founder** uses to run his own startup" —
   contradicts `459f73e`, which stripped the founder name from the site. Pick one.
 - `AUDIT.md` #1, #2 and #4 were addressed on 2026-07-31 (modal queue, guide
   auto-open removed, onboarding plan surfaced on `/apex`). Still open from that
@@ -158,11 +164,11 @@ alter table profiles add column if not exists email_opt_in boolean default false
 
 ## Critical Rules (Do Not Break)
 
-1. **Never delete or modify rows in Savrio's Supabase tables.** His account data is live production data. Read-only and user-triggered inserts are fine. No DELETE or UPDATE on existing rows without asking.
+1. **Never delete or modify rows in the founder's Supabase tables.** His account data is live production data. Read-only and user-triggered inserts are fine. No DELETE or UPDATE on existing rows without asking.
 
 2. **Ledger uses `window.storage`, not Supabase.** If ledger habits aren't loading, don't try to fix "Supabase habits not loading" — it's intentional. The Supabase `habits` table is separate (used by the habits section in `index.html`).
 
-3. **Never spawn Agent subagents for the improvement loop.** When Savrio says "loop" or "agent teams improve the site" — do all work inline in the main context, then call `ScheduleWakeup`. Spawning agents burns credits.
+3. **Never spawn Agent subagents for the improvement loop.** When the founder says "loop" or "agent teams improve the site" — do all work inline in the main context, then call `ScheduleWakeup`. Spawning agents burns credits.
 
 4. **No fluff.** Ship code, not explanations.
 
@@ -208,7 +214,6 @@ docs/               — Reference docs, strategy, this file
 
 ## Key Links
 - App: https://dailycompound.app
-- GitHub: https://github.com/savrioX/focus-app
-- Instagram: @thestartupjournal1
-- Supabase project: vsf4046@gmail.com account
+- GitHub: the `focus-app` repo (see `git remote -v`)
+- Supabase project: the founder's account
 - Vercel: auto-deploys from `main`

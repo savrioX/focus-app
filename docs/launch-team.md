@@ -25,7 +25,7 @@ Claude Code must start from inside this folder to load CLAUDE.md and all agent d
 This follows the structure from Nate Herk's video: **goal → agents → deliverables**
 
 ```
-GOAL: Help Savrio grow @thestartupjournal1 to 10,000 Instagram followers and
+GOAL: Help the founder grow the build-in-public account to 10,000 followers and
 grow dailycompound.app signups. The product is free — there is no paid tier
 and nothing to monetize. All agents work in
 parallel and message each other directly. All agents plan first and need
@@ -37,9 +37,9 @@ Use the agent definitions from .claude/agents/ for each.
 Require plan approval before any agent executes.
 
 Agent 1 — ceo
-Role: Savrio's only contact. Manages all agents, approves all plans,
+Role: the founder's only contact. Manages all agents, approves all plans,
 synthesizes results. Owns docs/ceo-strategy.md and docs/ceo-tasks.md.
-When done with any task, deliver clean summary to Savrio.
+When done with any task, deliver clean summary to the founder.
 
 Agent 2 — graphic-design
 Role: Creates all visual assets. Owns instagram_content/graphics/ and
@@ -66,10 +66,10 @@ agent with exact fixes needed.
 DELIVERABLES for every session:
 - Finished assets saved to their owner's file territory
 - Review reports in docs/reviews/ and docs/legal/
-- CEO summary delivered to Savrio
+- CEO summary delivered to the founder
 - All agents confirm ready before shutdown
 
-Have the CEO introduce the team and ask Savrio what we're working on first.
+Have the CEO introduce the team and ask the founder what we're working on first.
 ```
 
 ---
@@ -77,7 +77,7 @@ Have the CEO introduce the team and ask Savrio what we're working on first.
 ## How the Workflow Runs
 
 ```
-Savrio → CEO
+the founder → CEO
            ↓ messages all agents simultaneously
   [gfx] [pub] [it-dev] each write a plan → send to CEO
            ↓ CEO sends all plans to voice-of-reason + lawyer IN PARALLEL
@@ -89,7 +89,7 @@ Savrio → CEO
   [it-dev] → [lawyer]: "this touches user data, review?"
            ↓ finished work
   each agent → [vor]: "ready for final review"
-           ↓ vor clears → CEO delivers to Savrio
+           ↓ vor clears → CEO delivers to the founder
 ```
 
 ---
@@ -147,4 +147,4 @@ then clean up the team.
 | Agents overwriting each other | Each agent owns specific files — remind them |
 | Too many tokens | Reduce to 3 agents, use Haiku for simpler roles |
 | Agent lost work | Tell agents to save to their temp file (`docs/temp/[agent]-wip.md`) |
-| Wrong plan approved | Have Savrio be the approver instead of CEO for that session |
+| Wrong plan approved | Have the founder be the approver instead of CEO for that session |

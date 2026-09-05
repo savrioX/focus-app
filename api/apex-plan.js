@@ -2,7 +2,7 @@ const SB_URL  = process.env.SUPABASE_URL;
 const SB_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const API_KEY = process.env.ANTHROPIC_API_KEY;
 const SECRET  = process.env.CRON_SECRET;
-const OWNER   = process.env.COMPOUND_ACCOUNT_EMAIL || 'vsf4046@gmail.com';
+const OWNER   = process.env.COMPOUND_ACCOUNT_EMAIL;
 
 async function sbFetch(path, params = '') {
   const res = await fetch(`${SB_URL}/rest/v1/${path}${params}`, {

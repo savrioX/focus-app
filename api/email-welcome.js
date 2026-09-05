@@ -47,11 +47,7 @@ function welcomeHtml(firstName) {
 
           <tr>
             <td style="padding:32px 0 0 0;border-top:1px solid #f0f0f0;margin-top:32px;">
-              <p style="margin:0;font-size:12px;color:#a1a1aa;line-height:1.6;">
-                P.S. I'm documenting the whole build publicly — follow along at
-                <a href="https://www.instagram.com/thestartupjournal1/" style="color:#7c3aed;text-decoration:none;">@thestartupjournal1</a>
-              </p>
-              <p style="margin:12px 0 0 0;font-size:11px;color:#d4d4d8;">
+              <p style="margin:0;font-size:11px;color:#d4d4d8;">
                 You're receiving this because you signed up at
                 <a href="${APP_URL}" style="color:#d4d4d8;text-decoration:none;">dailycompound.app</a>
               </p>
@@ -74,7 +70,7 @@ module.exports = async function handler(req, res) {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Compound <savrio@dailycompound.app>',
+      from: process.env.EMAIL_FROM || 'Compound <hello@dailycompound.app>',
       to: email,
       subject: "Here's your first move",
       html: welcomeHtml(firstName),

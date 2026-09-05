@@ -36,9 +36,9 @@ Wait for CEO approval before finalizing.
 5. Message **voice-of-reason** directly: "Copy ready for review: [file]"
 
 ## Primary Goals
-1. Grow @thestartupjournal1 to 10,000 followers
+1. Grow the build-in-public account to 10,000 followers
 2. Drive signups at dailycompound.app — the product is free, there is no paid tier
-3. Build Savrio's brand: "19yo building a startup with AI"
+3. Build the founder's brand: "19yo building a startup with AI"
 
 ## What Works in This Niche
 - Carousels → most saves/shares

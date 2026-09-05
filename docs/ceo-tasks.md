@@ -9,7 +9,7 @@
 
 ### Cycle 6 (Active) — UI/GUI Polish Pass: index.html + ledger.html
 
-**Goal (from Savrio):** Full UI/GUI critique and improvement pass on both main app files. Visual polish only — no JS logic changes, no feature additions, no brand changes.
+**Goal (from the founder):** Full UI/GUI critique and improvement pass on both main app files. Visual polish only — no JS logic changes, no feature additions, no brand changes.
 
 **Scope:** index.html + ledger.html
 - Typography hierarchy
@@ -31,7 +31,7 @@
 - No feature additions, no content changes
 - Do not touch vercel.json or api/
 
-**Flow:** it-dev audits → proposes changes → CEO + voice-of-reason review in parallel → CEO approves → it-dev executes → voice-of-reason final QC → CEO commits → deliver to Savrio.
+**Flow:** it-dev audits → proposes changes → CEO + voice-of-reason review in parallel → CEO approves → it-dev executes → voice-of-reason final QC → CEO commits → deliver to the founder.
 
 **Status:** Active — agents briefed in parallel.
 
@@ -41,7 +41,7 @@
 
 ### Cycle 5 (Active) — Major Expansion: Personal Growth Companion
 
-**Goal (from Savrio):** Turn Compound from a habit tracker into a full personal growth companion.
+**Goal (from the founder):** Turn Compound from a habit tracker into a full personal growth companion.
 
 **Scope:**
 1. Journal system — daily entries with mood + reflection
@@ -54,7 +54,7 @@
 - **it-dev** — full implementation plan: DB schema (journal_entries, mood_checkins, categories/priority columns), new UI (journal tab, insights dashboard), post-task modal flow. Then execute after approval.
 - **voice-of-reason** — parallel critique: UX risks, feature ordering, MVP vs nice-to-have. Then final QC of finished build.
 
-**Flow:** Both briefed simultaneously → verdicts to CEO → CEO approves final plan → it-dev executes → voice-of-reason QC → deliver to Savrio.
+**Flow:** Both briefed simultaneously → verdicts to CEO → CEO approves final plan → it-dev executes → voice-of-reason QC → deliver to the founder.
 
 **Status:** Planning phase — agents briefed in parallel.
 

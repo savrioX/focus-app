@@ -80,12 +80,12 @@
     .src-claude_chat  { background: rgba(139,92,246,0.12); color: #7c3aed; }
     .src-telegram     { background: rgba(59,130,246,0.12); color: #2563eb; }
     .src-compound     { background: rgba(5,150,105,0.12);  color: #059669; }
-    .src-savrio       { background: rgba(245,158,11,0.12); color: #d97706; }
+    .src-owner       { background: rgba(245,158,11,0.12); color: #d97706; }
     body.dark .src-claude_code { background: rgba(167,139,250,0.15); color: #a78bfa; }
     body.dark .src-claude_chat { background: rgba(167,139,250,0.15); color: #c4b5fd; }
     body.dark .src-telegram    { background: rgba(96,165,250,0.15);  color: #60a5fa; }
     body.dark .src-compound    { background: rgba(52,211,153,0.15);  color: #34d399; }
-    body.dark .src-savrio      { background: rgba(251,191,36,0.15);  color: #fbbf24; }
+    body.dark .src-owner      { background: rgba(251,191,36,0.15);  color: #fbbf24; }
     .type-badge { font-size: 11px; color: var(--muted); }
     .entry-meta { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
     .entry-time { font-size: 11px; color: var(--faded); }
@@ -168,7 +168,7 @@
         <button class="filter-btn" data-source="claude_code">Claude Code</button>
         <button class="filter-btn" data-source="claude_chat">Claude.ai</button>
 <button class="filter-btn" data-source="compound">Compound</button>
-        <button class="filter-btn" data-source="savrio">My Notes</button>
+        <button class="filter-btn" data-source="owner">My Notes</button>
       </div>
 
       <!-- Add note -->
@@ -176,7 +176,7 @@
         <textarea id="note-input" placeholder="Add a note — your thought, a task suggestion, a reflection, anything…" rows="3"></textarea>
         <div class="add-footer">
           <select class="add-select" id="note-source">
-            <option value="savrio">My Note</option>
+            <option value="owner">My Note</option>
             <option value="compound">Compound</option>
           </select>
           <select class="add-select" id="note-type">
@@ -259,7 +259,7 @@ function esc(t) {
   return d.innerHTML;
 }
 
-const SRC_LABEL  = { claude_code: 'Claude Code', claude_chat: 'Claude.ai', telegram: 'Telegram', compound: 'Compound', savrio: 'My Note' };
+const SRC_LABEL  = { claude_code: 'Claude Code', claude_chat: 'Claude.ai', telegram: 'Telegram', compound: 'Compound', owner: 'My Note' };
 const TYPE_ICON  = { note: '', insight: '🔍 Insight', suggestion: '💡 Suggestion', reflection: '🌙 Reflection', context: '⚡ Context' };
 
 function relTime(iso) {

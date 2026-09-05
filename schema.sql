@@ -121,7 +121,7 @@ create policy "users can insert feedback" on feedback
 --
 -- alter table profiles add column if not exists ledger_data jsonb default '{}';
 --
--- ledger_data: stores Savrio's life audit habit check data, keyed by week date
+-- ledger_data: stores the owner's life audit habit check data, keyed by week date
 -- ─────────────────────────────────────────────────────────────────────────────
 
 -- ── Apex migrations — run in Supabase SQL Editor ───────────────────────────

@@ -5,7 +5,7 @@ const SB_URL     = process.env.SUPABASE_URL;
 const SB_KEY     = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const APP_URL    = process.env.APP_URL || 'https://dailycompound.app';
 const SECRET     = process.env.CRON_SECRET;
-const OWNER      = process.env.COMPOUND_ACCOUNT_EMAIL || 'vsf4046@gmail.com';
+const OWNER      = process.env.COMPOUND_ACCOUNT_EMAIL;
 
 const QUOTES = [
   'Ships don\'t sink because of the water around them. They sink from the water that gets in.',
@@ -275,7 +275,7 @@ module.exports = async function handler(req, res) {
           const igTask  = email === OWNER ? IG_TASKS[dayOfWeek] : null;
 
           const { error } = await resend.emails.send({
-            from:    'Compound <savrio@dailycompound.app>',
+            from:    process.env.EMAIL_FROM || 'Compound <hello@dailycompound.app>',
             to:      email,
             subject: 'Good morning. Here\'s today.',
             html:    briefingHtml({ todos: userTodos, topHabit, topStreak, goalStep, allGoals, quote, strategy, igTask, appUrl: APP_URL }),

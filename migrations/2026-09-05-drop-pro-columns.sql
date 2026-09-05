@@ -29,3 +29,19 @@ from   information_schema.columns
 where  table_schema = 'public'
   and  table_name   = 'profiles'
   and  column_name in ('is_pro', 'stripe_customer_id');
+
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- De-identify the brain note source
+--
+-- brain.html and api/brain.js used the literal string 'savrio' as the source
+-- value for the owner's own notes. Renamed to 'owner'. Existing rows must be
+-- migrated or those notes stop matching the "My Notes" filter.
+--
+-- Run this AFTER deploying the code change. Safe to run more than once.
+-- ─────────────────────────────────────────────────────────────────────────────
+
+update public.brain set source = 'owner' where source = 'savrio';
+
+-- Confirm none are left. Expect zero rows.
+select source, count(*) from public.brain where source = 'savrio' group by source;

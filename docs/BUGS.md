@@ -208,7 +208,10 @@ await fetch(`...profiles?stripe_customer_id=eq.${inv.customer}`, { method: 'PATC
 ### BUG-12 · Founder email hardcoded in three API files
 
 **Files:** `api/claude.js` line ~33, `api/apex-plan.js` line 6, `api/brain.js` line 5  
-`vsf4046@gmail.com` is hardcoded as the OWNER_EMAIL / Pro bypass identity. If the repo becomes public (currently `savrioX/focus-app`), this email is exposed in source.
+**RESOLVED 2026-09-05.** The owner email was hardcoded as OWNER_EMAIL in three
+API files and exposed in source. All three now read `COMPOUND_ACCOUNT_EMAIL`
+from the environment with no fallback. Note the old value remains in git
+history — see `docs/context/website-improvements.md`.
 
 ---
 

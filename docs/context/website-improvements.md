@@ -1,16 +1,16 @@
 # Website improvement loop — working queue
 
-Started 2026-09-04 while Savrio was away. Self-paced loop, agent-assisted.
+Started 2026-09-04 while the founder was away. Self-paced loop, agent-assisted.
 **Loop stopped 2026-09-04** — mechanical queue exhausted.
 
-**2026-09-05:** Savrio decided free-forever and approved the Stripe removal.
+**2026-09-05:** the founder decided free-forever and approved the Stripe removal.
 Items 1, 2, 3, 4 and 7 below are now DONE (commits 25c0d82, 13b350c, 35e9db8,
 84c786e, a0c48cc). Items 5, 6 and 8 still need him. See "Still open" at the end.
 
 ## Rules this loop ran under
 
 1. **Never push.** Every change is committed locally only. Nothing reaches
-   dailycompound.app until Savrio reviews and pushes. Vercel auto-deploys from
+   dailycompound.app until the founder reviews and pushes. Vercel auto-deploys from
    GitHub, so a push *is* a production deploy.
 2. **One concern per commit**, so any single change can be reverted alone.
 3. **Only verifiable defects** — factually wrong, internally inconsistent,
@@ -35,10 +35,10 @@ health claims, no unverifiable or competitor-knocking claims.
 | 43990c6 | CLAUDE.md + agent defs: Stripe/$10 Pro/Windows path all stale, poisoning every future agent session. Commit count 71+ (actual 168) replaced with the command to check |
 | b06a065 | sitemap lastmod dates five weeks stale |
 
-## Still open — needs Savrio
+## Still open — needs the founder
 
 - **CLAUDE.md "Current Goals"** is still a ⚠️ placeholder — the only thing left
-  that needs Savrio.
+  that needs the founder.
 - **Positioning calls** (item 8 below): Instagram tone, repo-root marketing docs,
   Windows leftover scripts, the maskable icon.
 
@@ -109,7 +109,7 @@ app-internal (add `noindex`). Then it's mechanical.
 ### 8. Positioning calls, not bugs
 - Instagram content (`instagram_content/`, `compound_reels.md`,
   `docs/content-calendar.html`) still uses viral-hook framing including a "War
-  Story" pillar. The landing page links to @thestartupjournal1 three times.
+  Story" pillar. The landing page linked to the account three times.
   `compound_reels.md:30,43,120` still boast "Stripe payments — done."
 - `AUDIT.md`, `RESEARCH.md`, and `docs/` sit in the repo root and contain old
   marketing scripts that contradict the current product. Whether build-in-public
@@ -125,7 +125,7 @@ app-internal (add `noindex`). Then it's mechanical.
 
 ## Day counter — settled 2026-09-05
 
-Savrio confirmed the build started **2026-05-01**. The first commit is
+the founder confirmed the build started **2026-05-01**. The first commit is
 2026-05-13; the 12-day gap is pre-repo work, not an error. Do not "correct"
 the counter to the first-commit date. Fixed in 2e31832: the date is now parsed
 as local midnight, and the students page's stale hardcoded fallback is gone.
