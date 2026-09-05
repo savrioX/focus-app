@@ -30,7 +30,9 @@
     { "src": "/api/onboarding-plan",        "dest": "/api/onboarding-plan.js"        },
     { "src": "/sw.js", "dest": "/sw.js", "headers": { "Service-Worker-Allowed": "/" } },
     { "handle": "filesystem" },
-    { "src": "/(.*)",                       "dest": "/$1.html"                       }
+    { "src": "/(.*)",                       "dest": "/$1.html"                       },
+    { "handle": "error" },
+    { "src": "/.*", "status": 404,          "dest": "/404.html"                      }
   ],
   "crons": [
     {
