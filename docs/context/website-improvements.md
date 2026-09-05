@@ -1,8 +1,11 @@
 # Website improvement loop — working queue
 
 Started 2026-09-04 while Savrio was away. Self-paced loop, agent-assisted.
-**Loop stopped 2026-09-04** — mechanical queue exhausted; everything left needs
-Savrio's judgment.
+**Loop stopped 2026-09-04** — mechanical queue exhausted.
+
+**2026-09-05:** Savrio decided free-forever and approved the Stripe removal.
+Items 1, 2, 3, 4 and 7 below are now DONE (commits 25c0d82, 13b350c, 35e9db8,
+84c786e, a0c48cc). Items 5, 6 and 8 still need him. See "Still open" at the end.
 
 ## Rules this loop ran under
 
@@ -32,7 +35,17 @@ health claims, no unverifiable or competitor-knocking claims.
 | 43990c6 | CLAUDE.md + agent defs: Stripe/$10 Pro/Windows path all stale, poisoning every future agent session. Commit count 71+ (actual 168) replaced with the command to check |
 | b06a065 | sitemap lastmod dates five weeks stale |
 
-## Needs Savrio — nothing below was touched
+## Still open — needs Savrio
+
+- **Day counter start date.** Site counts from 2026-05-01; first commit is
+  2026-05-13. Only Savrio knows the true start. Separately, `new Date('2026-05-01')`
+  parses as UTC while `Date.now()` is local, so the number flips a day early in
+  -0400. Not yet changed (index.html:1500, focus-app-for-students.html:86).
+- **CLAUDE.md "Current Goals"** is still a ⚠️ placeholder.
+- **Positioning calls** (item 8 below): Instagram tone, repo-root marketing docs,
+  Windows leftover scripts, the maskable icon.
+
+## Resolved 2026-09-05 — kept for context
 
 ### 1. "Free forever" vs "free today" — pick one
 pricing.html:51, the CTA in habit-tracker-college-students.html:81, and several
