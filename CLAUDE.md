@@ -100,7 +100,8 @@ voice-of-reason clears → CEO delivers to Savrio
 - Price: **free** — no paid tier exists
 - Follower goal: **10,000**
 - GitHub commits: don't hardcode this, it goes stale — run `git log --oneline | wc -l`
-- First commit: **2026-05-13**
+- Build started: **2026-05-01** (the day counters on the site count from here)
+- First commit: **2026-05-13** — the 12-day gap is pre-repo work, not an error
 
 ---
 

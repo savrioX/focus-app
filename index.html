@@ -1493,11 +1493,13 @@ document.getElementById('pass-toggle').addEventListener('click', () => {
   p.type = p.type === 'password' ? 'text' : 'password';
 });
 
-// Day-of-build badge — starts May 1 2026
+// Day-of-build badge — starts May 1 2026 (build began before the first commit
+// on 2026-05-13). new Date(2026, 4, 1) is LOCAL midnight; the ISO string form
+// parses as UTC, which rolls the number over early in negative offsets.
 (function() {
   const el = document.getElementById('land-day-badge');
   if (!el) return;
-  const day = Math.floor((Date.now() - new Date('2026-05-01').getTime()) / 86400000) + 1;
+  const day = Math.floor((Date.now() - new Date(2026, 4, 1).getTime()) / 86400000) + 1;
   el.textContent = `Day ${day} of building in public · real users`;
 })();
 
