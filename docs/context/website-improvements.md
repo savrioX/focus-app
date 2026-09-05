@@ -37,11 +37,8 @@ health claims, no unverifiable or competitor-knocking claims.
 
 ## Still open — needs Savrio
 
-- **Day counter start date.** Site counts from 2026-05-01; first commit is
-  2026-05-13. Only Savrio knows the true start. Separately, `new Date('2026-05-01')`
-  parses as UTC while `Date.now()` is local, so the number flips a day early in
-  -0400. Not yet changed (index.html:1500, focus-app-for-students.html:86).
-- **CLAUDE.md "Current Goals"** is still a ⚠️ placeholder.
+- **CLAUDE.md "Current Goals"** is still a ⚠️ placeholder — the only thing left
+  that needs Savrio.
 - **Positioning calls** (item 8 below): Instagram tone, repo-root marketing docs,
   Windows leftover scripts, the maskable icon.
 
@@ -123,3 +120,12 @@ app-internal (add `noindex`). Then it's mechanical.
 - Keeping the "19-year-old solo founder" framing at all.
 - `manifest.json` declares the same `logo.PNG` as maskable with no safe-zone
   padding, so it clips on Android adaptive-icon launchers.
+
+---
+
+## Day counter — settled 2026-09-05
+
+Savrio confirmed the build started **2026-05-01**. The first commit is
+2026-05-13; the 12-day gap is pre-repo work, not an error. Do not "correct"
+the counter to the first-commit date. Fixed in 2e31832: the date is now parsed
+as local midnight, and the students page's stale hardcoded fallback is gone.
