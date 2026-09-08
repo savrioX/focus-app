@@ -5,7 +5,7 @@
 
 ## HOW TO TAKE THE SCREENSHOTS
 
-Run `take_screenshots.ps1` (right-click → Run with PowerShell) from the focus-app folder.
+Run `./take_screenshots.sh` from the focus-app folder.
 It auto-opens Chrome, waits, and snaps each shot. Files land here in `instagram_content/`.
 
 Or take them manually with Windows Snipping Tool (Win + Shift + S).
