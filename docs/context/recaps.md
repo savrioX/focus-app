@@ -53,3 +53,66 @@ Note for future migrations: don't interleave prose between SQL code blocks in ch
 **Escaping.** The new `renderStarterPlan()` escapes all interpolated values (verified at runtime — injected `<img onerror>` / `<svg onload>` payloads did not execute and produced zero elements). Also retrofitted escaping onto `obShowPlan()` in `index.html`, which was building the same model-generated content with raw template literals into `innerHTML`; it reuses the existing `esc` helper at `index.html:1424`. That one is verified by static check of all six interpolations rather than at runtime, because `_obResult` is a script-scoped `let` and can't be set from the console.
 
 Still not run: `npm test` — node is still not installed on this Mac.
+
+---
+
+## 2026-09-08
+
+**Closed out the audit queue's judgment-call items, and retargeted the whole
+project to a student-entrepreneur angle** (the founder's call: the framing is
+what you're building for, not how old you are). Twelve commits, none pushed.
+
+**Security — needs the founder.** `docs/context/handoff.md` printed `CRON_SECRET`
+in full, and `github.com/savrioX/focus-app` answers 200 unauthenticated, so the
+value is public. It is the only gate on the four `/api/cron-*` handlers, each of
+which emails every user, and on `api/brain.js:66`, where presenting the secret
+lets the caller pass any `user_id` and read or write that user's brain notes via
+the service-role key. Redacted from the file, **but it is still in git history —
+rotate it in Vercel.**
+
+**Angle.** "19-year-old solo founder" is gone from both SEO pages that carried
+it, from `CLAUDE.md`, `handoff.md`, `docs/video-ideas.md`,
+`docs/marketing-strategy.md` and `docs/content-calendar.html`. Habit-pack copy
+says "student entrepreneurs" rather than "student founders". The two content
+plans also got dated banners: any hook built on "first paying customer" or
+"$100 MRR" describes a paid tier that no longer exists.
+
+**Live product fix.** `api/apex-plan.js` opened its system prompt with "You are
+Apex — the AI Chief of Staff for a 19-year-old solo founder building Compound at
+$10/month. Pre-first-paying-customer." Every user generating a plan got a model
+primed to treat them as the founder of a product with a price. Rewritten to
+address the user whose data follows, with the same no-medical-advice guard the
+index.html chat prompt already had.
+
+**Repo hygiene.** Removed the dead `HARDCODED_CODES`/`DEV_CODES` bypass from
+`api/claude.js` (BUG-02), deleted the unrouted `api/test.js`, marked BUG-03/07/08/11
+obsolete in `docs/BUGS.md` (they describe Stripe files deleted on 09-05), and
+untracked `instagram_content/.wdm/` — 51MB of Windows Edge webdriver binaries in
+a repo with no `.gitignore`. There is one now.
+
+**Portability.** The eight scripts in `instagram_content/` hardcoded
+`C:\Users\<handle>\focus-app\...` and `C:\Windows\Fonts\arial*.ttf`, so none ran
+on this Mac; they now share `instagram_content/_paths.py`, which resolves paths
+relative to itself and finds a font across macOS/Windows/Linux font dirs.
+`take_screenshots.ps1` was ported to `take_screenshots.sh` (`screencapture` +
+`open`); the other three `.bat`/`.ps1` files duplicated existing `.sh` twins and
+were deleted.
+
+**Icons.** `manifest.json` declared one 960px `logo.PNG` as 192x192, 512x512 and
+512x512-maskable. Generated a real set with `sips`; the maskable one puts the
+mark at 78% of the canvas, inside the 80% safe zone, so Android launchers stop
+cropping it.
+
+**`CLAUDE.md` goals** are no longer a ⚠️ placeholder, and the four pending
+Supabase `alter table` statements moved out of handoff.md prose into
+`migrations/2026-09-08-pending-profile-columns.sql`.
+
+Not verified: node still isn't installed on this Mac, so no `npm test` and no
+syntax check on the two edited `.js` files beyond reading them. The Python edits
+were checked with `ast.parse`; `manifest.json` and `.claude/launch.json` parse as
+JSON.
+
+Open question for the founder: `logo.PNG` — and so every icon generated from it —
+is the blue **TSJ** (The Startup Journal) mark, not Compound's purple. The site no
+longer links to Instagram at all, so the app icon now points at an account the
+site doesn't mention.
