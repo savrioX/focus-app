@@ -1,8 +1,3 @@
-const HARDCODED_CODES = ['COMPOUND19', 'APEX'];
-const DEV_CODES = [
-  ...HARDCODED_CODES,
-  ...(process.env.DEV_CODES || '').split(',').map(c => c.trim().toUpperCase()).filter(Boolean),
-];
 const DEFAULT_MODEL  = 'claude-haiku-4-5';
 // Sonnet costs ~10x Haiku — locked out until AI_ALLOW_SONNET=true is set (budget is tight).
 const ALLOWED_MODELS = new Set(
