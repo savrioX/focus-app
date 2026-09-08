@@ -35,12 +35,46 @@ health claims, no unverifiable or competitor-knocking claims.
 | 43990c6 | CLAUDE.md + agent defs: Stripe/$10 Pro/Windows path all stale, poisoning every future agent session. Commit count 71+ (actual 168) replaced with the command to check |
 | b06a065 | sitemap lastmod dates five weeks stale |
 
-## Still open — needs the founder
+## 2026-09-08 — item 8 closed, angle set
 
-- **CLAUDE.md "Current Goals"** is still a ⚠️ placeholder — the only thing left
-  that needs the founder.
-- **Positioning calls** (item 8 below): Instagram tone, repo-root marketing docs,
-  Windows leftover scripts, the maskable icon.
+The founder set the angle: **student entrepreneur**, not age. Everything under
+"Still open" below was actioned in one pass (12 commits, unpushed):
+
+- Age framing removed from both SEO pages, CLAUDE.md, handoff.md,
+  content-calendar.html, video-ideas.md and marketing-strategy.md. The two
+  content plans keep their revenue-arc hooks but carry a dated banner saying
+  those describe a paid tier that no longer exists.
+- `api/apex-plan.js`'s system prompt described *every* user as "a 19-year-old
+  solo founder building Compound at $10/month" — rewritten.
+- CLAUDE.md "Current Goals" placeholder replaced with real goals.
+- Windows leftovers deleted; `take_screenshots.ps1` ported to `.sh`; the eight
+  `instagram_content/` scripts now use `_paths.py` instead of `C:\Users\...`.
+- Maskable icon fixed — real `icon-192/512/maskable-512/180.png` set generated
+  with `sips`; the maskable one sits at 78% of canvas.
+- Dead weight removed: `api/test.js`, `HARDCODED_CODES` in `api/claude.js`,
+  and 51MB of tracked Windows webdriver binaries. A `.gitignore` now exists.
+- BUG-03/07/08/11 marked obsolete in `docs/BUGS.md`; BUG-02 marked resolved.
+
+### Still open — needs the founder
+
+1. **Rotate `CRON_SECRET` in Vercel.** It was written out in full in
+   handoff.md, in a repo that is public (github.com/savrioX/focus-app returns
+   200 unauthenticated). It gates the four `/api/cron-*` handlers, each of
+   which emails every user, and `api/brain.js:66`, where it lets the caller
+   pass any `user_id` against the service-role key. Redacted from the file —
+   still in git history, so only rotation actually closes it.
+2. **Run `migrations/2026-09-08-pending-profile-columns.sql`** in the Supabase
+   SQL Editor (todos.due_date, profiles.apex_plan, apex_plan_updated_at,
+   email_opt_in). Until then those writes 400 and are silently swallowed.
+3. **`logo.PNG` is the blue TSJ mark**, not Compound's purple — so the favicon,
+   the PWA icons and the apple-touch-icon are all The Startup Journal's logo,
+   on a site that no longer links to Instagram anywhere. Needs a Compound mark;
+   regenerating the icon set after that is one command.
+4. **Whether the repo should be public at all**, given AUDIT.md, RESEARCH.md,
+   BUGS.md and the content plans sit in it.
+5. **git history still holds** the old CRON_SECRET, the personal Windows paths,
+   and the 51MB webdriver blobs. Purging needs a filter-repo rewrite plus a
+   force push.
 
 ## Resolved 2026-09-05 — kept for context
 
