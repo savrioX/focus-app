@@ -125,7 +125,13 @@ alter table profiles add column if not exists email_opt_in boolean default false
 (Migrations for quiz_data, archetype, onboarding_plan, onboarding_at were already run.)
 
 ### Vercel env vars to confirm are set
-- `CRON_SECRET` = `9e1b6b3998719fd043f84e90031f4b798b3a9bbbe0192857e8bfb218bee1ca57`
+- `CRON_SECRET` — value redacted 2026-09-08. It was written out in full here,
+  in a **public** GitHub repo, and it is the only thing gating
+  `/api/cron-*` (mass email to every user) and the `secret` branch of
+  `/api/brain` (which then accepts any `user_id`). **Rotate it in Vercel** —
+  the old value is still in this repo's git history, so redacting the file
+  does not make it safe. Read the live value from the Vercel dashboard; do
+  not paste it back into any tracked file.
 - `ANTHROPIC_API_KEY` — must be set
 - `RESEND_API_KEY` — must be set
 - `COMPOUND_ACCOUNT_EMAIL` — **must be set.** Owner-only features (daily digest,
