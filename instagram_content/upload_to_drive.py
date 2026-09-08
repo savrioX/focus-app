@@ -15,17 +15,18 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
+import _paths
 
 # ── Config ────────────────────────────────────────────────────────
 SCOPES           = ["https://www.googleapis.com/auth/drive.file"]
-CREDS_FILE       = r"C:\Users\klszo\focus-app\instagram_content\credentials.json"
-TOKEN_FILE       = r"C:\Users\klszo\focus-app\instagram_content\token.json"
+CREDS_FILE       = _paths.path("credentials.json")
+TOKEN_FILE       = _paths.path("token.json")
 DRIVE_FOLDER     = "Compound Instagram Content"   # folder name in your Drive
 
 # Folders to upload from
 UPLOAD_DIRS = {
-    "Reels (MP4)":    r"C:\Users\klszo\focus-app\instagram_content\compound_reels",
-    "Graphics (PNG)": r"C:\Users\klszo\focus-app\instagram_content\compound_story",
+    "Reels (MP4)":    _paths.path("compound_reels"),
+    "Graphics (PNG)": _paths.path("compound_story"),
 }
 
 FORCE = "--force" in sys.argv

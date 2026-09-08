@@ -1,9 +1,10 @@
 from PIL import Image, ImageDraw, ImageFont
 import os
+import _paths
 
 W, H = 1080, 1920
-OUT  = r"C:\Users\klszo\focus-app\instagram_content"
-SS   = r"C:\Users\klszo\focus-app\instagram_content\screenshots"
+OUT  = _paths.BASE
+SS   = _paths.path("screenshots")
 
 BG      = (10, 10, 10)
 PURPLE  = (124, 58, 237)
@@ -15,9 +16,9 @@ MGREY   = (55, 55, 55)
 GREEN   = (34, 197, 94)
 GREEN_BG= (15, 45, 20)
 
-BOLD   = r"C:\Windows\Fonts\arialbd.ttf"
-REG    = r"C:\Windows\Fonts\arial.ttf"
-IMPACT = r"C:\Windows\Fonts\impact.ttf"
+BOLD   = _paths.BOLD
+REG    = _paths.REG
+IMPACT = _paths.IMPACT
 
 def f(path, size): return ImageFont.truetype(path, size)
 

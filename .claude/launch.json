@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "compound-static",
-      "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "8741", "--directory", "C:/Users/klszo/focus-app"],
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8741", "--directory", "."],
       "port": 8741
     }
   ]

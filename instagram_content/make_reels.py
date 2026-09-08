@@ -14,9 +14,10 @@ import numpy as np
 from PIL import Image, ImageFilter
 from moviepy import VideoClip
 from moviepy.video.fx import FadeIn, FadeOut
+import _paths
 
-IN_DIR  = r"C:\Users\klszo\focus-app\instagram_content\compound_story"
-OUT_DIR = r"C:\Users\klszo\focus-app\instagram_content\compound_reels"
+IN_DIR  = _paths.path("compound_story")
+OUT_DIR = _paths.path("compound_reels")
 os.makedirs(OUT_DIR, exist_ok=True)
 
 W, H = 1080, 1920

@@ -2,18 +2,16 @@
 
 ## Open Claude Code from the focus-app folder
 
-**Option A — PowerShell:**
-```powershell
-cd C:\Users\klszo\focus-app
+**Option A — Terminal:**
+```bash
+cd ~/Desktop/claude/focus-app
 claude
 ```
 
-**Option B — Quick launcher (double-click):**
-File already exists at `C:\Users\klszo\focus-app\open-claude.bat`:
-```bat
-@echo off
-cd /d C:\Users\klszo\focus-app
-claude
+**Option B — Quick launcher:**
+`open-claude.sh` in the repo root does the same thing:
+```bash
+./open-claude.sh
 ```
 
 Claude Code must start from inside this folder to load CLAUDE.md and all agent definitions automatically.

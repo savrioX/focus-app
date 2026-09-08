@@ -5,10 +5,11 @@ No series markers. No brand header. Every post works in isolation.
 """
 from PIL import Image, ImageDraw, ImageFont
 import os
+import _paths
 
 W, H  = 1080, 1920
-OUT   = r"C:\Users\klszo\focus-app\instagram_content\compound_story"
-SS    = r"C:\Users\klszo\focus-app\instagram_content\screenshots"
+OUT   = _paths.path("compound_story")
+SS    = _paths.path("screenshots")
 os.makedirs(OUT, exist_ok=True)
 
 # ── Instagram safe zone ────────────────────────────────────────────────
@@ -31,8 +32,8 @@ LGREY  = (185, 185, 185)
 RED    = (239, 68,  68)
 DRED   = (180, 40,  40)
 
-BOLD = r"C:\Windows\Fonts\arialbd.ttf"
-REG  = r"C:\Windows\Fonts\arial.ttf"
+BOLD = _paths.BOLD
+REG  = _paths.REG
 
 def f(path, size): return ImageFont.truetype(path, size)
 

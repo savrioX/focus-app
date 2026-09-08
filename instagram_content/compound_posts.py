@@ -4,10 +4,11 @@ compound_posts.py — 5 simple, bold, app-marketing posts for Compound / dailyco
 """
 from PIL import Image, ImageDraw, ImageFont
 import os, textwrap
+import _paths
 
 W, H = 1080, 1920
-OUT  = r"C:\Users\klszo\focus-app\instagram_content\compound"
-SS   = r"C:\Users\klszo\focus-app\instagram_content\screenshots"
+OUT  = _paths.path("compound")
+SS   = _paths.path("screenshots")
 os.makedirs(OUT, exist_ok=True)
 
 # ── palette ────────────────────────────────────────────────────────────────
@@ -21,8 +22,8 @@ LGREY  = (190, 190, 190)
 DGREY  = (24,  24,  24)
 CARD   = (20,  8,   52)
 
-BOLD = r"C:\Windows\Fonts\arialbd.ttf"
-REG  = r"C:\Windows\Fonts\arial.ttf"
+BOLD = _paths.BOLD
+REG  = _paths.REG
 
 def f(path, size): return ImageFont.truetype(path, size)
 

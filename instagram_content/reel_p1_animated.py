@@ -8,10 +8,11 @@ from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 from moviepy import VideoClip
 import os
+import _paths
 
 W, H = 1080, 1920
 FPS  = 30
-OUT  = r"C:\Users\klszo\focus-app\instagram_content\compound_reels\p1_animated.mp4"
+OUT  = _paths.path("compound_reels", "p1_animated.mp4")
 
 SAFE_LEFT   = 80
 SAFE_RIGHT  = W - 140
@@ -27,8 +28,8 @@ GREY   = (110, 110, 110)
 LGREY  = (185, 185, 185)
 BG     = (8,   8,   8)
 
-BOLD = r"C:\Windows\Fonts\arialbd.ttf"
-REG  = r"C:\Windows\Fonts\arial.ttf"
+BOLD = _paths.BOLD
+REG  = _paths.REG
 
 def f(path, size): return ImageFont.truetype(path, size)
 def lh(fnt, gap=16):

@@ -5,10 +5,11 @@ Fixed: full-height gradients, no empty space, no emoji, no payment refs,
 """
 from PIL import Image, ImageDraw, ImageFont
 import os, textwrap
+import _paths
 
 W, H = 1080, 1920
-OUT  = r"C:\Users\klszo\focus-app\instagram_content\story"
-SS   = r"C:\Users\klszo\focus-app\instagram_content\screenshots"
+OUT  = _paths.path("story")
+SS   = _paths.path("screenshots")
 os.makedirs(OUT, exist_ok=True)
 
 # ── palette ────────────────────────────────────────────────────────────────
@@ -27,9 +28,9 @@ RED     = (239, 68,  68)
 REDBG   = (42,  8,   8)
 CARD    = (48,  16,  108)
 
-BOLD   = r"C:\Windows\Fonts\arialbd.ttf"
-REG    = r"C:\Windows\Fonts\arial.ttf"
-IMPACT = r"C:\Windows\Fonts\impact.ttf"
+BOLD   = _paths.BOLD
+REG    = _paths.REG
+IMPACT = _paths.IMPACT
 
 # ── helpers ────────────────────────────────────────────────────────────────
 def f(path, size): return ImageFont.truetype(path, size)

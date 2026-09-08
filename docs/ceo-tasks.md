@@ -88,7 +88,7 @@
 
 2. Add null guards for `age-check-wrap` and `age-check` elements in `syncAuthUI`.
 
-**Files:** `C:/Users/klszo/focus-app/index.html` only.
+**Files:** `index.html` only.
 
 **Assigned to:** it-dev
 **Review:** voice-of-reason
@@ -110,7 +110,7 @@
 
 **Fix:** Solid purple background + white text on `#btn-unlock-ai` for non-Pro users. Recede to muted style when Pro (as currently coded).
 
-**Files:** `C:/Users/klszo/focus-app/index.html`
+**Files:** `index.html`
 **Assigned to:** it-dev (CEO executing directly)
 **Review:** voice-of-reason
 **Status:** In progress
