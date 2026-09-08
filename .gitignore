@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Secrets — never commit these
+.env
+.env.*
+instagram_content/credentials.json
+instagram_content/token.json
+
+# Tool caches
+.wdm/
+instagram_content/.wdm/
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
