@@ -1,15 +1,19 @@
 # Compound × The Startup Journal — Marketing Strategy
 *Written 2026-06-12. The single source of truth for positioning, audience, and content. All agents producing content load this.*
 
+> **Amended 2026-09-08.** The angle is *student entrepreneur*, not "19-year-old";
+> age-anchored lines were rewritten. Anything below that assumes a paid tier or
+> a revenue arc is superseded — Compound is free, with no billing.
+
 ---
 
 ## 1. The Angle (one sentence)
 
-**"I'm 19, building a startup in public with AI — and the product I'm selling is the exact system I use to do it."**
+**"I'm a student building a startup in public with AI — and the product I'm giving away is the exact system I use to do it."**
 
 This is the unfair advantage no competitor has: the founder IS the case study. Every progress post is simultaneously content AND product proof. Notion can't post "day 34 of using Notion to build Notion." You can.
 
-The arc people follow: **$0 → first paying customer, documented daily.** The app is the supporting character in that story, not the story itself.
+The arc people follow: **building it in the open, documented daily.** The app is the supporting character in that story, not the story itself. (The original arc here was "$0 → first paying customer"; there is no paid tier any more, so the story is the build and the users, not the revenue.)
 
 ### What this replaces
 - ❌ "Running real experiments... AI trading bots, businesses, skills — whatever works" (current bio — scattered, no single promise)
@@ -92,7 +96,7 @@ These are exactly what the Aspiring Builder saves and shares: proof that buildin
 - "I can't really code. My app is live with paying infrastructure. Here's how."
 
 **System hooks**
-- "How a 19-year-old with classes, a startup, and a gym habit plans his day in 90 seconds."
+- "How a student entrepreneur with classes, a startup, and a training habit plans a day in 90 seconds."
 - "I built an AI that knows my goals, my streaks, and my excuses."
 - "You don't need discipline. You need a system that assumes you have none."
 - "My morning briefing roasted me today. Look what it said."
@@ -268,7 +272,7 @@ Based on Systeme.io (60-70% of revenue from affiliates) and Marc Lou (ShipFast):
 - [ ] Build warm list: friends, app users, Instagram followers who opted in (target 200+)
 - [ ] Produce 45-60s demo video (show your face + real product — the #1 ranking factor)
 - [ ] Design 5-8 gallery images (1270×760px, outcome-focused, not feature screenshots)
-- [ ] Write tagline: 60 chars, outcome first: "The focus system 19-year-old founders actually use"
+- [ ] Write tagline: 60 chars, outcome first: "The focus system student founders actually use"
 - [ ] Write maker's first comment: personal story, what you built, why, invite feedback
 - [ ] Find a PH hunter with 1,000+ followers in your space (DM from Twitter/X)
 - [ ] Check hunted.space the week before — avoid launching against major AI company drops

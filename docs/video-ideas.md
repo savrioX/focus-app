@@ -3,6 +3,13 @@
 **Format:** Vertical 9:16 | 1080x1920 | Post TikTok first, Instagram 24-48h later
 **Target:** Aspiring Builders (16-24, student/early-career, wants to be a founder)
 
+> **Read this first (2026-09-08).** Two things below are superseded. (1) The
+> angle is *student entrepreneur*, not age — age-anchored hooks were rewritten.
+> (2) Any hook built on revenue — "first paying customer", "first dollar",
+> "$100 MRR" — describes a paid tier that no longer exists. Compound is free
+> and has no billing. Re-aim those at signups, retention, or the
+> deleted-the-paywall story before filming.
+
 ---
 
 ## NEXT 2 VIDEOS (Priority)
@@ -81,7 +88,7 @@ This is what 19 looks like in 2026.
 1. "YCombinator just quietly changed the game and nobody explained it right." *(contrarian + urgency)*
 2. "YC isn't funding apps anymore. They're funding AI that replaces people. Here's what that means." *(bold claim)*
 3. "The YC batch that changes everything: free agents are here." *(timeliness + open loop)*
-4. "I'm a 19-year-old building an app. YC just announced they want to fund what I'm doing. Here's why." *(personal stakes)*
+4. "I'm a student building an app. YC just announced they want to fund what I'm doing. Here's why." *(personal stakes)*
 5. **"Hot take: YC's 'free agents' trend means solo founders like me are the new YC company."** *(RECOMMENDED — uniquely yours)*
 
 **Optimal length: 18-30 seconds** — hot takes live or die fast, land it and leave
@@ -199,7 +206,7 @@ Day [X]. $0 MRR. Still building.
 
 ### VIDEO 9: Morning Routine in 90 Seconds (System Pillar)
 
-**Hook:** "How a 19-year-old running a startup plans his entire day in 90 seconds."
+**Hook:** "How a student entrepreneur plans an entire day in 90 seconds."
 **Format:** POV screen recording of opening Compound. Real usage. 45s.
 **Content:** Open Compound → review goals → check habit streaks → type one thing to Apex → close app. "That's it. No 4-hour morning routine. 90 seconds and I know exactly what matters today."
 
@@ -294,7 +301,7 @@ Comment PLAYBOOK and I'll send you the full stack.
 2. "Y Combinator funded a virtual human to run a startup. I've been doing this since [date]." *(contrarian credibility)*
 3. "The startup world just caught up to what I'm already doing at 19." *(confident + identity)*
 4. "YC called it groundbreaking. I called it Tuesday." *(punchy, quotable)*
-5. **"YC funded an AI founder. I'm a 19-year-old with the same setup — and I'm building in public."** *(RECOMMENDED — timely + personal stakes + build-in-public hook)*
+5. **"YC funded an AI founder. I'm a student with the same setup — and I'm building in public."** *(RECOMMENDED — timely + personal stakes + build-in-public hook)*
 
 **Script:**
 
@@ -357,7 +364,7 @@ Day [X]. We'll see.
 **Format:** POV/day-in-life, phone-filmed, minimal editing. Show real screen, real numbers. Film across the actual day — morning, working session, end of day reveal.
 
 **Researched Hook Variants (pick one):**
-1. "Day in my life as a 19-year-old founder trying to get 50 signups with $0 ads." *(specific goal + zero budget = stakes)*
+1. "Day in my life as a student founder trying to get 50 signups with $0 ads." *(specific goal + zero budget = stakes)*
 2. "I'm spending today trying to grow my startup from [X] to [X+50] users. No ads. Watch what happens." *(open loop — people wait for the result)*
 3. "Every day I wake up and try to grow a startup with literally $0 in marketing budget. Here's today." *(serial format — implies they should follow for tomorrow)*
 4. **"Day [X] of trying to hit my first 1,000 users. $0 spent on ads. Here's what I did today."** *(RECOMMENDED — ongoing series, milestone makes it feel like a journey, zero-ad angle resonates with broke Aspiring Builders)*
@@ -682,9 +689,9 @@ Save this if you're building something too.
 **Researched Hook Variants (pick one):**
 1. "I'm giving myself 30 days to get my first paying customer. I'm posting updates every 3 days." *(RECOMMENDED — most direct, clear stakes, explicit commitment to future content)*
 2. "Public accountability post: I need to go from $0 to $100 MRR in the next 30 days. Watch." *(results-first but future-tense — creates suspense)*
-3. "I'm 19, I've been building for 6 months, and I still haven't charged anyone. That ends this month." *(vulnerability hook — relatable to every early founder)*
+3. "I've been building for 6 months and never charged anyone — and I've decided I never will. Here's the reasoning." *(vulnerability hook — relatable to every early founder)*
 4. "30 days. First paying customer. I'm filming every step." *(ultra-short — punchy, works on TikTok where scroll speed is highest)*
-5. "What happens when a 19-year-old solo founder sets a 30-day deadline for his first dollar? Let's find out." *(narrative frame — good for Instagram over TikTok)*
+5. "What happens when a student founder gives themselves 30 days to hit a hard signup target? Let's find out." *(narrative frame — good for Instagram over TikTok)*
 
 **Script (the kickoff post — film this first, updates follow naturally):**
 
