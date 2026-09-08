@@ -1,6 +1,10 @@
 # COMPOUND — Bug Report
 
-Adversarial QA audit. Discovery only — no fixes applied. All findings are in the state found.
+Adversarial QA audit. Discovery only — no fixes applied. All findings are in the state
+found, **except** where an entry carries a RESOLVED or OBSOLETE line: the Pro tier
+and the whole Stripe integration were removed on 2026-09-05, so BUG-03, BUG-07,
+BUG-08 and BUG-11 describe files that no longer exist. Open bugs are the ones
+with no such marker.
 
 Severity guide: **P0** = broken in production right now | **P1** = major data/security | **P2** = user-facing correctness | **P3** = minor / edge case
 
@@ -45,6 +49,11 @@ The GET endpoint (`GET /api/onboarding-plan`) also fails silently: it selects `a
 
 ### BUG-02 · Hardcoded Pro bypass codes in API source — no session required
 
+**RESOLVED 2026-09-08.** `HARDCODED_CODES`/`DEV_CODES` were deleted from
+`api/claude.js`. There is no Pro tier to bypass, and `/api/claude` now requires
+a valid Supabase bearer token plus the shared 15/day cap. Note the old strings
+remain in git history.
+
 **File:** `api/claude.js`, lines 1–2  
 **Reproduction:**
 ```bash
@@ -63,6 +72,10 @@ The comment in the frontend (`applyCode`) says "valid codes must never ship in t
 ---
 
 ### BUG-03 · `create-checkout.js` has no authentication
+
+**OBSOLETE 2026-09-05.** `api/create-checkout.js` was deleted along with the
+other two Stripe endpoints and their `vercel.json` routes. The unauthenticated
+POST described below is no longer reachable. Kept for history.
 
 **File:** `api/create-checkout.js`  
 **Reproduction:**
@@ -141,6 +154,10 @@ function prevDay(d) {
 
 ### BUG-07 · `setProById()` in Stripe webhook doesn't check upsert response status
 
+**OBSOLETE 2026-09-05.** `api/stripe-webhook.js` was deleted with the rest of
+the Stripe integration; there is no paid tier and no billing code left in the
+product. Kept for history — nothing to fix.
+
 **File:** `api/stripe-webhook.js`, `setProById()` function  
 **Reproduction:** Cause a Supabase transient error (e.g., DB overloaded) during a successful Stripe payment.
 
@@ -155,6 +172,10 @@ If the Supabase upsert returns 400/500 (e.g., profile row doesn't exist yet, or 
 ---
 
 ### BUG-08 · Stripe webhook `checkout.session.completed` doesn't guard against null `client_reference_id`
+
+**OBSOLETE 2026-09-05.** `api/stripe-webhook.js` was deleted with the rest of
+the Stripe integration; there is no paid tier and no billing code left in the
+product. Kept for history — nothing to fix.
 
 **File:** `api/stripe-webhook.js`, `checkout.session.completed` handler  
 **Reproduction:** Create a Stripe checkout session without `client_reference_id` (e.g., a session created directly in Stripe dashboard).
@@ -196,6 +217,10 @@ if (!localStorage.getItem('compound_onboarded') && habits.length === 0 && goals.
 
 ### BUG-11 · `invoice.paid` Stripe webhook can race ahead of profile row with `stripe_customer_id`
 
+**OBSOLETE 2026-09-05.** `api/stripe-webhook.js` was deleted with the rest of
+the Stripe integration; there is no paid tier and no billing code left in the
+product. Kept for history — nothing to fix.
+
 **File:** `api/stripe-webhook.js`, `invoice.paid` handler  
 Stripe event ordering is not guaranteed. If `invoice.paid` fires before `checkout.session.completed` (or before the Supabase upsert in `setProById` completes), the PATCH:
 ```js
@@ -220,12 +245,12 @@ history — see `docs/context/website-improvements.md`.
 | Rank | Bug | Severity | Users hit |
 |:-----|:----|:---------|:----------|
 | 1 | BUG-01 Migrations not run — onboarding plan never saved | P0 | 100% of new users |
-| 2 | BUG-02 Hardcoded Pro bypass codes (`COMPOUND19`/`APEX`) | P1 | Anyone who finds them |
+| 2 | ~~BUG-02 Hardcoded Pro bypass codes~~ — resolved 2026-09-08 | — | none |
 | 3 | BUG-06 `prevDay()` UTC bug — wrong streaks for UTC+ users | P2 | ~60% of world (Europe, Asia) |
 | 4 | BUG-05 Apex `renderPlan()` XSS via unescaped innerHTML | P2 | Any Pro user if AI injected |
 | 5 | BUG-04 `obShowPlan()` XSS via unescaped plan innerHTML | P2 | Any user after onboarding |
-| 6 | BUG-07 Stripe upsert result unchecked — silent Pro failure | P2 | Any user on Stripe edge case |
-| 7 | BUG-03 `create-checkout` no auth | P1 | Low real-world impact but architectural gap |
-| 8 | BUG-08 Null `client_reference_id` in Stripe webhook | P2 | Edge case / manual Stripe sessions |
+| 6 | ~~BUG-07 Stripe upsert result unchecked~~ — obsolete, Stripe removed | — | none |
+| 7 | ~~BUG-03 `create-checkout` no auth~~ — obsolete, endpoint deleted | — | none |
+| 8 | ~~BUG-08 Null `client_reference_id`~~ — obsolete, Stripe removed | — | none |
 | 9 | BUG-10 Onboarding re-triggers on new device — plan overwrite | P3 | Multi-device users |
 | 10 | BUG-09 Wildcard CORS on Brain API | P3 | Low — requires token exfil first |
