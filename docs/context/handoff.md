@@ -10,7 +10,7 @@ Read this at the start of every session. It replaces needing to catch up from sc
 
 ## Who You're Talking To
 
-**the founder** — 19-year-old solo founder, Windows 11 (now also Mac).
+**the founder** — solo founder, student entrepreneur. macOS (was Windows 11).
 - Wants **production-ready output**, not options or explanations
 - Moves fast, speaks directly — match that energy
 - No fluff. Deliver results.
@@ -116,12 +116,11 @@ Reduced from 10 → 5 questions. Fixed multi-select deselection bug.
 ## Pending Items (Not Done Yet)
 
 ### Supabase SQL — run in Supabase Dashboard → SQL Editor
-```sql
-alter table todos add column if not exists due_date date;
-alter table profiles add column if not exists apex_plan jsonb;
-alter table profiles add column if not exists apex_plan_updated_at timestamptz;
-alter table profiles add column if not exists email_opt_in boolean default false;
-```
+Paste `migrations/2026-09-08-pending-profile-columns.sql` (todos.due_date,
+profiles.apex_plan, profiles.apex_plan_updated_at, profiles.email_opt_in). Every
+statement is `if not exists`, so it is safe to run whether or not some were
+already applied.
+
 (Migrations for quiz_data, archetype, onboarding_plan, onboarding_at were already run.)
 
 ### Vercel env vars to confirm are set
