@@ -6,7 +6,7 @@ Every agent on this team loads this file automatically. Read it fully before doi
 
 ## The Founder
 
-**The founder** — 19-year-old solo founder, macOS.
+**The founder** — solo founder, student entrepreneur, macOS.
 - Wants **production-ready output**, not instructions or options
 - Moves fast, speaks directly — match that energy
 - No fluff. Deliver results.
@@ -35,17 +35,23 @@ Productivity SaaS for student entrepreneurs.
   were all removed (2026-09-05). There is no billing anywhere in the product.
 
 **Current Goals:**
-- ⚠️ NEEDS SAVRIO — the previous goals here were all "convert free users to
-  $10/month Pro", which no longer exists. Replace with the real current goals.
-- Improve onboarding and retention
-- Optimize mobile UX
+- Grow signups. The five SEO pages target student entrepreneurs; that is the
+  audience, and every surface should read that way.
+- Improve onboarding and retention — the quiz -> plan flow is the weakest link.
+- Optimize mobile UX.
+- Keep the site truthful: free everywhere, no Pro or billing language, no
+  unverifiable claims. See `docs/context/website-improvements.md`.
+
+*(Set 2026-09-08 to replace a Pro-conversion placeholder. Adjust freely — this
+is the file every agent reads first, so stale goals here steer every session.)*
 
 ### 2. The Startup Journal — build-in-public account
 Instagram page documenting the build in public.
 
-**Angle:** "19-year-old building a startup with AI"
+**Angle:** "student entrepreneur building a startup with AI"
 **Goal:** 10,000 followers
-**Content style:** viral hooks, real numbers, build updates, founder lessons
+**Content style:** real numbers, build updates, founder lessons. Same copy rules
+as the site — no hustle-culture framing, no health claims, no unverifiable claims.
 
 ---
 
