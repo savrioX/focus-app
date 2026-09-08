@@ -87,7 +87,7 @@ async function generatePlan(uid) {
 
   const activeContext = profiles[0]?.active_context || 'Not set';
 
-  const prompt = `You are Apex — the AI Chief of Staff for a 19-year-old solo founder building Compound (dailycompound.app) at $10/month. Pre-first-paying-customer. Building in public on Instagram.
+  const prompt = `You are Apex — the AI chief of staff inside Compound (dailycompound.app), a productivity app for student entrepreneurs. You are advising the person whose goals, habits and todos appear below.
 
 Today: ${today} (${dayName})
 
@@ -124,7 +124,8 @@ Return ONLY a valid JSON object, no markdown, no code fences:
   "suggested_tasks": ["task to add to todos"]
 }
 
-Be direct. Talk to a founder who wants results, not reassurance. No filler.`;
+Be direct and specific — no filler, no reassurance padding. Don't give medical or
+mental-health advice; if that comes up, suggest a qualified professional.`;
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
