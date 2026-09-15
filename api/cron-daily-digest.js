@@ -42,26 +42,28 @@ async function getNewUsersToday() {
 }
 
 async function getVercelViews() {
-  // Vercel Analytics API — requires VERCEL_TOKEN + VERCEL_PROJECT_ID env vars
+  // Vercel Analytics API — requires VERCEL_TOKEN + VERCEL_PROJECT_ID (+ VERCEL_TEAM_ID for team projects)
   const token     = process.env.VERCEL_TOKEN;
   const projectId = process.env.VERCEL_PROJECT_ID;
+  const teamId    = process.env.VERCEL_TEAM_ID;
   if (!token || !projectId) return null;
 
+  // API floors to UTC days; since=until=D covers all of day D (00:00 to 24:00 UTC)
   const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  const from = yesterday.toISOString().split('T')[0];
-  const to   = new Date().toISOString().split('T')[0];
+  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+  const day    = yesterday.toISOString().split('T')[0];
+  const filter = encodeURIComponent("environment eq 'production'");
 
   try {
     const res = await fetch(
-      `https://vercel.com/api/web-analytics/timeseries?projectId=${projectId}&from=${from}&to=${to}&environment=production`,
+      `https://api.vercel.com/v1/query/web-analytics/visits/count?projectId=${projectId}${teamId ? `&teamId=${teamId}` : ''}&since=${day}&until=${day}&filter=${filter}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     if (!res.ok) return null;
     const data = await res.json();
-    // Sum all page view events across the timeseries
-    const series = data?.data || [];
-    return series.reduce((sum, pt) => sum + (pt.pageViews || pt.views || 0), 0);
+    // Response: { data: { visitors, pageviews } }
+    const views = data?.data?.pageviews;
+    return typeof views === 'number' ? views : null;
   } catch (_) {
     return null;
   }
@@ -124,7 +126,7 @@ function digestHtml({ totalUsers, newToday, views, date }) {
           <tr>
             <td style="padding:24px 0 0 0;border-top:1px solid #f0f0f0;margin-top:24px;">
               <p style="margin:12px 0 0 0;font-size:11px;color:#d4d4d8;line-height:1.6;">
-                * To enable website view counts, add <strong>VERCEL_TOKEN</strong> and <strong>VERCEL_PROJECT_ID</strong> to your Vercel environment variables.
+                * To enable website view counts, add <strong>VERCEL_TOKEN</strong>, <strong>VERCEL_PROJECT_ID</strong> and <strong>VERCEL_TEAM_ID</strong> to your Vercel environment variables.
               </p>
             </td>
           </tr>` : ''}

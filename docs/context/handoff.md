@@ -136,10 +136,11 @@ already applied.
 - `COMPOUND_ACCOUNT_EMAIL` — **must be set.** Owner-only features (daily digest,
   morning briefing, brain API) read it; there is no hardcoded fallback.
 - `EMAIL_FROM` — optional, defaults to `Compound <hello@dailycompound.app>`
-- `VERCEL_TOKEN` + `VERCEL_PROJECT_ID` — **not set.** This is why the daily
-  digest says "Website views: Not configured". Web Analytics itself *is* enabled
-  and tracking fine (`/_vercel/insights/script.js` returns 200) — only the
-  digest's API read is missing credentials.
+- `VERCEL_TOKEN` + `VERCEL_PROJECT_ID` + `VERCEL_TEAM_ID` — **not set.** This is
+  why the daily digest says "Website views: Not configured". Web Analytics itself
+  *is* enabled and tracking fine (`/_vercel/insights/script.js` returns 200) — only
+  the digest's API read is missing credentials. `VERCEL_TEAM_ID` is needed alongside
+  the other two (the digest appends `teamId` to the analytics query when it is set).
 - `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` — no longer needed
 
 ### Landing page / growth follow-ups
