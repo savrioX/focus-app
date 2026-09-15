@@ -116,3 +116,24 @@ Open question for the founder: `logo.PNG` — and so every icon generated from i
 is the blue **TSJ** (The Startup Journal) mark, not Compound's purple. The site no
 longer links to Instagram at all, so the app icon now points at an account the
 site doesn't mention.
+
+---
+
+## 2026-09-15
+
+**Fix pass + PR test, run as an agent team** (founder asked for agent teams explicitly, overriding handoff rule 3 for this session). Everything is on branch `site-fixes-2026-09-15` — pushed as a branch only; `main`/production untouched. It carries the 16 unpushed 2026-09-08 commits plus:
+
+- `3929901` Daily digest "Website views" fixed: it called a nonexistent Vercel endpoint. Now uses `api.vercel.com/v1/query/web-analytics/visits/count` (`since`/`until`, whole UTC days, `filter=environment eq 'production'`). **Needs `VERCEL_TOKEN`, `VERCEL_PROJECT_ID`, `VERCEL_TEAM_ID` in Vercel env.**
+- `f2946c6` Pricing card: "everything I use to run my own startup" → "every feature in the app".
+- `b09071c` `twitter:card` → `summary` on pricing + 5 SEO pages (square og:image), matching index.
+- `313287a` Sitemap lastmod dates corrected against git history.
+- `80c3202` `logo.PNG` was JPEG bytes served as `image/png`; re-encoded as real PNG, same image.
+- `5e5ceb2` `.claude/worktrees/` gitignored.
+
+**Preview test of 313287a** (headless, via a Vercel automation-bypass secret the founder approved): all 27 page URLs 200; unknown paths serve the custom 404; manifest/sw.js (`Service-Worker-Allowed: /`)/robots/sitemap/icons OK; every internal link resolves; `/api/claude|brain|apex-plan|onboarding-plan|email-welcome` all return 4xx unauthenticated, no 5xx; no Pro/$10/Stripe copy; JSON-LD parses; canonical = og:url; apex/ledger/brain noindexed; no repo files (handoff.md, .env, schema.sql, migrations, .git) are served; only anon Supabase keys in pages. Cron routes were deliberately never called.
+
+**Not acted on (judgment calls):** anonymous first-person "— Founder" quote on the landing page (index.html ~790); dead `?pro=success` toast handler (index.html ~1803); no security headers besides HSTS; unknown `/api/*` returns HTML 404 not JSON; logo is still the TSJ mark.
+
+**Gotcha:** Agent worktrees branch from `origin/main`, not local HEAD — one agent's copy had the pre-redaction handoff.md. Check merge-base before merging agent commits.
+
+**PR not opened by Claude:** gh on this Mac is `vsf4046-web`, not a collaborator on savrioX/focus-app.
